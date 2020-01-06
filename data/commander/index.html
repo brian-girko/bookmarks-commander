@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="index.css">
+  <meta charset="utf-8">
+</head>
+<body>
+  <div id="directories">
+    <label data-id="left">
+      <input type="radio" name="view">
+      <directory-view id="directory-view-1"></directory-view>
+    </label>
+    <label data-id="right">
+      <input type="radio" name="view">
+      <directory-view id="directory-view-2"></directory-view>
+    </label>
+  </div>
+  <tools-view id="tools-view"></tools-view>
+
+  <script type="module" src="components/directory-view/list-view.js"></script>
+  <script type="module" src="components/directory-view/path-view.js"></script>
+  <script type="module" src="components/directory-view.js"></script>
+  <script type="module" src="components/tools-view.js"></script>
+  <script type="module" src="engine.js"></script>
+  <script type="module" src="index.js"></script>
+</body>
+</html>
