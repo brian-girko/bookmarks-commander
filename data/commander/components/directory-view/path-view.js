@@ -19,7 +19,7 @@ class PathView extends HTMLElement {
           background-color: #f3f3f3;
           border: solid 1px #afafaf;
           margin: 0 2px 2px 0;
-          padding: 2px 5px;
+          padding: 5px;
           cursor: pointer;
           max-width: 100px;
           overflow: hidden;
@@ -28,10 +28,6 @@ class PathView extends HTMLElement {
         input:checked + label {
           min-width: fit-content;
           font-weight: bold;
-        }
-        :host-context(.active) input:checked + label {
-          border-color: #1b507a;
-          background-color: #c0e7ff;
         }
         input[type=radio] {
           display: none;

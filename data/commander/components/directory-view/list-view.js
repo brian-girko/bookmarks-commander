@@ -7,7 +7,7 @@ class ListView extends HTMLElement {
     shadow.innerHTML = `
       <style>
         :host {
-          border: solid 1px #848484;
+          border: solid 1px #afafaf;
           user-select: none;
         }
         :host(.active) {

@@ -146,7 +146,6 @@ document.addEventListener('DOMContentLoaded', engine.storage.get({
 }));
 /* on command */
 const command = async command => {
-  console.log(command);
   const view = views.active();
   if (view) {
     const entries = view.entries();
@@ -249,6 +248,9 @@ const command = async command => {
         });
       }
       views.update();
+    }
+    else if (command === 'mirror') {
+      views[view === views.left ? 'right' : 'left'].build(view.id());
     }
   }
 };

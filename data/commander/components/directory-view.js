@@ -42,7 +42,7 @@ class DirectoryView extends HTMLElement {
       cache.unshift(node);
     }
     cache.unshift({
-      title: 'root',
+      title: '/',
       id: engine.bookmarks.rootID
     });
 

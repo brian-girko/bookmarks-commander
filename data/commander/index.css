@@ -24,7 +24,7 @@ directory-view {
   flex: 1;
   overflow: hidden;
 }
-directory-view:not(first-child) {
+label:not(:first-child) directory-view {
   margin-left: 2px;
 }
 tools-view {
