@@ -100,6 +100,9 @@ class DirectoryView extends HTMLElement {
   isRoot() {
     return engine.bookmarks.isRoot(this.id());
   }
+  navigate(direction = 'forward') {
+    this.listView[direction === 'forward' ? 'next' : 'previous']();
+  }
   static get observedAttributes() {
     return ['path'];
   }

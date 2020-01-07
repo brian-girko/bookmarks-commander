@@ -134,7 +134,7 @@ class ToolsView extends HTMLElement {
     else if (e.code === 'ArrowRight' && meta) {
       command = 'move-right';
     }
-    else if (e.code === 'Delete' && meta) {
+    else if ((e.code === 'Delete' || e.code === 'Backspace') && meta) {
       command = 'trash';
     }
     else if (e.code === 'KeyO' && meta) {

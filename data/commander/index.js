@@ -235,6 +235,7 @@ const command = async command => {
       }, engine.notify);
     }
     else if (command === 'trash') {
+      view.navigate('previous');
       for (const entry of entries) {
         await engine.bookmarks.remove(entry.id).catch(e => {
           if (entry.type === 'DIRECTORY') {

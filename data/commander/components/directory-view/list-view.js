@@ -114,7 +114,6 @@ class ListView extends HTMLElement {
     });
     // to prevent conflict with command access
     shadow.addEventListener('keyup', e => {
-      console.log(e);
       if (e.code === 'Enter') {
         const entries = this.entries();
         if (entries.length) {
@@ -148,18 +147,28 @@ class ListView extends HTMLElement {
     // keyboard navigation
     shadow.addEventListener('keydown', e => {
       if (e.key === 'ArrowDown') {
-        const e = this.content.querySelector('.entry[data-selected=true] + .entry');
-        if (e) {
-          e.click();
-        }
+        this.next(e.metaKey);
       }
       else if (e.key === 'ArrowUp') {
-        const e = this.content.querySelector('.entry:not(.hr) + .entry[data-selected=true]');
-        if (e) {
-          e.previousElementSibling.click();
-        }
+        this.previous(e.metaKey);
       }
     });
+  }
+  previous(metaKey = false) {
+    const e = this.content.querySelector('.entry:not(.hr) + .entry[data-selected=true]');
+    if (e) {
+      const event = document.createEvent('MouseEvent');
+      event.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, metaKey, false, false, metaKey, 0, null);
+      e.previousElementSibling.dispatchEvent(event);
+    }
+  }
+  next(metaKey = false) {
+    const e = [...this.content.querySelectorAll('.entry[data-selected=true] + .entry')].pop();
+    if (e) {
+      const event = document.createEvent('MouseEvent');
+      event.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, metaKey, false, false, metaKey, 0, null);
+      e.dispatchEvent(event);
+    }
   }
   items() {
     return [...this.content.querySelectorAll('[data-selected=true]')];
