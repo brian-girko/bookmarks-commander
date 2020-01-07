@@ -83,10 +83,16 @@ const bookmarks = {
 
 const tabs = {
   create(o) {
-    chrome.tabs.create(o);
+    return new Promise(resolve => chrome.tabs.create(o, resolve));
   },
   update(id, o) {
-    chrome.tabs.update(id, o);
+    return new Promise(resolve => chrome.tabs.update(id, o, resolve));
+  },
+  active() {
+    return new Promise((resolve, reject) => chrome.tabs.query({
+      active: true,
+      windowType: 'normal'
+    }, tabs => tabs.length ? resolve(tabs[0]) : reject(Error('no active tab'))));
   }
 };
 

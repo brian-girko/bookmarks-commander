@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "name": "Bookmarks Commander",
-  "description": "A two-panel bookmarks manager which is similar to the well-known Total Commander.",
+  "description": "A fast two-panel bookmarks manager which is similar to NC or Total Commander.",
   "permissions": [
     "bookmarks",
     "contextMenus",
@@ -10,8 +10,9 @@
     "storage",
     "chrome://favicon/*",
     "clipboardWrite"
-   ],
-   "background": {
+  ],
+  "homepage_url": "https://add0n.com/bookmarks-commander.html",
+  "background": {
     "persistent": false,
     "scripts": [
       "background.js"

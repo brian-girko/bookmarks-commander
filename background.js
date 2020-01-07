@@ -38,7 +38,7 @@ chrome.browserAction.onClicked.addListener(() => {
           'window.top': screen.availTop + Math.round((screen.availHeight - 500) / 2)
         }, prefs => {
           chrome.windows.create({
-            url: chrome.extension.getURL('data/commander/index.html'),
+            url: chrome.extension.getURL('data/commander/index.html?mode=window'),
             width: prefs['window.width'],
             height: prefs['window.height'],
             left: prefs['window.left'],
@@ -80,7 +80,7 @@ chrome.browserAction.onClicked.addListener(() => {
     });
     if (prefs.mode === 'popup') {
       chrome.browserAction.setPopup({
-        popup: `data/commander/index.html?width=${prefs['popup.width']}&height=${prefs['popup.height']}`
+        popup: `data/commander/index.html?mode=popup&width=${prefs['popup.width']}&height=${prefs['popup.height']}`
       });
     }
   });
@@ -103,9 +103,35 @@ chrome.storage.onChanged.addListener(ps => {
     }, prefs => {
       chrome.browserAction.setPopup({
         popup: ps.mode.newValue === 'popup' ?
-          `data/commander/index.html?width=${prefs['popup.width']}&height=${prefs['popup.height']}` :
+          `data/commander/index.html?mode=popup&width=${prefs['popup.width']}&height=${prefs['popup.height']}` :
           ''
       });
     });
   }
 });
+// FAQs and Feedback
+{
+  const {onInstalled, setUninstallURL, getManifest} = chrome.runtime;
+  const {name, version} = getManifest();
+  const page = getManifest().homepage_url;
+  onInstalled.addListener(({reason, previousVersion}) => {
+    chrome.storage.local.get({
+      'faqs': true,
+      'last-update': 0
+    }, prefs => {
+      if (reason === 'install' || (prefs.faqs && reason === 'update')) {
+        const doUpdate = (Date.now() - prefs['last-update']) / 1000 / 60 / 60 / 24 > 45;
+        if (doUpdate && previousVersion !== version) {
+          chrome.tabs.create({
+            url: page + '?version=' + version +
+              (previousVersion ? '&p=' + previousVersion : '') +
+              '&type=' + reason,
+            active: reason === 'install'
+          });
+          chrome.storage.local.set({'last-update': Date.now()});
+        }
+      }
+    });
+  });
+  setUninstallURL(page + '?rd=feedback&name=' + encodeURIComponent(name) + '&version=' + version);
+}

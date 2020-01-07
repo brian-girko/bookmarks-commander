@@ -40,9 +40,18 @@ document.addEventListener('directory-view:submit', e => {
         });
       }
       else {
-        engine.tabs.update(undefined, {
-          url: o.url
-        });
+        if (args.get('mode') === 'window') {
+          engine.tabs.active().then(tab => engine.tabs.update(tab.id, {
+            url: o.url
+          })).catch(() => engine.tabs.create({
+            url: o.url
+          })).finally(() => window.close());
+        }
+        else {
+          engine.tabs.update(undefined, {
+            url: o.url
+          });
+        }
       }
     }
   });
@@ -201,20 +210,19 @@ const command = async command => {
         index: Number(entry.index) + 1
       };
       if (command === 'new-file') {
-        const [title, url] = (window.prompt(
-          'New Bookmark',
-          entry.title + ',' + (entry.url || 'https://www.example.com')
-        ) || '').split(',').map(a => a.trim());
-        if (title && url) {
-          o.title = title;
-          o.url = url;
-        }
-        else {
+        const title = (window.prompt('Title of New Bookmark', entry.title) || '').trim();
+        if (!title) {
           return;
         }
+        o.title = title;
+        const url = (window.prompt('URL of New Bookmark', entry.url || 'https://www.example.com') || '').trim();
+        if (!url) {
+          return;
+        }
+        o.url = url;
       }
       else {
-        const title = ('' || window.prompt('New Directory', entry.title)).trim();
+        const title = ('' || window.prompt('Title of New Directory', entry.title)).trim();
         if (title) {
           o.title = title;
         }

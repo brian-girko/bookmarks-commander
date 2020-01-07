@@ -87,7 +87,7 @@ class ListView extends HTMLElement {
     this.content.addEventListener('blur', () => this.classList.remove('active'));
 
     this.config = {
-      remote: true
+      remote: false
     };
 
     shadow.addEventListener('click', e => {
@@ -113,7 +113,6 @@ class ListView extends HTMLElement {
       }
     });
     shadow.addEventListener('keydown', e => {
-      console.log(e.code);
       if (e.code === 'Enter') {
         const entries = this.entries();
         if (entries.length) {
@@ -184,7 +183,7 @@ class ListView extends HTMLElement {
         return 'http://www.google.com/s2/favicons?domain_url=' + href;
       }
       else {
-        return '/data/panel/icons/page.png';
+        return '/data/commander/images/page.svg';
       }
     }
     return 'chrome://favicon/' + href;
