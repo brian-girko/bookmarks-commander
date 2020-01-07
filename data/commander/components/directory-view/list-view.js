@@ -10,7 +10,7 @@ class ListView extends HTMLElement {
           border: solid 1px #848484;
           user-select: none;
         }
-        :host-context(.active) {
+        :host(.active) {
           background-color: #fff;
         }
         #content {
@@ -18,7 +18,7 @@ class ListView extends HTMLElement {
         }
         div.entry {
           display: grid;
-          grid-template-columns: 32px minmax(50px, 200px) minmax(50px, 1fr) minmax(50px, 100px) minmax(50px, 100px);
+          grid-template-columns: 32px minmax(50px, 200px) minmax(50px, 1fr) minmax(50px, 90px) minmax(50px, 90px);
         }
         div.entry span {
           text-indent: 5px;
@@ -55,6 +55,10 @@ class ListView extends HTMLElement {
         div.entry[data-type="ERROR"] span[data-id="icon"] {
           background-image: url('/data/commander/images/error.svg');
         }
+        div.entry span[data-id="added"],
+        div.entry span[data-id="modified"] {
+          text-align: center;
+        }
       </style>
       <template>
         <div class="entry">
@@ -67,17 +71,24 @@ class ListView extends HTMLElement {
       </template>
       <div id="content" tabindex="-1">
         <div class="entry hr">
-          <span></span>
-          <span>Name</span>
-          <span>Link</span>
-          <span>Added</span>
-          <span>Modified</span>
+          <span data-id="icon"></span>
+          <span data-id="name">Name</span>
+          <span data-id="href">Link</span>
+          <span data-id="added">Added</span>
+          <span data-id="modified">Modified</span>
         </div>
       </div>
     `;
 
     this.template = shadow.querySelector('template');
     this.content = shadow.getElementById('content');
+
+    this.content.addEventListener('focus', () => this.classList.add('active'));
+    this.content.addEventListener('blur', () => this.classList.remove('active'));
+
+    this.config = {
+      remote: true
+    };
 
     shadow.addEventListener('click', e => {
       const {target} = e;
@@ -102,6 +113,7 @@ class ListView extends HTMLElement {
       }
     });
     shadow.addEventListener('keydown', e => {
+      console.log(e.code);
       if (e.code === 'Enter') {
         const entries = this.entries();
         if (entries.length) {
@@ -152,7 +164,7 @@ class ListView extends HTMLElement {
     return [...this.content.querySelectorAll('[data-selected=true]')];
   }
   entries() {
-    return this.items().map(target => Object.assign({}, target.dataset, target.node));
+    return this.items().map(target => Object.assign({}, target.node, target.dataset));
   }
   emit(name, detail) {
     return this.dispatchEvent(new CustomEvent(name, {
@@ -168,7 +180,7 @@ class ListView extends HTMLElement {
   }
   favicon(href) {
     if (typeof InstallTrigger !== 'undefined') {
-      if (true) {
+      if (this.config.remote) {
         return 'http://www.google.com/s2/favicons?domain_url=' + href;
       }
       else {

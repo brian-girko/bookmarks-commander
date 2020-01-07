@@ -12,7 +12,7 @@ document.addEventListener('directory-view:path', e => {
   const {detail} = e;
   const id = e.target.getAttribute('id');
   title[id] = detail.arr[detail.arr.length - 1].title;
-  document.title = title['directory-view-1'] + ' | ' + title['directory-view-2'];
+  document.title = '[L] ' + title['directory-view-1'] + ' [R] ' + title['directory-view-2'];
   engine.storage.set({
     [id]: detail.id
   });
@@ -32,7 +32,7 @@ document.addEventListener('directory-view:submit', e => {
         });
       }
       else {
-        engine.tabs.create({
+        engine.tabs.update(undefined, {
           url: o.url
         });
       }
@@ -58,48 +58,38 @@ const views = {
     const direction = active === views.left ? 'LEFT' : 'RIGHT';
     const entries = active.entries();
 
-    const readonly = entries.some(o => o.readonly === true);
+    const readonly = entries.some(o => o.readonly === 'true');
     const directory = entries.some(o => o.type === 'DIRECTORY');
     const file = entries.some(o => o.type === 'FILE');
-    const mirror = views.left.id() === views.right.id();
 
     // move-left or move-right
-    if (readonly || mirror) {
+    if (readonly) {
       toolsView.state('move-left', false);
       toolsView.state('move-right', false);
     }
     else {
-      /* move-left */
-      {
-        let move = direction === 'RIGHT';
+      /* move-left or move-right*/
+      for (const moveTo of ['left', 'right']) {
+        let move = direction !== moveTo.toUpperCase();
         // cannot move to the root directory
-        if (move && views.left.isRoot()) {
+        if (move && views[moveTo].isRoot()) {
           move = false;
         }
         // cannot move a directory to a child directory
         if (move && directory) {
-          const d = views.left.list();
-          if (views.right.list().every((node, i) => d[i] && d[i].id === node.id)) {
-            move = false;
+          const s = views[moveTo === 'left' ? 'right' : 'left'].list();
+          const d = views[moveTo].list();
+          if (s.every((node, i) => d[i] && d[i].id === node.id)) {
+            // if d.length === s.length => allow mirror directories
+            if (d.length !== s.length) {
+              // if any selected directory is in the path of destination directory, prevent moving
+              if (entries.some(e => d.some(de => de.id === e.id))) {
+                move = false;
+              }
+            }
           }
         }
-        toolsView.state('move-left', move);
-      }
-      /* move-right */
-      {
-        let move = direction === 'LEFT';
-        // cannot move to the root directory
-        if (move && views.right.isRoot()) {
-          move = false;
-        }
-        // cannot move a directory to a child directory
-        if (move && directory) {
-          const d = views.right.list();
-          if (views.left.list().every((node, i) => d[i] && d[i].id === node.id)) {
-            move = false;
-          }
-        }
-        toolsView.state('move-right', move);
+        toolsView.state('move-' + moveTo, move);
       }
     }
     // delete
@@ -139,6 +129,7 @@ document.addEventListener('DOMContentLoaded', engine.storage.get({
 }));
 /* on command */
 const command = async command => {
+  console.log(command);
   const view = views.active();
   if (view) {
     const entries = view.entries();
@@ -178,20 +169,12 @@ const command = async command => {
       });
     }
     else if (command === 'move-left' || command === 'move-right') {
-      const s = {
-        view: command === 'move-left' ? views.right : views.left
-      };
-      s.parent = s.view.id();
-      s.entries = s.view.entries();
-      const d = {
-        view: command === 'move-right' ? views.right : views.left
-      };
-      d.parent = d.view.id();
-      d.index = d.view.entries()[0].index + 1;
-      for (const entry of s.entries) {
+      const s = command === 'move-left' ? views.right : views.left;
+      const d = command === 'move-right' ? views.right : views.left;
+      for (const entry of s.entries().reverse()) {
         await engine.bookmarks.move(entry.id, {
-          parentId: d.parent,
-          index: d.index
+          parentId: d.id(),
+          index: Number(d.entries()[0].index) + 1
         }).catch(engine.notify);
       }
       // update both views
@@ -207,7 +190,7 @@ const command = async command => {
       const entry = entries[0];
       const o = {
         parentId: view.id(),
-        index: entry.index + 1
+        index: Number(entry.index) + 1
       };
       if (command === 'new-file') {
         const [title, url] = (window.prompt(
@@ -285,9 +268,6 @@ document.addEventListener('keydown', e => {
 });
 // on active view change
 views.parent.addEventListener('change', e => {
-  [...document.querySelectorAll('label.active')].forEach(e => e.classList.remove('active'));
-  const label = e.target.closest('label');
-  label.classList.add('active');
   views.changed();
 });
 

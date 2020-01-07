@@ -84,6 +84,9 @@ const bookmarks = {
 const tabs = {
   create(o) {
     chrome.tabs.create(o);
+  },
+  update(id, o) {
+    chrome.tabs.update(id, o);
   }
 };
 
