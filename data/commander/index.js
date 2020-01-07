@@ -286,7 +286,7 @@ document.addEventListener('keydown', e => {
   toolsView.command(e, command);
 });
 // on active view change
-views.parent.addEventListener('change', e => {
+views.parent.addEventListener('change', () => {
   views.changed();
 });
 

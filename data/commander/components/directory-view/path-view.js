@@ -61,7 +61,7 @@ class PathView extends HTMLElement {
       input.id = id;
       input.checked = i === map.length - 1;
       f.appendChild(input);
-      label.textContent = title;
+      label.textContent = title || '';
       f.appendChild(label);
       label.setAttribute('for', input.id);
     });

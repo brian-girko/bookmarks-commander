@@ -114,18 +114,7 @@ class ListView extends HTMLElement {
     });
     // to prevent conflict with command access
     shadow.addEventListener('keyup', e => {
-      if (e.code === 'Enter') {
-        const entries = this.entries();
-        if (entries.length) {
-          this.emit('submit', {
-            shiftKey: e.shiftKey,
-            ctrlKey: e.ctrlKey,
-            metaKey: e.metaKey,
-            entries
-          });
-        }
-      }
-      else if (e.code.startsWith('Key') || e.code.startsWith('Digit')) {
+      if (e.code.startsWith('Key') || e.code.startsWith('Digit')) {
         const d = this.content.querySelector(`.entry[data-selected=true] ~ .entry[data-key="${e.key}"]`);
         if (d) {
           d.click();
@@ -135,6 +124,19 @@ class ListView extends HTMLElement {
           if (d) {
             d.click();
           }
+        }
+      }
+    });
+    shadow.addEventListener('keydown', e => {
+      if (e.code === 'Enter') {
+        const entries = this.entries();
+        if (entries.length) {
+          this.emit('submit', {
+            shiftKey: e.shiftKey,
+            ctrlKey: e.ctrlKey,
+            metaKey: e.metaKey,
+            entries
+          });
         }
       }
       else if (e.code === 'Backspace') {
@@ -229,7 +231,7 @@ class ListView extends HTMLElement {
         const type = node.url ? 'FILE' : 'DIRECTORY';
         const div = clone.querySelector('div');
         Object.assign(div.dataset, {
-          key: node.title[0].toLowerCase(),
+          key: node.title ? node.title[0].toLowerCase() : '',
           type,
           index: node.index,
           id: node.id,
