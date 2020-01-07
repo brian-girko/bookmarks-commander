@@ -112,7 +112,9 @@ class ListView extends HTMLElement {
         }
       }
     });
-    shadow.addEventListener('keydown', e => {
+    // to prevent conflict with command access
+    shadow.addEventListener('keyup', e => {
+      console.log(e);
       if (e.code === 'Enter') {
         const entries = this.entries();
         if (entries.length) {
@@ -124,7 +126,7 @@ class ListView extends HTMLElement {
           });
         }
       }
-      else if (e.code.startsWith('Key')) {
+      else if (e.code.startsWith('Key') || e.code.startsWith('Digit')) {
         const d = this.content.querySelector(`.entry[data-selected=true] ~ .entry[data-key="${e.key}"]`);
         if (d) {
           d.click();

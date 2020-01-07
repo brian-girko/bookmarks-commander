@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "version": "0.1.2",
+  "version": "0.1.3",
   "name": "Bookmarks Commander",
   "description": "A fast two-panel bookmarks manager which is similar to NC or Total Commander.",
   "permissions": [
