@@ -1,6 +1,14 @@
 /* global engine */
 'use strict';
 
+const args = new URLSearchParams(location.search);
+if (args.has('width')) {
+  document.documentElement.style.width = args.get('width') + 'px';
+}
+if (args.has('height')) {
+  document.documentElement.style.height = args.get('height') + 'px';
+}
+
 const title = {
   'directory-view-1': '...',
   'directory-view-2': '...'

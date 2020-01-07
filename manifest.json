@@ -5,6 +5,7 @@
   "description": "A two-panel bookmarks manager which is similar to the well-known Total Commander.",
   "permissions": [
     "bookmarks",
+    "contextMenus",
     "notifications",
     "storage",
     "chrome://favicon/*",
