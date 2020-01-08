@@ -187,7 +187,9 @@ const command = async command => {
     else if (command === 'move-left' || command === 'move-right') {
       const s = command === 'move-left' ? views.right : views.left;
       const d = command === 'move-right' ? views.right : views.left;
-      for (const entry of s.entries().reverse()) {
+      const toBeMoved = s.entries().reverse();
+      s.navigate('previous');
+      for (const entry of toBeMoved) {
         await engine.bookmarks.move(entry.id, {
           parentId: d.id(),
           index: Number(d.entries()[0].index) + 1

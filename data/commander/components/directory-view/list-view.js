@@ -15,6 +15,8 @@ class ListView extends HTMLElement {
         }
         #content {
           outline: none;
+          height: 100%;
+          overflow: auto;
         }
         div.entry {
           display: grid;
@@ -31,6 +33,9 @@ class ListView extends HTMLElement {
         div.entry.hr {
           pointer-events: none;
           border-bottom: solid 1px #e8e3e9;
+          position: sticky;
+          top: 0;
+          background: #f5f5f5;
         }
         div.entry.hr span:not(first-child) {
           border-left: solid 1px #e8e3e9;
@@ -99,6 +104,23 @@ class ListView extends HTMLElement {
             this.items().forEach(e => e.dataset.selected = false);
           }
           target.dataset.selected = true;
+          // scroll (only when e.isTrusted === false)
+          if (e.isTrusted === false) {
+            const hr = this.content.querySelector('.hr').getBoundingClientRect();
+            const bounding = target.getBoundingClientRect();
+            // do we need scroll from top
+            if (bounding.top < hr.top + hr.height) {
+              target.scrollIntoView({
+                block: 'start'
+              });
+              this.content.scrollTop -= bounding.height;
+            }
+            if (bounding.bottom > hr.top + this.content.clientHeight) {
+              target.scrollIntoView({
+                block: 'end'
+              });
+            }
+          }
           this.emit('selection-changed');
         }
         // double-click => submit selection
@@ -126,6 +148,12 @@ class ListView extends HTMLElement {
           }
         }
       }
+      else if (e.code === 'Backspace') {
+        const d = this.content.querySelector('.entry[data-index="-1"]');
+        if (d) {
+          this.dbclick(d);
+        }
+      }
     });
     shadow.addEventListener('keydown', e => {
       if (e.code === 'Enter') {
@@ -139,19 +167,15 @@ class ListView extends HTMLElement {
           });
         }
       }
-      else if (e.code === 'Backspace') {
-        const d = this.content.querySelector('.entry[data-index="-1"]');
-        if (d) {
-          this.dbclick(d);
-        }
-      }
     });
     // keyboard navigation
     shadow.addEventListener('keydown', e => {
       if (e.key === 'ArrowDown') {
+        e.preventDefault();
         this.next(e.metaKey);
       }
       else if (e.key === 'ArrowUp') {
+        e.preventDefault();
         this.previous(e.metaKey);
       }
     });

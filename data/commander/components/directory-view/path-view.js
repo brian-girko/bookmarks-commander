@@ -16,7 +16,6 @@ class PathView extends HTMLElement {
           overflow: auto;
         }
         label {
-          background-color: #f3f3f3;
           border: solid 1px #afafaf;
           margin: 0 2px 2px 0;
           padding: 5px;

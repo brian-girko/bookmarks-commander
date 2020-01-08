@@ -13,6 +13,7 @@ class DirectoryView extends HTMLElement {
         }
         list-view {
           flex: 1;
+          overflow: hidden;
         }
       </style>
       <path-view></path-view>

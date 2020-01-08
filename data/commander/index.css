@@ -8,6 +8,7 @@ body {
   background-color: #f0f0f0;
 }
 #directories {
+  overflow: hidden;
   display: grid;
   grid-template-columns: 1fr 1fr;
   flex: 1;
