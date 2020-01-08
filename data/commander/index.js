@@ -223,7 +223,7 @@ const command = async command => {
         o.url = url;
       }
       else {
-        const title = ('' || window.prompt('Title of New Directory', entry.title)).trim();
+        const title = (window.prompt('Title of New Directory', entry.title) || '').trim();
         if (title) {
           o.title = title;
         }

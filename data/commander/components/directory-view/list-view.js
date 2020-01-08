@@ -148,7 +148,10 @@ class ListView extends HTMLElement {
           }
         }
       }
-      else if (e.code === 'Backspace') {
+      else if (
+        e.code === 'Backspace' &&
+        e.shiftKey === false && e.altKey === false && e.metaKey === false && e.ctrlKey === false
+      ) {
         const d = this.content.querySelector('.entry[data-index="-1"]');
         if (d) {
           this.dbclick(d);
@@ -172,11 +175,11 @@ class ListView extends HTMLElement {
     shadow.addEventListener('keydown', e => {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        this.next(e.metaKey);
+        this.next(e.metaKey || e.ctrlKey || e.shiftKey);
       }
       else if (e.key === 'ArrowUp') {
         e.preventDefault();
-        this.previous(e.metaKey);
+        this.previous(e.metaKey || e.ctrlKey || e.shiftKey);
       }
     });
   }
