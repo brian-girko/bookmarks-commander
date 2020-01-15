@@ -92,18 +92,16 @@ const views = {
         if (move && views[moveTo].isRoot()) {
           move = false;
         }
+        // cannot move to a search directory
+        if (move && views[moveTo].isSearch()) {
+          move = false;
+        }
         // cannot move a directory to a child directory
         if (move && directory) {
-          const s = views[moveTo === 'left' ? 'right' : 'left'].list();
           const d = views[moveTo].list();
-          if (s.every((node, i) => d[i] && d[i].id === node.id)) {
-            // if d.length === s.length => allow mirror directories
-            if (d.length !== s.length) {
-              // if any selected directory is in the path of destination directory, prevent moving
-              if (entries.some(e => d.some(de => de.id === e.id))) {
-                move = false;
-              }
-            }
+          // if any selected directory is in the path of destination directory, prevent moving
+          if (entries.some(e => d.some(de => de.id === e.id))) {
+            move = false;
           }
         }
         toolsView.state('move-' + moveTo, move);
@@ -129,21 +127,23 @@ const views = {
 };
 const toolsView = document.getElementById('tools-view');
 
-/* restore */
-document.addEventListener('DOMContentLoaded', engine.storage.get({
-  'directory-view-1': '',
-  'directory-view-2': ''
-}).then(prefs => {
-  Object.entries(prefs).forEach(([name, id], i) => {
-    const e = document.getElementById(name);
-    if (e) {
-      e.build(id);
-    }
-    if (i === 0) {
-      e.click();
-    }
-  });
-}));
+/* restore, and active a pane after DOM content is loaded */
+Promise.all([
+  new Promise(resolve => document.addEventListener('DOMContentLoaded', engine.storage.get({
+    'directory-view-1': '',
+    'directory-view-2': ''
+  }).then(prefs => {
+    Object.entries(prefs).forEach(([name, id], i) => {
+      const e = document.getElementById(name);
+      if (e) {
+        e.build(id);
+      }
+    });
+    resolve();
+  }))),
+  new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve))
+]).then(views.left.click());
+
 /* on command */
 const command = async command => {
   const view = views.active();
@@ -187,7 +187,7 @@ const command = async command => {
     else if (command === 'move-left' || command === 'move-right') {
       const s = command === 'move-left' ? views.right : views.left;
       const d = command === 'move-right' ? views.right : views.left;
-      const toBeMoved = s.entries().reverse();
+      const toBeMoved = s.entries();
       s.navigate('previous');
       for (const entry of toBeMoved) {
         await engine.bookmarks.move(entry.id, {
@@ -254,6 +254,12 @@ const command = async command => {
     }
     else if (command === 'mirror') {
       views[view === views.left ? 'right' : 'left'].build(view.id());
+    }
+    else if (command === 'search') {
+      const query = window.prompt('Search For', '');
+      if (query) {
+        views.active().build({query});
+      }
     }
   }
 };

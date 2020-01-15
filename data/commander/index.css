@@ -1,11 +1,12 @@
 body {
-  font-size: 13px;
+  font-size: 12px;
   font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
   height: 100vh;
   margin: 0;
   display: flex;
   flex-direction: column;
-  background-color: #f0f0f0;
+  background-color: #eee;
+  color: #3e3e3e;
 }
 #directories {
   overflow: hidden;
@@ -27,9 +28,6 @@ directory-view {
 }
 label:not(:first-child) directory-view {
   margin-left: 2px;
-}
-tools-view {
-  margin: 0 2px 2px 2px;
 }
 @media screen and (max-width: 600px) {
   #directories {

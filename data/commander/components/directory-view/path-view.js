@@ -6,27 +6,27 @@ class PathView extends HTMLElement {
     });
     shadow.innerHTML = `
       <style>
-        :host {
-          font-size: 13px;
-          font-family: Arial, "Helvetica Neue", Helvetica,sans-serif;
-        }
         div {
           display: flex;
           white-space: nowrap;
           overflow: auto;
         }
         label {
-          border: solid 1px #afafaf;
+          background-color: #dadada;
           margin: 0 2px 2px 0;
-          padding: 5px;
+          padding: 0 5px;
           cursor: pointer;
           max-width: 100px;
           overflow: hidden;
           text-overflow: ellipsis;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          height: 24px; /* we need this to prevent special chars from resizing labels */
         }
         input:checked + label {
           min-width: fit-content;
-          font-weight: bold;
+          background-color: #fff;
         }
         input[type=radio] {
           display: none;

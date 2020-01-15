@@ -5,6 +5,9 @@ const bookmarks = {
   isRoot(id) {
     return id === '' || id === bookmarks.rootID;
   },
+  isSearch(id) {
+    return Boolean(id.query);
+  },
   parent(id) {
     return new Promise((resolve, reject) => {
       chrome.bookmarks.get(id, arr => {
@@ -19,6 +22,13 @@ const bookmarks = {
     });
   },
   children(id) {
+    if (id.query) {
+      return new Promise(resolve => chrome.bookmarks.search({
+        query: id.query
+      }, nodes => {
+        resolve(nodes);
+      }));
+    }
     return new Promise((resolve, reject) => {
       chrome.bookmarks.getChildren(id, nodes => {
         const lastError = chrome.runtime.lastError;

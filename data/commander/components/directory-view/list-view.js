@@ -7,7 +7,7 @@ class ListView extends HTMLElement {
     shadow.innerHTML = `
       <style>
         :host {
-          border: solid 1px #afafaf;
+          border: solid 1px #cacaca;
           user-select: none;
         }
         :host(.active) {
@@ -19,6 +19,7 @@ class ListView extends HTMLElement {
           overflow: auto;
         }
         div.entry {
+          padding: 1px 0;
           display: grid;
           grid-template-columns: 32px minmax(50px, 200px) minmax(50px, 1fr) minmax(50px, 90px) minmax(50px, 90px);
         }

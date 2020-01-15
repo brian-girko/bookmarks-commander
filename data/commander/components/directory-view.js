@@ -37,15 +37,23 @@ class DirectoryView extends HTMLElement {
   }
   async hierarchy(id) {
     const cache = [];
-    while (engine.bookmarks.isRoot(id) === false) {
-      const node = await engine.bookmarks.parent(id);
-      id = node.parentId;
-      cache.unshift(node);
+    if (engine.bookmarks.isSearch(id)) {
+      cache.push({
+        title: 'Search: ' + id.query,
+        id
+      });
     }
-    cache.unshift({
-      title: '/',
-      id: engine.bookmarks.rootID
-    });
+    else {
+      while (this.isRoot(id) === false) {
+        const node = await engine.bookmarks.parent(id);
+        id = node.parentId;
+        cache.unshift(node);
+      }
+      cache.unshift({
+        title: '/',
+        id: engine.bookmarks.rootID
+      });
+    }
 
     return cache;
   }
@@ -62,29 +70,31 @@ class DirectoryView extends HTMLElement {
     this.pathView.build(arr);
   }
   // if update, then selected elements are persistent
-  buildListView(id, update = false) {
-    return engine.bookmarks.children(id).then(nodes => {
-      if (engine.bookmarks.isRoot(id)) {
-        this.listView[update ? 'update' : 'build'](nodes);
-      }
-      else {
-        engine.bookmarks.parent(id).then(node => this.listView[update ? 'update' : 'build']([{
+  async buildListView(id, update = false) {
+    const method = update ? 'update' : 'build';
+    try {
+      const nodes = await engine.bookmarks.children(id);
+      if (this.isRoot(id) === false && this.isSearch(id) === false) {
+        const parent = await engine.bookmarks.parent(id);
+        nodes.unshift({
           title: '[..]',
-          id: node.parentId,
+          id: parent.parentId,
           index: -1,
           readonly: true
-        }, ...nodes]));
+        });
       }
-    }).catch(e => {
+      this.listView[method](nodes);
+    }
+    catch (e) {
       this.listView.build(undefined, e);
       window.setTimeout(() => this.build(''), 2000);
-    });
+    }
   }
   build(id, arr) {
     id = id || engine.bookmarks.rootID;
     this.buildListView(id);
     this.buildPathView(id, arr);
-    this.dataset.id = id;
+    this._id = id;
   }
   update(id) {
     this.buildListView(id, true);
@@ -93,13 +103,16 @@ class DirectoryView extends HTMLElement {
     return this.listView.entries();
   }
   id() {
-    return this.dataset.id;
+    return this._id;
   }
   list() {
     return this.arr;
   }
-  isRoot() {
-    return engine.bookmarks.isRoot(this.id());
+  isRoot(id) {
+    return engine.bookmarks.isRoot(id || this.id());
+  }
+  isSearch(id) {
+    return engine.bookmarks.isSearch(id || this.id());
   }
   navigate(direction = 'forward') {
     this.listView[direction === 'forward' ? 'next' : 'previous']();
