@@ -15,12 +15,22 @@ class DirectoryView extends HTMLElement {
           flex: 1;
           overflow: hidden;
         }
+        #count {
+          color: #a0a0a0;
+          text-shadow: 1px 1px #fcffff;
+          margin: 0 2px;
+          font-size: 80%;
+        }
       </style>
-      <path-view></path-view>
+      <path-view>
+        <span id="count">-</span>
+      </path-view>
       <list-view></list-view>
     `;
     this.pathView = shadow.querySelector('path-view');
     this.listView = shadow.querySelector('list-view');
+    this.CountElement = shadow.getElementById('count');
+
     // events
     const onsubmit = e => this.emit('directory-view:submit', e.detail);
     this.pathView.addEventListener('submit', onsubmit);
@@ -74,6 +84,7 @@ class DirectoryView extends HTMLElement {
     const method = update ? 'update' : 'build';
     try {
       const nodes = await engine.bookmarks.children(id);
+      this.count = this.CountElement.textContent = nodes.length;
       if (this.isRoot(id) === false && this.isSearch(id) === false) {
         const parent = await engine.bookmarks.parent(id);
         nodes.unshift({
@@ -99,8 +110,8 @@ class DirectoryView extends HTMLElement {
   update(id) {
     this.buildListView(id, true);
   }
-  entries() {
-    return this.listView.entries();
+  entries(...args) {
+    return this.listView.entries(...args);
   }
   id() {
     return this._id;

@@ -57,7 +57,12 @@ document.addEventListener('directory-view:submit', e => {
   });
 });
 document.addEventListener('directory-view:selection-changed', () => views.changed());
-document.addEventListener('tools-view:command', e => command(e.detail));
+document.addEventListener('tools-view:command', e => {
+  command(e.detail.command, {
+    shiftKey: e.detail.shiftKey
+  });
+  views.active().click();
+});
 
 /* views */
 const views = {
@@ -109,6 +114,8 @@ const views = {
     }
     // delete
     toolsView.state('trash', readonly === false);
+    // sort
+    toolsView.state('sort', active.isRoot() === false && active.count > 1);
     // copy-link
     toolsView.state('copy-link', file);
     // edit-link
@@ -133,7 +140,7 @@ Promise.all([
     'directory-view-1': '',
     'directory-view-2': ''
   }).then(prefs => {
-    Object.entries(prefs).forEach(([name, id], i) => {
+    Object.entries(prefs).forEach(([name, id]) => {
       const e = document.getElementById(name);
       if (e) {
         e.build(id);
@@ -142,10 +149,10 @@ Promise.all([
     resolve();
   }))),
   new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve))
-]).then(views.left.click());
+]).then(() => views.left.click());
 
 /* on command */
-const command = async command => {
+const command = async (command, e) => {
   const view = views.active();
   if (view) {
     const entries = view.entries();
@@ -199,10 +206,19 @@ const command = async command => {
       views.update();
     }
     else if (command === 'root') {
-      engine.storage.set({
-        'directory-view-1': '',
-        'directory-view-2': ''
-      }).then(() => location.reload());
+      if (e.shiftKey) {
+        engine.storage.set({
+          [view.getAttribute('id')]: ''
+        }).then(() => {
+          view.update(engine.bookmarks.rootID);
+        });
+      }
+      else {
+        engine.storage.set({
+          'directory-view-1': '',
+          'directory-view-2': ''
+        }).then(() => location.reload());
+      }
     }
     else if (command === 'new-file' || command === 'new-directory') {
       const entry = entries[0];
@@ -258,8 +274,37 @@ const command = async command => {
     else if (command === 'search') {
       const query = window.prompt('Search For', '');
       if (query) {
-        views.active().build({query});
+        view.build({query});
       }
+    }
+    else if (command === 'sort') {
+      const entries = view.entries(false);
+      const sort = list => {
+        return list.sort((a, b) => {
+          if (e.shiftKey) {
+            return ('' + b.title).localeCompare(a.title + '');
+          }
+          return ('' + a.title).localeCompare(b.title + '');
+        });
+      };
+      const directories = sort(entries.filter(e => e.readonly === 'false' && e.type === 'DIRECTORY'));
+      const files = sort(entries.filter(e => e.readonly === 'false' && e.type === 'FILE'));
+
+      let index = 0;
+      for (const directory of directories) {
+        await engine.bookmarks.move(directory.id, {
+          parentId: view.id(),
+          index
+        }).then(() => index += 1).catch(engine.notify);
+      }
+      for (const file of files) {
+        await engine.bookmarks.move(file.id, {
+          parentId: view.id(),
+          index
+        }).then(() => index += 1).catch(engine.notify);
+      }
+      // update both views
+      views.update();
     }
   }
 };

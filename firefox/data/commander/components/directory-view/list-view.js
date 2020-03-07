@@ -200,11 +200,14 @@ class ListView extends HTMLElement {
       e.dispatchEvent(event);
     }
   }
-  items() {
-    return [...this.content.querySelectorAll('[data-selected=true]')];
+  items(selected = true) {
+    if (selected) {
+      return [...this.content.querySelectorAll('.entry[data-selected=true]')];
+    }
+    return [...this.content.querySelectorAll('.entry[data-index]:not([data-index="-1"])')];
   }
-  entries() {
-    return this.items().map(target => Object.assign({}, target.node, target.dataset));
+  entries(selected = true) {
+    return this.items(selected).map(target => Object.assign({}, target.node, target.dataset));
   }
   emit(name, detail) {
     return this.dispatchEvent(new CustomEvent(name, {

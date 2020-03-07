@@ -6,6 +6,9 @@ class PathView extends HTMLElement {
     });
     shadow.innerHTML = `
       <style>
+        :host > div {
+          align-items: center;
+        }
         div {
           display: flex;
           white-space: nowrap;
@@ -31,8 +34,14 @@ class PathView extends HTMLElement {
         input[type=radio] {
           display: none;
         }
+        #content {
+          flex: 1;
+        }
       </style>
-      <div id="content"></div>
+      <div>
+        <div id="content"></div>
+        <slot></slot>
+      </div>
     `;
     this.content = shadow.getElementById('content');
     this.content.addEventListener('click', e => {

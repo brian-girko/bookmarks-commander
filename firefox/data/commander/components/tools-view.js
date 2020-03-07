@@ -83,16 +83,20 @@ class ToolsView extends HTMLElement {
           <path d="m512 149.332031c0 82.476563-66.859375 149.335938-149.332031 149.335938-82.476563 0-149.335938-66.859375-149.335938-149.335938 0-82.472656 66.859375-149.332031 149.335938-149.332031 82.472656 0 149.332031 66.859375 149.332031 149.332031zm0 0" fill="#607d8b"/>
           <path d="m426.667969 149.332031c0 35.347657-28.65625 64-64 64-35.347657 0-64-28.652343-64-64 0-35.34375 28.652343-64 64-64 35.34375 0 64 28.65625 64 64zm0 0" fill="#fafafa"/>
         </svg>
-        Tools&nbsp;<span title="Ctrl + O or Command + O" data-command="root">R<u>o</u>ot</span>&nbsp;
+        Tools&nbsp;<span title="Both panes: Ctrl + O or Command + O&#013;Active pane: Ctrl + Shift + O or Command + Shift + O" data-command="root">R<u>o</u>ot</span>&nbsp;
                    <span title="Ctrl + M or Command + M" data-command="mirror"><u>M</u>irror</span>&nbsp;
                    <span title="Ctrl + Delete or Command + D" data-command="trash">Delete</span>&nbsp;
-                   <span title="Ctrl + F or Command + F" data-command="search">Search (<u>F</u>)</span>
+                   <span title="Ctrl + F or Command + F" data-command="search">Search (<u>F</u>)</span>&nbsp;
+                   <span title="A-Z: Ctrl + J or Command + J&#013;Z-A: Ctrl + Shift + J or Command + Shift + J" data-command="sort">Sort (<u>J</u>)</span>
       </button>
     `;
     this.shadow.addEventListener('click', e => {
       const command = e.target.dataset.command;
       if (command) {
-        this.emit('tools-view:command', command);
+        this.emit('tools-view:command', {
+          command,
+          shiftKey: e.shiftKey
+        });
       }
     });
   }
@@ -151,11 +155,14 @@ class ToolsView extends HTMLElement {
     else if (e.code === 'KeyF' && meta) {
       command = 'search';
     }
+    else if (e.code === 'KeyJ' && meta) {
+      command = 'sort';
+    }
 
     if (command) {
       if (this.validate(command)) {
         e.preventDefault();
-        callback(command);
+        callback(command, e);
       }
     }
   }
