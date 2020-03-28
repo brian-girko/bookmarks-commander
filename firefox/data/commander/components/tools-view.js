@@ -158,6 +158,19 @@ class ToolsView extends HTMLElement {
     else if (e.code === 'KeyJ' && meta) {
       command = 'sort';
     }
+    // command box
+    if (e.code === 'KeyS' && meta) {
+      const command = window.prompt(`Enter a Command:
+
+icon=[default|light|dark]`);
+      if (command === 'icon=dark' || command === 'icon=light' || command === 'icon=default') {
+        const path = command.replace('icon=', '');
+        chrome.storage.local.set({
+          'custom-icon': path === 'default' ? '' : path
+        });
+      }
+      e.preventDefault();
+    }
 
     if (command) {
       if (this.validate(command)) {

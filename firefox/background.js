@@ -51,12 +51,22 @@ chrome.browserAction.onClicked.addListener(() => {
   }
 });
 
+const icon = mode => chrome.browserAction.setIcon({
+  path: {
+    '16': 'data/icons/' + mode + '/128.png'
+  }
+});
+
 {
   const startup = () => chrome.storage.local.get({
     'mode': 'tab',
     'popup.width': 800,
-    'popup.height': 600
+    'popup.height': 600,
+    'custom-icon': ''
   }, prefs => {
+    if (prefs['custom-icon']) {
+      icon(prefs['custom-icon']);
+    }
     chrome.contextMenus.create({
       id: 'mode-tab',
       title: 'Open in Tab',
@@ -107,6 +117,9 @@ chrome.storage.onChanged.addListener(ps => {
           ''
       });
     });
+  }
+  if (ps['custom-icon']) {
+    icon(ps['custom-icon'].newValue);
   }
 });
 /* FAQs & Feedback */
