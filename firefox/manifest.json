@@ -28,5 +28,12 @@
     "256": "data/icons/256.png",
     "512": "data/icons/512.png"
   },
-  "browser_action": {}
+  "browser_action": {
+    "default_icon": "data/icons/svgs/default.svg",
+    "theme_icons": [{
+      "light": "data/icons/svgs/light.svg",
+      "dark": "data/icons/svgs/dark.svg",
+      "size": 19
+    }]
+  }
 }
