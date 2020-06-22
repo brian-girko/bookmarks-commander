@@ -85,7 +85,7 @@ class ToolsView extends HTMLElement {
         </svg>
         Tools&nbsp;<span title="Both panes: Ctrl + O or Command + O&#013;Active pane: Ctrl + Shift + O or Command + Shift + O" data-command="root">R<u>o</u>ot</span>&nbsp;
                    <span title="Ctrl + M or Command + M" data-command="mirror"><u>M</u>irror</span>&nbsp;
-                   <span title="Ctrl + Delete or Command + D" data-command="trash">Delete</span>&nbsp;
+                   <span title="Ctrl + Delete, Ctrl + Backspace, Command + Delete, or Command + Backspace" data-command="trash">Delete</span>&nbsp;
                    <span title="Ctrl + F or Command + F" data-command="search">Search (<u>F</u>)</span>&nbsp;
                    <span title="A-Z: Ctrl + J or Command + J&#013;Z-A: Ctrl + Shift + J or Command + Shift + J" data-command="sort">Sort (<u>J</u>)</span>
       </button>

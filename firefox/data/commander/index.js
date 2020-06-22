@@ -77,6 +77,9 @@ const views = {
   },
   changed() {
     const active = views.active();
+    if (active) {
+      return;
+    }
     const direction = active === views.left ? 'LEFT' : 'RIGHT';
     const entries = active.entries();
 
@@ -148,8 +151,11 @@ Promise.all([
     });
     resolve();
   }))),
-  new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve))
-]).then(() => views.left.click());
+  new Promise(resolve => window.addEventListener('load', resolve))
+]).then(() => {
+  console.log(123);
+  views.left.click();
+});
 
 /* on command */
 const command = async (command, e) => {

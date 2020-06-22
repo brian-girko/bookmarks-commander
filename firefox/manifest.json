@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "version": "0.1.8",
   "name": "Bookmarks Commander",
-  "description": "A fast two-pane bookmarks manager which is similar to NC or Total Commander.",
+  "description": "A fast dual-pane bookmarks manager which is similar to the Norton Commander or Total Commander",
   "permissions": [
     "bookmarks",
     "contextMenus",
