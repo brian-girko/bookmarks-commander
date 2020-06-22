@@ -107,10 +107,28 @@ class ListView extends HTMLElement {
       if (target.classList.contains('entry')) {
         // single-click => toggle selection
         if (e.detail === 1 || e.detail === 0) {
-          if (e.ctrlKey === false && e.metaKey === false) {
+          if (e.ctrlKey === false && e.metaKey === false && e.shiftKey === false) {
             this.items().forEach(e => e.dataset.selected = false);
           }
+          // multiple select
+          if (e.shiftKey) {
+            const e = this.content.querySelector('.entry[data-last-selected=true]');
+            const es = [...this.content.querySelectorAll('.entry')];
+            if (e) {
+              const i = es.indexOf(e);
+              const j = es.indexOf(target);
+
+              for (let k = Math.min(i, j); k < Math.max(i, j); k += 1) {
+                es[k].dataset.selected = true;
+              }
+            }
+          }
           target.dataset.selected = true;
+          for (const e of [...this.content.querySelectorAll('.entry[data-last-selected=true]')]) {
+            e.dataset.lastSelected = false;
+          }
+          target.dataset.lastSelected = true;
+
           // scroll (only when e.isTrusted === false)
           if (e.isTrusted === false) {
             const hr = this.content.querySelector('.hr').getBoundingClientRect();
