@@ -184,13 +184,11 @@ class ListView extends HTMLElement {
     });
     // keyboard navigation
     shadow.addEventListener('keydown', e => {
-      if (e.key === 'ArrowDown') {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         e.preventDefault();
-        this.next(e.metaKey || e.ctrlKey || e.shiftKey);
-      }
-      else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        this.previous(e.metaKey || e.ctrlKey || e.shiftKey);
+        const meta = e.metaKey || e.ctrlKey || e.shiftKey;
+        const reverse = (e.metaKey && e.shiftKey) || (e.ctrlKey && e.shiftKey);
+        this[e.key === 'ArrowUp' ? 'previous' : 'next'](meta, reverse);
       }
     });
   }
@@ -202,16 +200,32 @@ class ListView extends HTMLElement {
     event.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, metaKey, false, false, metaKey, 0, null);
     e.dispatchEvent(event);
   }
-  previous(metaKey = false) {
-    const e = this.content.querySelector('.entry:not(.hr) + .entry[data-selected=true]');
-    if (e) {
-      this.select(e.previousElementSibling, metaKey);
+  previous(metaKey = false, reverse = false) {
+    if (reverse) {
+      const es = this.content.querySelectorAll('.entry[data-selected=true]');
+      if (es.length > 1) {
+        es[0].dataset.selected = false;
+      }
+    }
+    else {
+      const e = this.content.querySelector('.entry:not(.hr) + .entry[data-selected=true]');
+      if (e) {
+        this.select(e.previousElementSibling, metaKey);
+      }
     }
   }
-  next(metaKey = false) {
-    const e = [...this.content.querySelectorAll('.entry[data-selected=true] + .entry')].pop();
-    if (e) {
-      this.select(e, metaKey);
+  next(metaKey = false, reverse = false) {
+    if (reverse) {
+      const es = this.content.querySelectorAll('.entry[data-selected=true]');
+      if (es.length > 1) {
+        es[es.length - 1].dataset.selected = false;
+      }
+    }
+    else {
+      const e = [...this.content.querySelectorAll('.entry[data-selected=true] + .entry')].pop();
+      if (e) {
+        this.select(e, metaKey);
+      }
     }
   }
   items(selected = true) {
