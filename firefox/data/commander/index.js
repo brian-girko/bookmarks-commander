@@ -350,3 +350,16 @@ document.addEventListener('keydown', e => {
 views.parent.addEventListener('change', () => {
   views.changed();
 });
+
+// remember last state
+if (args.get('mode') === 'window') {
+  chrome.runtime.getBackgroundPage(bg => {
+    window.onbeforeunload = () => bg.save({
+      'window.left': window.screenX,
+      'window.top': window.screenY,
+      'window.width': window.outerWidth,
+      'window.height': window.outerHeight
+    });
+  });
+}
+

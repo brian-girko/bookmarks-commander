@@ -39,8 +39,8 @@ chrome.browserAction.onClicked.addListener(() => {
         }, prefs => {
           chrome.windows.create({
             url: chrome.extension.getURL('data/commander/index.html?mode=window'),
-            width: prefs['window.width'],
-            height: prefs['window.height'],
+            width: Math.max(400, prefs['window.width']),
+            height: Math.max(300, prefs['window.height']),
             left: prefs['window.left'],
             top: prefs['window.top'],
             type: 'popup'
@@ -122,6 +122,11 @@ chrome.storage.onChanged.addListener(ps => {
     icon(ps['custom-icon'].newValue);
   }
 });
+
+window.save = o => {
+  chrome.storage.local.set(o);
+};
+
 /* FAQs & Feedback */
 {
   const {onInstalled, setUninstallURL, getManifest} = chrome.runtime;
