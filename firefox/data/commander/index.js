@@ -64,22 +64,24 @@ document.addEventListener('tools-view:command', e => {
   views.active().click();
 });
 
+const user = document.querySelector('prompt-view');
+user.on('blur', () => views.active().click());
+
 /* views */
 const views = {
   'parent': document.getElementById('directories'),
   'left': document.getElementById('directory-view-1'),
   'right': document.getElementById('directory-view-2'),
   active(reverse = false) {
+    let e = document.querySelector('input:checked + directory-view');
     if (reverse) {
-      return document.querySelector('input:not(:checked) + directory-view');
+      e = document.querySelector('input:not(:checked) + directory-view');
     }
-    return document.querySelector('input:checked + directory-view');
+    return e || views.left;
   },
   changed() {
     const active = views.active();
-    if (active) {
-      return;
-    }
+
     const direction = active === views.left ? 'LEFT' : 'RIGHT';
     const entries = active.entries();
 
@@ -118,7 +120,7 @@ const views = {
     // delete
     toolsView.state('trash', readonly === false);
     // sort
-    toolsView.state('sort', active.isRoot() === false && active.count > 1);
+    toolsView.state('sort', active.isRoot() === false && active.count > 1 && active.isSearch() === false);
     // copy-link
     toolsView.state('copy-link', file);
     // edit-link
@@ -126,9 +128,9 @@ const views = {
     // edit-title
     toolsView.state('edit-title', readonly === false && entries.length === 1);
     // new-file
-    toolsView.state('new-file', active.isRoot() === false);
+    toolsView.state('new-file', readonly || active.isSearch() ? false : true);
     // new-directory
-    toolsView.state('new-directory', active.isRoot() === false);
+    toolsView.state('new-directory', readonly || active.isSearch() ? false : true);
   },
   update() {
     views.left.update(views.left.id());
@@ -152,10 +154,7 @@ Promise.all([
     resolve();
   }))),
   new Promise(resolve => window.addEventListener('load', resolve))
-]).then(() => {
-  console.log(123);
-  views.left.click();
-});
+]).then(() => views.left.click());
 
 /* on command */
 const command = async (command, e) => {
@@ -179,14 +178,14 @@ const command = async (command, e) => {
       const entry = entries[0];
       let o = {};
       if (command === 'edit-title') {
-        const title = window.prompt('Edit Title', entry.title);
+        const title = await user.ask('Edit Title', entry.title);
         o = {title};
         if (title === entry.title || title === '') {
           return;
         }
       }
       else {
-        const url = window.prompt('Edit Link', entry.url);
+        const url = await user.ask('Edit Link', entry.url);
         o = {url};
         if (url === entry.url || url === '') {
           return;
@@ -233,19 +232,19 @@ const command = async (command, e) => {
         index: Number(entry.index) + 1
       };
       if (command === 'new-file') {
-        const title = (window.prompt('Title of New Bookmark', entry.title) || '').trim();
+        const title = ((await user.ask('Title of New Bookmark', entry.title)) || '').trim();
         if (!title) {
           return;
         }
         o.title = title;
-        const url = (window.prompt('URL of New Bookmark', entry.url || 'https://www.example.com') || '').trim();
+        const url = ((await user.ask('URL of New Bookmark', entry.url || 'https://www.example.com')) || '').trim();
         if (!url) {
           return;
         }
         o.url = url;
       }
       else {
-        const title = (window.prompt('Title of New Directory', entry.title) || '').trim();
+        const title = ((await user.ask('Title of New Directory', entry.title)) || '').trim();
         if (title) {
           o.title = title;
         }
@@ -278,10 +277,7 @@ const command = async (command, e) => {
       views[view === views.left ? 'right' : 'left'].build(view.id());
     }
     else if (command === 'search') {
-      const query = window.prompt('Search For', '');
-      if (query) {
-        view.build({query});
-      }
+      user.ask('Search For').then(query => query && view.build({query}));
     }
     else if (command === 'sort') {
       const entries = view.entries(false);
@@ -348,4 +344,3 @@ document.addEventListener('keydown', e => {
 views.parent.addEventListener('change', () => {
   views.changed();
 });
-

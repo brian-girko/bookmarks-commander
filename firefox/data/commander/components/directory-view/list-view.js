@@ -90,7 +90,13 @@ class ListView extends HTMLElement {
     this.content = shadow.getElementById('content');
 
     this.content.addEventListener('focus', () => this.classList.add('active'));
-    this.content.addEventListener('blur', () => this.classList.remove('active'));
+    this.content.addEventListener('blur', () => {
+      const active = this.shadowRoot.activeElement;
+      // if document is not focused, keep the active view
+      if (active === null) {
+        this.classList.remove('active');
+      }
+    });
 
     this.config = {
       remote: false
