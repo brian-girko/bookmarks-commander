@@ -82,17 +82,17 @@ class DirectoryView extends HTMLElement {
     this.pathView.build(arr);
   }
   // if update, then selected elements are persistent
-  async buildListView(id, update = false) {
+  async buildListView(id, update = false, selectedIDs = []) {
     const method = update ? 'update' : 'build';
     try {
       const nodes = await engine.bookmarks.children(id);
       this.count = this.CountElement.textContent = nodes.length;
       if (this.isSearch(id)) {
         const length = this.history.length;
-        const id = length ? this.history[length - 1] : '';
         nodes.unshift({
           title: '[..]',
-          id,
+          id: length ? this.history[length - 1] : '',
+          openerId: id,
           index: -1,
           readonly: true
         });
@@ -102,11 +102,17 @@ class DirectoryView extends HTMLElement {
         nodes.unshift({
           title: '[..]',
           id: parent.parentId,
+          openerId: id,
           index: -1,
           readonly: true
         });
       }
-      this.listView[method](nodes);
+      if (method === 'build') {
+        this.listView.build(nodes, undefined, selectedIDs);
+      }
+      else {
+        this.listView.update(nodes);
+      }
 
       this.history.push(id);
     }
@@ -116,9 +122,9 @@ class DirectoryView extends HTMLElement {
       window.setTimeout(() => this.build(''), 2000);
     }
   }
-  build(id, arr) {
+  build(id, arr, selectedIDs = []) {
     id = id || engine.bookmarks.rootID;
-    this.buildListView(id);
+    this.buildListView(id, false, selectedIDs);
     this.buildPathView(id, arr);
     this._id = id;
   }

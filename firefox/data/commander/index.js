@@ -30,7 +30,13 @@ document.addEventListener('directory-view:submit', e => {
   const {detail} = e;
   detail.entries.forEach(o => {
     if (o.type === 'DIRECTORY' && detail.entries.length === 1) {
-      e.target.build(detail.entries[0].id);
+      const {id, openerId} = detail.entries[0];
+      if (openerId) {
+        e.target.build(id, [], [openerId]);
+      }
+      else {
+        e.target.build(id);
+      }
     }
     else if (o.type === 'FILE') {
       if (detail.metaKey || detail.ctrlKey) {

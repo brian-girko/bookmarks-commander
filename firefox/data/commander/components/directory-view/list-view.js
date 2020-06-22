@@ -140,7 +140,7 @@ class ListView extends HTMLElement {
             shiftKey: e.shiftKey,
             ctrlKey: e.ctrlKey,
             metaKey: e.metaKey,
-            entries: []
+            entries: [e]
           });
         }
       }
@@ -194,20 +194,24 @@ class ListView extends HTMLElement {
       }
     });
   }
+  query(q) {
+    return this.content.querySelector(q);
+  }
+  select(e, metaKey = false) {
+    const event = document.createEvent('MouseEvent');
+    event.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, metaKey, false, false, metaKey, 0, null);
+    e.dispatchEvent(event);
+  }
   previous(metaKey = false) {
     const e = this.content.querySelector('.entry:not(.hr) + .entry[data-selected=true]');
     if (e) {
-      const event = document.createEvent('MouseEvent');
-      event.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, metaKey, false, false, metaKey, 0, null);
-      e.previousElementSibling.dispatchEvent(event);
+      this.select(e.previousElementSibling, metaKey);
     }
   }
   next(metaKey = false) {
     const e = [...this.content.querySelectorAll('.entry[data-selected=true] + .entry')].pop();
     if (e) {
-      const event = document.createEvent('MouseEvent');
-      event.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, metaKey, false, false, metaKey, 0, null);
-      e.dispatchEvent(event);
+      this.select(e, metaKey);
     }
   }
   items(selected = true) {
@@ -294,6 +298,13 @@ class ListView extends HTMLElement {
       }
     }
     this.content.appendChild(f);
+    // scroll the fist selected index into the view
+    if (ids.length) {
+      const e = this.content.querySelector(`[data-id="${ids[0]}"`);
+      if (e) {
+        e.click();
+      }
+    }
 
     this.emit('selection-changed');
   }
