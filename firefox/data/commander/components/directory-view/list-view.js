@@ -132,11 +132,15 @@ class ListView extends HTMLElement {
         }
         // double-click => submit selection
         else {
+          const e = Object.assign({}, target.node, target.dataset);
+          if (e.id.startsWith('{')) {
+            e.id = JSON.parse(e.id);
+          }
           this.emit('submit', {
             shiftKey: e.shiftKey,
             ctrlKey: e.ctrlKey,
             metaKey: e.metaKey,
-            entries: [Object.assign({}, target.node, target.dataset)]
+            entries: []
           });
         }
       }
@@ -213,7 +217,14 @@ class ListView extends HTMLElement {
     return [...this.content.querySelectorAll('.entry[data-index]:not([data-index="-1"])')];
   }
   entries(selected = true) {
-    return this.items(selected).map(target => Object.assign({}, target.node, target.dataset));
+    return this.items(selected).map(target => {
+      const o = Object.assign({}, target.node, target.dataset);
+      // id is from search
+      if (target.dataset.id.startsWith('{')) {
+        o.id = JSON.parse(target.dataset.id);
+      }
+      return o;
+    });
   }
   emit(name, detail) {
     return this.dispatchEvent(new CustomEvent(name, {
@@ -271,7 +282,7 @@ class ListView extends HTMLElement {
           key: node.title ? node.title[0].toLowerCase() : '',
           type,
           index: node.index,
-          id: node.id,
+          id: typeof node.id === 'string' ? node.id : JSON.stringify(node.id),
           readonly: node.readonly || false
         });
         div.node = node;

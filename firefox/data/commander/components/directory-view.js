@@ -2,6 +2,8 @@
 class DirectoryView extends HTMLElement {
   constructor() {
     super();
+
+    this.history = [];
     const shadow = this.attachShadow({
       mode: 'open'
     });
@@ -85,7 +87,17 @@ class DirectoryView extends HTMLElement {
     try {
       const nodes = await engine.bookmarks.children(id);
       this.count = this.CountElement.textContent = nodes.length;
-      if (this.isRoot(id) === false && this.isSearch(id) === false) {
+      if (this.isSearch(id)) {
+        const length = this.history.length;
+        const id = length ? this.history[length - 1] : '';
+        nodes.unshift({
+          title: '[..]',
+          id,
+          index: -1,
+          readonly: true
+        });
+      }
+      else if (this.isRoot(id) === false) {
         const parent = await engine.bookmarks.parent(id);
         nodes.unshift({
           title: '[..]',
@@ -95,9 +107,12 @@ class DirectoryView extends HTMLElement {
         });
       }
       this.listView[method](nodes);
+
+      this.history.push(id);
     }
     catch (e) {
       this.listView.build(undefined, e);
+      console.warn(e);
       window.setTimeout(() => this.build(''), 2000);
     }
   }

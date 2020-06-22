@@ -13,6 +13,7 @@ class PathView extends HTMLElement {
           display: flex;
           white-space: nowrap;
           overflow: auto;
+          user-select: none;
         }
         label {
           background-color: #dadada;
@@ -47,10 +48,11 @@ class PathView extends HTMLElement {
     this.content.addEventListener('click', e => {
       const {target} = e;
       if (target.id && target !== this.content) {
+        const id = target.id.startsWith('{') ? JSON.parse(target.id) : target.id;
         this.dispatchEvent(new CustomEvent('submit', {
           detail: {
             entries: [{
-              id: target.id,
+              id,
               type: 'DIRECTORY'
             }]
           }
@@ -59,6 +61,7 @@ class PathView extends HTMLElement {
     });
   }
   build(map) {
+    console.log(map);
     this.content.textContent = '';
     const f = document.createDocumentFragment();
     map.forEach(({title, id}, i) => {
@@ -66,7 +69,7 @@ class PathView extends HTMLElement {
       const input = document.createElement('input');
       input.type = 'radio';
       input.name = 'group';
-      input.id = id;
+      input.id = typeof id === 'string' ? id : JSON.stringify(id);
       input.checked = i === map.length - 1;
       f.appendChild(input);
       label.textContent = title || '';
