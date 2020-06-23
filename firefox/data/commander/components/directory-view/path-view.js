@@ -61,7 +61,6 @@ class PathView extends HTMLElement {
     });
   }
   build(map) {
-    console.log(map);
     this.content.textContent = '';
     const f = document.createDocumentFragment();
     map.forEach(({title, id}, i) => {

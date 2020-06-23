@@ -32,7 +32,7 @@ document.addEventListener('directory-view:submit', e => {
     if (o.type === 'DIRECTORY' && detail.entries.length === 1) {
       const {id, openerId} = detail.entries[0];
       if (openerId) {
-        e.target.build(id, [], [openerId]);
+        e.target.build(id, undefined, [openerId]);
       }
       else {
         e.target.build(id);
@@ -350,6 +350,9 @@ document.addEventListener('keydown', e => {
 views.parent.addEventListener('change', () => {
   views.changed();
 });
+
+// select view on tools empty space
+toolsView.addEventListener('click', () => views.active().click());
 
 // remember last state
 if (args.get('mode') === 'window') {

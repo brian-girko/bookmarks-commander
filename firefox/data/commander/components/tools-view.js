@@ -1,3 +1,4 @@
+/* global engine */
 class ToolsView extends HTMLElement {
   constructor() {
     super();
@@ -11,6 +12,7 @@ class ToolsView extends HTMLElement {
           display: flex;
           flex-wrap: wrap;
           margin: 0 2px;
+          user-select: none;
         }
         button {
           display: inline-flex;
@@ -108,10 +110,15 @@ class ToolsView extends HTMLElement {
   }
   validate(name) {
     const d = this.shadow.querySelector(`[data-command="${name}"]`);
-    if (d && d.dataset.enabled !== 'false') {
-      return true;
+    if (d) {
+      if (d.dataset.enabled === 'false') {
+        return 0;
+      }
+      else {
+        return 1;
+      }
     }
-    return false;
+    return -1;
   }
   command(e, callback) {
     const meta = e.ctrlKey || e.metaKey;
@@ -173,9 +180,16 @@ icon=[default|light|dark]`);
     }
 
     if (command) {
-      if (this.validate(command)) {
+      const code = this.validate(command);
+      if (code === 0 || code === 1) {
         e.preventDefault();
+        e.stopPropagation(); // to prevent other modules from running
+      }
+      if (code === 1) {
         callback(command, e);
+      }
+      if (code === 0) {
+        engine.notify('beep');
       }
     }
   }

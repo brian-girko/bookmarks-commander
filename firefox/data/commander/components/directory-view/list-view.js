@@ -1,3 +1,5 @@
+/* global engine */
+
 class ListView extends HTMLElement {
   constructor() {
     super();
@@ -185,6 +187,9 @@ class ListView extends HTMLElement {
         if (d) {
           this.dbclick(d);
         }
+        else {
+          engine.notify('beep');
+        }
       }
     });
     shadow.addEventListener('keydown', e => {
@@ -297,6 +302,9 @@ class ListView extends HTMLElement {
   // ids of selected elements
   build(nodes, err, ids = []) {
     this.clean();
+
+    // remove unknown ids
+    ids = ids.filter(id => nodes.some(n => n.id === id));
 
     const f = document.createDocumentFragment();
     if (err) {
