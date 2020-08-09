@@ -362,7 +362,6 @@ class ListView extends HTMLElement {
     this.emit('selection-changed');
   }
   mode(o) {
-    console.log(o, this.content);
     this.content.dataset.path = Boolean(o.path);
   }
   // refresh the list while keeping selections

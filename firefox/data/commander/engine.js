@@ -29,14 +29,14 @@ const bookmarks = {
 
       return new Promise(resolve => chrome.bookmarks.getSubTree(openerId, children => {
         const links = {};
-        const swipe = (root, path = '') => {
+        const swipe = (root, path = '.') => {
           for (const node of root.children) {
             if ('children' in node) {
               swipe(node, path + '/' + (node.title || ''));
             }
             else if (node.url) {
               links[node.url] = links[node.url] || [];
-              node.relativePath = path;
+              node.relativePath = path.replace('.//', '/');
               links[node.url].push(node);
             }
           }

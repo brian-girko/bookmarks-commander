@@ -91,6 +91,8 @@ const views = {
     const direction = active === views.left ? 'LEFT' : 'RIGHT';
     const entries = active.entries();
 
+    console.log(entries);
+
     const readonly = entries.some(o => o.readonly === 'true');
     const directory = entries.some(o => o.type === 'DIRECTORY');
     const file = entries.some(o => o.type === 'FILE');
@@ -134,9 +136,9 @@ const views = {
     // edit-title
     toolsView.state('edit-title', readonly === false && entries.length === 1);
     // new-file
-    toolsView.state('new-file', readonly || active.isSearch() ? false : true);
-    // new-directory
-    toolsView.state('new-directory', readonly || active.isSearch() ? false : true);
+    toolsView.state('new-file', active.isRoot() || active.isSearch() ? false : true);
+    // new-directory (test; create directory on [..])
+    toolsView.state('new-directory', active.isRoot() || active.isSearch() ? false : true);
   },
   update() {
     views.left.update(views.left.id());
