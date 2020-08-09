@@ -45,6 +45,9 @@ class ToolsView extends HTMLElement {
         svg {
           margin: 0 2px;
         }
+        span u {
+          pointer-events: none;
+        }
       </style>
       <button>
         <svg width="12" height="12" viewBox="-21 0 512 512" xmlns="http://www.w3.org/2000/svg">

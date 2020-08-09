@@ -93,8 +93,11 @@ class PromptView extends HTMLElement {
 
     this.classList.remove('hidden');
     input.value = value;
-    input.focus();
-    input.select();
+
+    window.setTimeout(() => {
+      input.focus();
+      input.select();
+    });
 
     return new Promise(resolve => this.resolve = resolve);
   }

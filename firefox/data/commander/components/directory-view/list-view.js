@@ -137,7 +137,13 @@ class ListView extends HTMLElement {
               }
             }
           }
-          target.dataset.selected = true;
+          // select / deselect on meta
+          if (e.ctrlKey || e.metaKey) {
+            target.dataset.selected = target.dataset.selected !== 'true';
+          }
+          else {
+            target.dataset.selected = true;
+          }
           for (const e of [...this.content.querySelectorAll('.entry[data-last-selected=true]')]) {
             e.dataset.lastSelected = false;
           }
@@ -145,20 +151,7 @@ class ListView extends HTMLElement {
 
           // scroll (only when e.isTrusted === false)
           if (e.isTrusted === false) {
-            const hr = this.content.querySelector('.hr').getBoundingClientRect();
-            const bounding = target.getBoundingClientRect();
-            // do we need scroll from top
-            if (bounding.top < hr.top + hr.height) {
-              target.scrollIntoView({
-                block: 'start'
-              });
-              this.content.scrollTop -= bounding.height;
-            }
-            if (bounding.bottom > hr.top + this.content.clientHeight) {
-              target.scrollIntoView({
-                block: 'end'
-              });
-            }
+            this.scroll(target);
           }
           this.emit('selection-changed');
         }
@@ -351,11 +344,11 @@ class ListView extends HTMLElement {
       }
     }
     this.content.appendChild(f);
-    // scroll the fist selected index into the view
+    // scroll the first selected index into the view
     if (ids.length) {
       const e = this.content.querySelector(`[data-id="${ids[0]}"`);
       if (e) {
-        e.click();
+        this.scroll(e);
       }
     }
 
@@ -375,6 +368,22 @@ class ListView extends HTMLElement {
   // content is the only focusable element
   focus() {
     this.content.focus();
+  }
+  scroll(target) {
+    const hr = this.content.querySelector('.hr').getBoundingClientRect();
+    const bounding = target.getBoundingClientRect();
+    // do we need scroll from top
+    if (bounding.top < hr.top + hr.height) {
+      target.scrollIntoView({
+        block: 'start'
+      });
+      this.content.scrollTop -= bounding.height;
+    }
+    if (bounding.bottom > hr.top + this.content.clientHeight) {
+      target.scrollIntoView({
+        block: 'end'
+      });
+    }
   }
 }
 window.customElements.define('list-view', ListView);

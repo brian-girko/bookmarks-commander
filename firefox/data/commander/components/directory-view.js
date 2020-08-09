@@ -39,7 +39,9 @@ class DirectoryView extends HTMLElement {
     this.listView.addEventListener('submit', onsubmit);
     this.listView.addEventListener('selection-changed', () => this.emit('directory-view:selection-changed'));
     // focus the list-view element
-    this.addEventListener('click', () => this.listView.focus());
+    this.addEventListener('click', () => {
+      this.listView.focus();
+    });
   }
   emit(name, detail) {
     return this.dispatchEvent(new CustomEvent(name, {

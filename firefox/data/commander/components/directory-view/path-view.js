@@ -28,8 +28,13 @@ class PathView extends HTMLElement {
           justify-content: center;
           height: 24px; /* we need this to prevent special chars from resizing labels */
         }
+        label span {
+          pointer-events: none;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
         input:checked + label {
-          min-width: fit-content;
+          max-width: 200px;
           background-color: #fff;
         }
         input[type=radio] {
@@ -65,13 +70,15 @@ class PathView extends HTMLElement {
     const f = document.createDocumentFragment();
     map.forEach(({title, id}, i) => {
       const label = document.createElement('label');
+      const span = document.createElement('span');
       const input = document.createElement('input');
       input.type = 'radio';
       input.name = 'group';
       input.id = typeof id === 'string' ? id : JSON.stringify(id);
       input.checked = i === map.length - 1;
       f.appendChild(input);
-      label.textContent = title || '';
+      label.title = span.textContent = title || '';
+      label.appendChild(span);
       f.appendChild(label);
       label.setAttribute('for', input.id);
     });
