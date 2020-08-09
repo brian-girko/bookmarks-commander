@@ -70,8 +70,7 @@ document.addEventListener('tools-view:command', e => {
   views.active().click();
 });
 
-const user = document.querySelector('prompt-view');
-user.on('blur', () => views.active().click());
+engine.user.on('blur', () => views.active().click());
 
 /* views */
 const views = {
@@ -90,8 +89,6 @@ const views = {
 
     const direction = active === views.left ? 'LEFT' : 'RIGHT';
     const entries = active.entries();
-
-    console.log(entries);
 
     const readonly = entries.some(o => o.readonly === 'true');
     const directory = entries.some(o => o.type === 'DIRECTORY');
@@ -186,14 +183,14 @@ const command = async (command, e) => {
       const entry = entries[0];
       let o = {};
       if (command === 'edit-title') {
-        const title = await user.ask('Edit Title', entry.title);
+        const title = await engine.user.ask('Edit Title', entry.title);
         o = {title};
         if (title === entry.title || title === '') {
           return;
         }
       }
       else {
-        const url = await user.ask('Edit Link', entry.url);
+        const url = await engine.user.ask('Edit Link', entry.url);
         o = {url};
         if (url === entry.url || url === '') {
           return;
@@ -240,19 +237,19 @@ const command = async (command, e) => {
         index: Number(entry.index) + 1
       };
       if (command === 'new-file') {
-        const title = ((await user.ask('Title of New Bookmark', entry.title)) || '').trim();
+        const title = ((await engine.user.ask('Title of New Bookmark', entry.title)) || '').trim();
         if (!title) {
           return;
         }
         o.title = title;
-        const url = ((await user.ask('URL of New Bookmark', entry.url || 'https://www.example.com')) || '').trim();
+        const url = ((await engine.user.ask('URL of New Bookmark', entry.url || 'https://www.example.com')) || '').trim();
         if (!url) {
           return;
         }
         o.url = url;
       }
       else {
-        const title = ((await user.ask('Title of New Directory', entry.title)) || '').trim();
+        const title = ((await engine.user.ask('Title of New Directory', entry.title)) || '').trim();
         if (title) {
           o.title = title;
         }
@@ -285,7 +282,19 @@ const command = async (command, e) => {
       views[view === views.left ? 'right' : 'left'].build(view.id());
     }
     else if (command === 'search') {
-      user.ask('Search For:\n\nUse "duplicates" keyword to find duplicated bookmarks in the current directory\'s tree)').then(query => query && view.build({query}));
+      const id = view.id();
+      let value = '';
+      if (e.shiftKey) {
+        value = 'duplicates';
+      }
+      else if (id.query) {
+        value = id.query;
+      }
+
+      engine.user.ask(
+        'Search For:\n\nUse "duplicates" keyword to find duplicated bookmarks in the current tree)',
+        value
+      ).then(query => query && view.build({query}));
     }
     else if (command === 'sort') {
       const entries = view.entries(false);
@@ -368,3 +377,23 @@ if (args.get('mode') === 'window') {
   });
 }
 
+// styling
+const styling = () => engine.storage.get({
+  'font-size': 12,
+  'font-family': 'Arial, "Helvetica Neue", Helvetica, sans-serif',
+  'user-styles': ''
+}).then(prefs => {
+  document.getElementById('user-styles').textContent = `
+    body {
+      font-size: ${prefs['font-size']}px;
+      font-family: ${prefs['font-family']};
+    }
+    ${prefs['user-styles']}
+  `;
+});
+styling();
+engine.storage.changed(ps => {
+  if (ps['font-size'] || ps['font-family'] || ps['user-styles']) {
+    styling();
+  }
+});

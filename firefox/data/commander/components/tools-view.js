@@ -88,7 +88,7 @@ class ToolsView extends HTMLElement {
         Tools&nbsp;<span title="Both panes: Ctrl + O or Command + O&#013;Active pane: Ctrl + Shift + O or Command + Shift + O" data-command="root">R<u>o</u>ot</span>&nbsp;
                    <span title="Ctrl + M or Command + M" data-command="mirror"><u>M</u>irror</span>&nbsp;
                    <span title="Ctrl + Delete, Ctrl + Backspace, Command + Delete, or Command + Backspace" data-command="trash">Delete</span>&nbsp;
-                   <span title="Ctrl + F or Command + F" data-command="search">Search (<u>F</u>)</span>&nbsp;
+                   <span title="Search for a query: Ctrl + F or Command + F&#013;Find duplicates: Ctrl + Shift + F or Command + Shift + F" data-command="search">Search (<u>F</u>)</span>&nbsp;
                    <span title="A-Z: Ctrl + J or Command + J&#013;Z-A: Ctrl + Shift + J or Command + Shift + J" data-command="sort">Sort (<u>J</u>)</span>
       </button>
     `;
@@ -167,15 +167,29 @@ class ToolsView extends HTMLElement {
     }
     // command box
     if (e.code === 'KeyS' && meta) {
-      const command = window.prompt(`Enter a Command:
+      engine.user.ask(`Enter a Command:
 
-icon=[default|light|dark]`);
-      if (command === 'icon=dark' || command === 'icon=light' || command === 'icon=default') {
-        const path = command.replace('icon=', '');
-        chrome.storage.local.set({
-          'custom-icon': path === 'default' ? '' : path
-        });
-      }
+icon=[default|light|dark]
+font-size=[number]px
+font-family=[font-name]`).then(command => {
+        if (command.startsWith('icon=')) {
+          const path = command.replace('icon=', '') || 'default';
+          chrome.storage.local.set({
+            'custom-icon': path === 'default' ? '' : path
+          });
+        }
+        else if (command.startsWith('font-size=')) {
+          const px = /font-size=(\d+)px/.exec(command);
+          chrome.storage.local.set({
+            'font-size': px && px.length ? px[1] : ''
+          });
+        }
+        else if (command.startsWith('font-family=')) {
+          chrome.storage.local.set({
+            'font-family': command.replace('font-family=', '')
+          });
+        }
+      });
       e.preventDefault();
     }
 

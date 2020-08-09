@@ -24,9 +24,8 @@ const bookmarks = {
   children(id) {
     // duplicate finder
     if (id.query && id.query.startsWith('duplicates')) {
-      let openerId = id.query.replace('duplicates:', '');
+      let openerId = id.query.replace('duplicates:', '') || bookmarks.rootID;
       openerId = isNaN(openerId) ? bookmarks.rootID : openerId;
-
       return new Promise(resolve => chrome.bookmarks.getSubTree(openerId, children => {
         const links = {};
         const swipe = (root, path = '.') => {
@@ -137,6 +136,19 @@ const storage = {
   },
   set(o) {
     return new Promise(resolve => chrome.storage.local.set(o, resolve));
+  },
+  changed(callback) {
+    chrome.storage.onChanged.addListener(callback);
+  }
+};
+
+const ue = document.querySelector('prompt-view');
+const user = {
+  ask(msg, value) {
+    return ue.ask(msg, value);
+  },
+  on(name, callback) {
+    ue.on(name, callback);
   }
 };
 
@@ -144,6 +156,7 @@ window.engine = {
   bookmarks,
   tabs,
   storage,
+  user,
   notify(e) {
     if (e === 'beep') {
       return (new Audio('/data/assets/bell.wav')).play();

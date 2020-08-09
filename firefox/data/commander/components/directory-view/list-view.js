@@ -82,8 +82,8 @@ class ListView extends HTMLElement {
         <div class="entry">
           <span data-id="icon"></span>
           <span data-id="name"></span>
-          <span data-id="href"></span>
           <span data-id="path"></span>
+          <span data-id="href"></span>
           <span data-id="added"></span>
           <span data-id="modified"></span>
         </div>
@@ -92,8 +92,8 @@ class ListView extends HTMLElement {
         <div class="entry hr">
           <span data-id="icon"></span>
           <span data-id="name">Name</span>
-          <span data-id="href">Link</span>
           <span data-id="path">Path</span>
+          <span data-id="href">Link</span>
           <span data-id="added">Added</span>
           <span data-id="modified">Modified</span>
         </div>

@@ -50,8 +50,13 @@ class DirectoryView extends HTMLElement {
   async hierarchy(id) {
     const cache = [];
     if (engine.bookmarks.isSearch(id)) {
+      let title = 'Search: ' + id.query;
+      if (id.query.startsWith('duplicates')) {
+        const openerId = id.query.replace('duplicates:', '') || engine.bookmarks.rootID;
+        title = `Duplicates for "${openerId}"`;
+      }
       cache.push({
-        title: 'Search: ' + id.query,
+        title,
         id
       });
     }
