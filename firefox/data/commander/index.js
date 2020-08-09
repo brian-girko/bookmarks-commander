@@ -223,7 +223,7 @@ const command = async (command, e) => {
         engine.storage.set({
           [view.getAttribute('id')]: ''
         }).then(() => {
-          view.update(engine.bookmarks.rootID);
+          view.build(engine.bookmarks.rootID);
         });
       }
       else {
