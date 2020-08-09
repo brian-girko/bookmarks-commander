@@ -25,6 +25,9 @@ class ListView extends HTMLElement {
           display: grid;
           grid-template-columns: 32px minmax(50px, 200px) minmax(50px, 1fr) minmax(50px, 90px) minmax(50px, 90px);
         }
+        #content[data-path=true] div.entry {
+          grid-template-columns: 32px minmax(50px, 200px) minmax(50px, 1fr) minmax(50px, 1fr);
+        }
         div.entry span {
           text-indent: 5px;
           padding: 2px 0;
@@ -48,6 +51,13 @@ class ListView extends HTMLElement {
         }
         div.entry[data-selected=true] {
           background-color: #c0e7ff !important;
+        }
+        #content[data-path=true] div.entry span[data-id=added],
+        #content[data-path=true] div.entry span[data-id=modified] {
+          display: none;
+        }
+        #content:not([data-path=true]) div.entry span[data-id=path] {
+          display: none;
         }
         div.entry span[data-id="icon"] {
           background-size: 16px;
@@ -73,6 +83,7 @@ class ListView extends HTMLElement {
           <span data-id="icon"></span>
           <span data-id="name"></span>
           <span data-id="href"></span>
+          <span data-id="path"></span>
           <span data-id="added"></span>
           <span data-id="modified"></span>
         </div>
@@ -82,6 +93,7 @@ class ListView extends HTMLElement {
           <span data-id="icon"></span>
           <span data-id="name">Name</span>
           <span data-id="href">Link</span>
+          <span data-id="path">Path</span>
           <span data-id="added">Added</span>
           <span data-id="modified">Modified</span>
         </div>
@@ -318,6 +330,7 @@ class ListView extends HTMLElement {
         const clone = document.importNode(this.template.content, true);
         clone.querySelector('[data-id="name"]').textContent = node.title;
         clone.querySelector('[data-id="href"]').textContent = node.url;
+        clone.querySelector('[data-id="path"]').textContent = node.relativePath;
         clone.querySelector('[data-id="added"]').textContent = this.date(node.dateAdded);
         clone.querySelector('[data-id="modified"]').textContent = this.date(node.dateGroupModified);
         const type = node.url ? 'FILE' : 'DIRECTORY';
@@ -347,6 +360,10 @@ class ListView extends HTMLElement {
     }
 
     this.emit('selection-changed');
+  }
+  mode(o) {
+    console.log(o, this.content);
+    this.content.dataset.path = Boolean(o.path);
   }
   // refresh the list while keeping selections
   update(nodes, err) {

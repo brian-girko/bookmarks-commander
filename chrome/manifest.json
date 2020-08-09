@@ -8,8 +8,7 @@
     "contextMenus",
     "notifications",
     "storage",
-    "chrome://favicon/*",
-    "clipboardWrite"
+    "chrome://favicon/*"
   ],
   "homepage_url": "https://add0n.com/bookmarks-commander.html",
   "background": {

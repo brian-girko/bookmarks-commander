@@ -22,7 +22,32 @@ const bookmarks = {
     });
   },
   children(id) {
-    if (id.query) {
+    // duplicate finder
+    if (id.query && id.query.startsWith('duplicates')) {
+      let openerId = id.query.replace('duplicates:', '');
+      openerId = isNaN(openerId) ? bookmarks.rootID : openerId;
+
+      return new Promise(resolve => chrome.bookmarks.getSubTree(openerId, children => {
+        const links = {};
+        const swipe = (root, path = '') => {
+          for (const node of root.children) {
+            if ('children' in node) {
+              swipe(node, path + '/' + (node.title || ''));
+            }
+            else if (node.url) {
+              links[node.url] = links[node.url] || [];
+              node.relativePath = path;
+              links[node.url].push(node);
+            }
+          }
+        };
+        swipe({
+          children
+        });
+        return resolve(Object.values(links).filter(nodes => nodes.length > 1).flat());
+      }));
+    }
+    else if (id.query) {
       return new Promise(resolve => chrome.bookmarks.search({
         query: id.query
       }, nodes => {

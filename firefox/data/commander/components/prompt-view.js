@@ -41,6 +41,9 @@ class PromptView extends HTMLElement {
         input[type=submit] {
           cursor: pointer;
         }
+        span {
+          white-space: pre-wrap;
+        }
       </style>
       <form>
         <span>This is a prompt message</span>

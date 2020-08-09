@@ -283,7 +283,7 @@ const command = async (command, e) => {
       views[view === views.left ? 'right' : 'left'].build(view.id());
     }
     else if (command === 'search') {
-      user.ask('Search For').then(query => query && view.build({query}));
+      user.ask('Search For:\n\nUse "duplicates" keyword to find duplicated bookmarks in the current directory\'s tree)').then(query => query && view.build({query}));
     }
     else if (command === 'sort') {
       const entries = view.entries(false);

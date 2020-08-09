@@ -85,6 +85,12 @@ class DirectoryView extends HTMLElement {
   async buildListView(id, update = false, selectedIDs = []) {
     const method = update ? 'update' : 'build';
     try {
+      // add openerId to empty "duplicates" queries
+      if (id.query && id.query === 'duplicates') {
+        let openerId = this.id();
+        openerId = isNaN(openerId) ? engine.bookmarks.rootID : openerId;
+        id.query += ':' + openerId;
+      }
       const nodes = await engine.bookmarks.children(id);
       this.count = this.CountElement.textContent = nodes.length;
       if (this.isSearch(id)) {
@@ -113,6 +119,9 @@ class DirectoryView extends HTMLElement {
       else {
         this.listView.update(nodes);
       }
+      this.listView.mode({
+        path: this.isSearch(id)
+      });
 
       this.history.push(id);
     }
