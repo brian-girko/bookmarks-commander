@@ -95,7 +95,7 @@ class ToolsView extends HTMLElement {
                    <div class="view-2"><span title="Ctrl + M or Command + M" data-command="mirror"><u>M</u>irror</span>&nbsp;</div>
                    <span title="Ctrl + Delete, Ctrl + Backspace, Command + Delete, or Command + Backspace" data-command="trash">Delete</span>&nbsp;
                    <span title="Search for a query: Ctrl + F or Command + F&#013;Find duplicates: Ctrl + Shift + F or Command + Shift + F" data-command="search">Search (<u>F</u>)</span>&nbsp;
-                   <span title="A-Z: Ctrl + J or Command + J&#013;Z-A: Ctrl + Shift + J or Command + Shift + J" data-command="sort">Sort (<u>J</u>)</span>
+                   <span title="A-Z: Ctrl + J or Command + J&#013;Z-A: Ctrl + Shift + J or Command + Shift + J&#013;Custom Sorting (A-Z): Alt + J&#013;Custom Sorting (Z-A): Alt + Shift + J" data-command="sort">Sort (<u>J</u>)</span>
       </button>
     `;
     this.shadow.addEventListener('click', e => {
@@ -168,7 +168,7 @@ class ToolsView extends HTMLElement {
     else if (e.code === 'KeyF' && meta) {
       command = 'search';
     }
-    else if (e.code === 'KeyJ' && meta) {
+    else if (e.code === 'KeyJ' && (meta || e.altKey)) {
       command = 'sort';
     }
     // command box

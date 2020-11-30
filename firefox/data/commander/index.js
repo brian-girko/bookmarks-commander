@@ -298,12 +298,40 @@ const command = async (command, e) => {
     }
     else if (command === 'sort') {
       const entries = view.entries(false);
+      // sort based on
+      const rules = (e.altKey ? await engine.user.ask(
+        'Sort By (link, name, date):',
+        'name, link'
+      ) : 'name').split(/\s*,\s*/).filter(a => a === 'link' || a === 'name' || a === 'date');
+      if (rules.length === 0) {
+        rules.push('name');
+      }
+
       const sort = list => {
         return list.sort((a, b) => {
-          if (e.shiftKey) {
-            return ('' + b.title).localeCompare(a.title + '');
+          const compare = method => {
+            if (method === 'name') {
+              return ('' + a.title).localeCompare(b.title + '');
+            }
+            else if (method === 'link') {
+              return ('' + a.url).localeCompare(b.url + '');
+            }
+            else if (method === 'date') {
+              return a.dateAdded - b.dateAdded;
+            }
+            return 0;
+          };
+          let w = 0;
+          for (const rule of rules) {
+            w = compare(rule);
+            if (w !== 0) {
+              break;
+            }
           }
-          return ('' + a.title).localeCompare(b.title + '');
+          if (e.shiftKey) {
+            return -1 * w;
+          }
+          return w;
         });
       };
       const directories = sort(entries.filter(e => e.readonly === 'false' && e.type === 'DIRECTORY'));
