@@ -52,7 +52,14 @@ const bookmarks = {
     // duplicate finder
     if (id.query && id.query.startsWith('duplicates')) {
       let openerId = id.query.replace('duplicates:', '') || bookmarks.rootID;
-      openerId = isNaN(openerId) ? bookmarks.rootID : openerId;
+      if (/Firefox/.test(navigator.userAgent)) {
+        if (typeof openerId !== 'string' || openerId.trim() === '') {
+          openerId = bookmarks.rootID;
+        }
+      }
+      else if (isNaN(openerId)) { // Chrome
+        openerId = bookmarks.rootID;
+      }
       return new Promise(resolve => chrome.bookmarks.getSubTree(openerId, children => {
         const links = {};
         const swipe = (root, path = '.') => {

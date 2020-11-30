@@ -68,7 +68,14 @@ class DirectoryView extends HTMLElement {
       // add openerId to empty "duplicates" queries
       if (id.query && id.query === 'duplicates') {
         let openerId = this.id();
-        openerId = isNaN(openerId) ? engine.bookmarks.rootID : openerId;
+        if (/Firefox/.test(navigator.userAgent)) {
+          if (typeof openerId !== 'string' || openerId.trim() === '') {
+            openerId = engine.bookmarks.rootID;
+          }
+        }
+        else if (isNaN(openerId)) { // Chrome
+          openerId = engine.bookmarks.rootID;
+        }
         id.query += ':' + openerId;
       }
       const nodes = await engine.bookmarks.children(id);

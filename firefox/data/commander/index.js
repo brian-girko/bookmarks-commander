@@ -304,7 +304,7 @@ const command = async (command, e) => {
         'name, link'
       ) : 'name').split(/\s*,\s*/).filter(a => a === 'link' || a === 'name' || a === 'date');
       if (rules.length === 0) {
-        rules.push('name');
+        return;
       }
 
       const sort = list => {
