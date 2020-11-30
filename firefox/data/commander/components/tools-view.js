@@ -48,6 +48,9 @@ class ToolsView extends HTMLElement {
         span u {
           pointer-events: none;
         }
+        :host-context(body[data-views="1"]) .view-2 {
+          display: none;
+        }
       </style>
       <button>
         <svg width="12" height="12" viewBox="-21 0 512 512" xmlns="http://www.w3.org/2000/svg">
@@ -74,7 +77,7 @@ class ToolsView extends HTMLElement {
         New&nbsp;<span title="Ctrl + B or Command + B" data-command="new-file"><u>B</u>ookmark</span>&nbsp;
                  <span title="Ctrl + D or Command + D" data-command="new-directory"><u>D</u>irectory</span>
       </button>
-      <button>
+      <button class="view-2">
         <svg height="12" viewBox="0 -21 512.03658 512" width="12">
           <path d="m170.667969 384.019531c0-35.757812-22.144531-66.328125-53.398438-79.019531l386.558594-216.363281c4.246094-2.367188 7.167969-6.550781 7.980469-11.347657.832031-4.714843-.640625-9.6875-3.882813-13.3125-29.886719-33.195312-81.046875-35.585937-133.527343-6.230468l-19.027344 10.582031c-58.773438 32.597656-139.265625 77.246094-164.972656 108.09375-24.789063 29.761719-31.464844 59.777344-33.042969 69.484375l-113.621094 63.59375c-.449219.257812-.640625.746094-1.046875 1.046875-25.40625 14.804687-42.6875 42.027344-42.6875 73.472656 0 47.058594 38.273438 85.332031 85.332031 85.332031 47.0625 0 85.335938-38.273437 85.335938-85.332031zm-128 0c0-23.53125 19.132812-42.667969 42.664062-42.667969s42.667969 19.136719 42.667969 42.667969-19.136719 42.664063-42.667969 42.664063-42.664062-19.15625-42.664062-42.664063zm0 0" fill="#607d8b"/>
           <path d="m85.332031.0195312c-47.058593 0-85.332031 38.2695308-85.332031 85.3320308 0 31.445313 17.28125 58.644532 42.644531 73.449219.425781.300781.597657.789063 1.046875 1.046875l113.621094 63.59375c1.578125 9.707032 8.253906 39.722656 33.042969 69.484375 25.707031 30.847657 106.21875 75.496094 164.972656 108.09375l19.027344 10.582031c52.480469 29.355469 103.640625 26.964844 133.527343-6.230468 3.242188-3.625 4.714844-8.59375 3.882813-13.308594-.789063-4.824219-3.710937-8.984375-7.980469-11.351562l-386.515625-216.363282c31.253907-12.671875 53.398438-43.242187 53.398438-78.996094 0-47.0625-38.292969-85.3320308-85.335938-85.3320308zm0 42.6640628c23.53125 0 42.667969 19.136718 42.667969 42.667968s-19.136719 42.667969-42.667969 42.667969-42.664062-19.160156-42.664062-42.667969c0-23.507812 19.132812-42.667968 42.664062-42.667968zm0 0" fill="#607d8b"/>
@@ -89,7 +92,7 @@ class ToolsView extends HTMLElement {
           <path d="m426.667969 149.332031c0 35.347657-28.65625 64-64 64-35.347657 0-64-28.652343-64-64 0-35.34375 28.652343-64 64-64 35.34375 0 64 28.65625 64 64zm0 0" fill="#fafafa"/>
         </svg>
         Tools&nbsp;<span title="Both panes: Ctrl + O or Command + O&#013;Active pane: Ctrl + Shift + O or Command + Shift + O" data-command="root">R<u>o</u>ot</span>&nbsp;
-                   <span title="Ctrl + M or Command + M" data-command="mirror"><u>M</u>irror</span>&nbsp;
+                   <div class="view-2"><span title="Ctrl + M or Command + M" data-command="mirror"><u>M</u>irror</span>&nbsp;</div>
                    <span title="Ctrl + Delete, Ctrl + Backspace, Command + Delete, or Command + Backspace" data-command="trash">Delete</span>&nbsp;
                    <span title="Search for a query: Ctrl + F or Command + F&#013;Find duplicates: Ctrl + Shift + F or Command + Shift + F" data-command="search">Search (<u>F</u>)</span>&nbsp;
                    <span title="A-Z: Ctrl + J or Command + J&#013;Z-A: Ctrl + Shift + J or Command + Shift + J" data-command="sort">Sort (<u>J</u>)</span>
@@ -174,7 +177,8 @@ class ToolsView extends HTMLElement {
 
 icon=[default|light|dark]
 font-size=[number]px
-font-family=[font-name]`).then(command => {
+font-family=[font-name]
+views=[1|2]`).then(command => {
         if (command.startsWith('icon=')) {
           const path = command.replace('icon=', '') || 'default';
           chrome.storage.local.set({
@@ -190,6 +194,12 @@ font-family=[font-name]`).then(command => {
         else if (command.startsWith('font-family=')) {
           chrome.storage.local.set({
             'font-family': command.replace('font-family=', '')
+          });
+        }
+        else if (command.startsWith('views=')) {
+          const views = Math.min(2, Math.max(1, Number(command.replace('views=', ''))));
+          chrome.storage.local.set({
+            views
           });
         }
       });

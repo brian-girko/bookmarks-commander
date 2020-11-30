@@ -21,6 +21,33 @@ const bookmarks = {
       });
     });
   },
+  async hierarchy(id) {
+    const cache = [];
+    if (bookmarks.isSearch(id)) {
+      let title = 'Search: ' + id.query;
+      if (id.query.startsWith('duplicates')) {
+        const openerId = id.query.replace('duplicates:', '') || bookmarks.rootID;
+        title = `Duplicates for "${openerId}"`;
+      }
+      cache.push({
+        title,
+        id
+      });
+    }
+    else {
+      while (this.isRoot(id) === false) {
+        const node = await bookmarks.parent(id);
+        id = node.parentId;
+        cache.unshift(node);
+      }
+      cache.unshift({
+        title: '/',
+        id: bookmarks.rootID
+      });
+    }
+
+    return cache;
+  },
   children(id) {
     // duplicate finder
     if (id.query && id.query.startsWith('duplicates')) {
@@ -49,7 +76,13 @@ const bookmarks = {
     else if (id.query) {
       return new Promise(resolve => chrome.bookmarks.search({
         query: id.query
-      }, nodes => {
+      }, async nodes => {
+        for (const node of nodes) {
+          const arr = await bookmarks.hierarchy(node.id);
+          arr.shift();
+          arr.pop();
+          node.relativePath = ['', ...arr, ''].map(n => n.title).join('/');
+        }
         resolve(nodes);
       }));
     }

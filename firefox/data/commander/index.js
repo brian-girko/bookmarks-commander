@@ -381,8 +381,10 @@ if (args.get('mode') === 'window') {
 const styling = () => engine.storage.get({
   'font-size': 12,
   'font-family': 'Arial, "Helvetica Neue", Helvetica, sans-serif',
-  'user-styles': ''
+  'user-styles': '',
+  'views': 2
 }).then(prefs => {
+  document.body.dataset.views = prefs.views;
   document.getElementById('user-styles').textContent = `
     body {
       font-size: ${prefs['font-size']}px;
@@ -393,7 +395,7 @@ const styling = () => engine.storage.get({
 });
 styling();
 engine.storage.changed(ps => {
-  if (ps['font-size'] || ps['font-family'] || ps['user-styles']) {
+  if (ps['font-size'] || ps['font-family'] || ps['user-styles'] || ps['views']) {
     styling();
   }
 });

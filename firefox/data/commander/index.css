@@ -47,3 +47,10 @@ prompt-view {
 .hidden {
   display: none;
 }
+
+body[data-views="1"] #directories {
+  grid-template-columns: 1fr;
+}
+body[data-views="1"] label[data-id="right"] {
+  display: none !important;
+}

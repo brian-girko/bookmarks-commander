@@ -49,37 +49,10 @@ class DirectoryView extends HTMLElement {
       detail
     }));
   }
-  async hierarchy(id) {
-    const cache = [];
-    if (engine.bookmarks.isSearch(id)) {
-      let title = 'Search: ' + id.query;
-      if (id.query.startsWith('duplicates')) {
-        const openerId = id.query.replace('duplicates:', '') || engine.bookmarks.rootID;
-        title = `Duplicates for "${openerId}"`;
-      }
-      cache.push({
-        title,
-        id
-      });
-    }
-    else {
-      while (this.isRoot(id) === false) {
-        const node = await engine.bookmarks.parent(id);
-        id = node.parentId;
-        cache.unshift(node);
-      }
-      cache.unshift({
-        title: '/',
-        id: engine.bookmarks.rootID
-      });
-    }
-
-    return cache;
-  }
   async buildPathView(id, arr) {
     // store path only if it is needed
     if (!arr) {
-      arr = await this.hierarchy(id);
+      arr = await engine.bookmarks.hierarchy(id);
       this.emit('directory-view:path', {
         id,
         arr
