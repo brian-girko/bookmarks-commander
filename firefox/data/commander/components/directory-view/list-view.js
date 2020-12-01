@@ -54,7 +54,7 @@ class ListView extends HTMLElement {
           width: 2px;
           background-color: #e8e3e9;
           display: inline-block;
-          height: 100%;
+          height: 12px;
           cursor: col-resize;
         }
         div.entry:not(.hr):nth-child(even) {
