@@ -23,10 +23,10 @@ class ListView extends HTMLElement {
         div.entry {
           padding: 1px 0;
           display: grid;
-          grid-template-columns: 32px minmax(50px, 200px) minmax(50px, 1fr) minmax(50px, 90px) minmax(50px, 90px);
+          grid-template-columns: 32px minmax(32px, var(--name-width, 200px)) minmax(32px, 1fr) minmax(32px, var(--added-width, 90px)) minmax(32px, var(--modified-width, 90px));
         }
         #content[data-path=true] div.entry {
-          grid-template-columns: 32px minmax(50px, 200px) minmax(50px, 1fr) minmax(50px, 1fr);
+          grid-template-columns: 32px minmax(32px, 200px) minmax(32px, 1fr) minmax(32px, 1fr);
         }
         div.entry span {
           text-indent: 5px;
@@ -37,14 +37,25 @@ class ListView extends HTMLElement {
           pointer-events: none;
         }
         div.entry.hr {
-          pointer-events: none;
           border-bottom: solid 1px #e8e3e9;
           position: sticky;
           top: 0;
           background: #f5f5f5;
         }
-        div.entry.hr span:not(first-child) {
-          border-left: solid 1px #e8e3e9;
+        div.entry.hr span {
+          pointer-events: none;
+          width: 100%;
+        }
+        div.entry.hr > div {
+          display: flex;
+          align-items: center;
+        }
+        div.entry.hr i {
+          width: 2px;
+          background-color: #e8e3e9;
+          display: inline-block;
+          height: 100%;
+          cursor: col-resize;
         }
         div.entry:not(.hr):nth-child(even) {
           background-color: #f5f5f5;
@@ -52,32 +63,33 @@ class ListView extends HTMLElement {
         div.entry[data-selected=true] {
           background-color: #c0e7ff !important;
         }
-        #content[data-path=true] div.entry span[data-id=added],
-        #content[data-path=true] div.entry span[data-id=modified] {
+        #content[data-path=true] div.entry [data-id=added],
+        #content[data-path=true] div.entry [data-id=modified] {
           display: none;
         }
-        #content:not([data-path=true]) div.entry span[data-id=path] {
+        #content:not([data-path=true]) div.entry [data-id=path] {
           display: none;
         }
-        div.entry span[data-id="icon"] {
+        div.entry [data-id="icon"] {
           background-size: 16px;
           background-repeat: no-repeat;
           background-position: center center;
         }
-        div.entry[data-type="DIRECTORY"] span[data-id="icon"] {
+        div.entry[data-type="DIRECTORY"] [data-id="icon"] {
           background-image: url('/data/commander/images/directory.svg');
         }
-        div.entry[data-type="DIRECTORY"][data-readonly="true"] span[data-id="icon"] {
+        div.entry[data-type="DIRECTORY"][data-readonly="true"] [data-id="icon"] {
           background-image: url('/data/commander/images/directory-readonly.svg');
         }
-        div.entry[data-type="ERROR"] span[data-id="icon"] {
+        div.entry[data-type="ERROR"] [data-id="icon"] {
           background-image: url('/data/commander/images/error.svg');
         }
-        div.entry span[data-id="added"],
-        div.entry span[data-id="modified"] {
+        div.entry [data-id="added"],
+        div.entry [data-id="modified"] {
           text-align: center;
         }
       </style>
+      <style id="styles"></style>
       <template>
         <div class="entry">
           <span data-id="icon"></span>
@@ -90,12 +102,12 @@ class ListView extends HTMLElement {
       </template>
       <div id="content" tabindex="-1">
         <div class="entry hr">
-          <span data-id="icon"></span>
-          <span data-id="name">Name</span>
-          <span data-id="path">Path</span>
-          <span data-id="href">Link</span>
-          <span data-id="added">Added</span>
-          <span data-id="modified">Modified</span>
+          <div data-id="icon"><span></span></div>
+          <div data-id="name"><i></i><span>Name</span></div>
+          <div data-id="path"><i></i><span>Path</span></div>
+          <div data-id="href"><i></i><span>Link</span></div>
+          <div data-id="added"><i></i><span>Added</span></div>
+          <div data-id="modified"><i></i><span>Modified</span></div>
         </div>
       </div>
     `;
@@ -118,7 +130,7 @@ class ListView extends HTMLElement {
 
     shadow.addEventListener('click', e => {
       const {target} = e;
-      if (target.classList.contains('entry')) {
+      if (target.classList.contains('entry') && target.classList.contains('hr') === false) {
         // single-click => toggle selection
         if (e.detail === 1 || e.detail === 0) {
           if (e.ctrlKey === false && e.metaKey === false && e.shiftKey === false) {
@@ -384,6 +396,45 @@ class ListView extends HTMLElement {
         block: 'end'
       });
     }
+  }
+  connectedCallback() {
+    const hr = this.content.querySelector('div.entry.hr');
+    const entries = [...hr.querySelectorAll('div')];
+    entries.forEach((entry, index) => {
+      const drag = entry.querySelector('i');
+      if (!drag) {
+        return;
+      }
+      drag.onmousedown = () => {
+        const resize = e => {
+          const widths = entries.map(e => e.getBoundingClientRect().width);
+          const total = widths.reduce((p, c) => c + p, 0);
+
+          widths[index] -= e.movementX;
+          if (widths[index] < 32) {
+            return;
+          }
+          for (let j = index - 1; j >= 0; j -= 1) {
+            if (widths[j] !== 0) {
+              widths[j] += e.movementX;
+              if (widths[j] < 32) {
+                return;
+              }
+              break;
+            }
+          }
+          this.shadowRoot.getElementById('styles').textContent = `
+            #content[data-path=${this.content.dataset.path}] div.entry {
+              grid-template-columns: ${widths.filter(w => w).map(w => (w / total * 100) + '%').join(' ')};
+            }
+          `;
+        };
+        document.addEventListener('mousemove', resize);
+        document.onmouseup = () => {
+          document.removeEventListener('mousemove', resize);
+        };
+      };
+    });
   }
 }
 window.customElements.define('list-view', ListView);

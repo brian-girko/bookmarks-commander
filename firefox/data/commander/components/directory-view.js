@@ -124,6 +124,15 @@ class DirectoryView extends HTMLElement {
     this.buildPathView(id, arr);
     this._id = id;
   }
+  style({
+    name = 200,
+    added = 90,
+    modified = 90
+  }) {
+    this.listView.style.setProperty('--name-width', name + 'px');
+    this.listView.style.setProperty('--added-width', added + 'px');
+    this.listView.style.setProperty('--modified-width', modified + 'px');
+  }
   update(id) {
     this.buildListView(id, true);
   }

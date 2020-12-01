@@ -410,7 +410,12 @@ const styling = () => engine.storage.get({
   'font-size': 12,
   'font-family': 'Arial, "Helvetica Neue", Helvetica, sans-serif',
   'user-styles': '',
-  'views': 2
+  'views': 2,
+  'widths': {
+    name: 100,
+    added: 90,
+    modified: 90
+  }
 }).then(prefs => {
   document.body.dataset.views = prefs.views;
   document.getElementById('user-styles').textContent = `
@@ -420,10 +425,12 @@ const styling = () => engine.storage.get({
     }
     ${prefs['user-styles']}
   `;
+  views.left.style(prefs.widths);
+  views.right.style(prefs.widths);
 });
 styling();
 engine.storage.changed(ps => {
-  if (ps['font-size'] || ps['font-family'] || ps['user-styles'] || ps['views']) {
+  if (ps['font-size'] || ps['font-family'] || ps['user-styles'] || ps['views'] || ps['widths']) {
     styling();
   }
 });

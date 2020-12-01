@@ -178,7 +178,8 @@ class ToolsView extends HTMLElement {
 icon=[default|light|dark]
 font-size=[number]px
 font-family=[font-name]
-views=[1|2]`).then(command => {
+views=[1|2]
+column-widths=[name]px, [added]px, [modified]px `).then(command => {
         if (command.startsWith('icon=')) {
           const path = command.replace('icon=', '') || 'default';
           chrome.storage.local.set({
@@ -200,6 +201,20 @@ views=[1|2]`).then(command => {
           const views = Math.min(2, Math.max(1, Number(command.replace('views=', ''))));
           chrome.storage.local.set({
             views
+          });
+        }
+        else if (command.startsWith('column-widths=')) {
+          const widths = [...command.replace('column-widths=', '').split(/\s*,\s*/).map(s => Number(s))].slice(0, 3);
+          widths[0] = widths[0] ? Math.min(1000, Math.max(32, widths[0])) : 200;
+          widths[1] = widths[1] ? Math.min(1000, Math.max(32, widths[1])) : 90;
+          widths[2] = widths[2] ? Math.min(1000, Math.max(32, widths[2])) : 90;
+
+          chrome.storage.local.set({
+            widths: {
+              name: widths[0],
+              added: widths[1],
+              modified: widths[2]
+            }
           });
         }
       });
