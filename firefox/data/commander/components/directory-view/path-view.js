@@ -16,7 +16,7 @@ class PathView extends HTMLElement {
           user-select: none;
         }
         label {
-          background-color: #dadada;
+          background-color: var(--bg-path, #dadada);
           margin: 0 2px 2px 0;
           padding: 0 5px;
           cursor: pointer;
@@ -35,7 +35,7 @@ class PathView extends HTMLElement {
         }
         input:checked + label {
           max-width: 200px;
-          background-color: #fff;
+          background-color: var(--bg-path-active, #fff);
         }
         input[type=radio] {
           display: none;

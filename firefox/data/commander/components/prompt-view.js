@@ -13,7 +13,7 @@ class PromptView extends HTMLElement {
         }
         form {
           padding: 10px;
-          background-color: #fff;
+          background-color: var(--bg-active, #fff);
           display: flex;
           flex-direction: column;
           width: 400px;
@@ -24,18 +24,22 @@ class PromptView extends HTMLElement {
           justify-content: flex-end;
         }
         input {
-          background-color: #eee  ;
+          color: var(--color, #3e3e3e);
+          background-color: var(--bg-light, #eee);
           border: none;
           min-width: 80px;
           padding: 5px;
           outline: none;
+        }
+        input::selection {
+          background-color: var(--selection, #8a8c8d);
         }
         input[type=text] {
           margin: 10px 0;
         }
         input[type=submit] {
           margin-left: 5px;
-          background-color: #dadada;
+          background-color: var(--bg-light, #dadada);
         }
         input[type=button],
         input[type=submit] {

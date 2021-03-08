@@ -18,8 +18,8 @@ class DirectoryView extends HTMLElement {
           overflow: hidden;
         }
         #count {
-          color: #a0a0a0;
-          text-shadow: 1px 1px #fcffff;
+          color: var(--disabled-color, #a0a0a0);
+          text-shadow: 1px 1px var(--disabled-shadow, #fcffff);
           margin: 0 2px;
           font-size: 80%;
         }

@@ -27,19 +27,19 @@ class ToolsView extends HTMLElement {
           margin-bottom: 2px;
         }
         button span {
-          background-color: #dadada;
+          background-color: var(--bg-light, #dadada);
           cursor: pointer;
           display: inline-flex;
           align-items: center;
-          height: 24px;
+          height: 28px;
           padding: 0 5px;
         }
         button span:hover {
           background-color: rgba(0, 0, 0, 0.15);
         }
         span[data-enabled=false] {
-          color: #a0a0a0;
-          text-shadow: 1px 1px #fcffff;
+          color: var(--disabled-color, #a0a0a0);
+          text-shadow: 1px 1px var(--disabled-shadow, #fcffff);
           pointer-events: none;
         }
         svg {
@@ -91,7 +91,8 @@ class ToolsView extends HTMLElement {
           <path d="m512 149.332031c0 82.476563-66.859375 149.335938-149.332031 149.335938-82.476563 0-149.335938-66.859375-149.335938-149.335938 0-82.472656 66.859375-149.332031 149.335938-149.332031 82.472656 0 149.332031 66.859375 149.332031 149.332031zm0 0" fill="#607d8b"/>
           <path d="m426.667969 149.332031c0 35.347657-28.65625 64-64 64-35.347657 0-64-28.652343-64-64 0-35.34375 28.652343-64 64-64 35.34375 0 64 28.65625 64 64zm0 0" fill="#fafafa"/>
         </svg>
-        Tools&nbsp;<span title="Both panes: Ctrl + O or Command + O&#013;Active pane: Ctrl + Shift + O or Command + Shift + O" data-command="root">R<u>o</u>ot</span>&nbsp;
+        Tools&nbsp;<span title="Ctrl + S or Command + S" data-command="commands">CMD (<u>S</u>)</span>&nbsp;
+                   <span title="Both panes: Ctrl + O or Command + O&#013;Active pane: Ctrl + Shift + O or Command + Shift + O" data-command="root">R<u>o</u>ot</span>&nbsp;
                    <div class="view-2"><span title="Ctrl + M or Command + M" data-command="mirror"><u>M</u>irror</span>&nbsp;</div>
                    <span title="Ctrl + Delete, Ctrl + Backspace, Command + Delete, or Command + Backspace" data-command="trash">Delete</span>&nbsp;
                    <span title="Search for a query: Ctrl + F or Command + F&#013;Find duplicates: Ctrl + Shift + F or Command + Shift + F" data-command="search">Search (<u>F</u>)</span>&nbsp;
@@ -100,7 +101,13 @@ class ToolsView extends HTMLElement {
     `;
     this.shadow.addEventListener('click', e => {
       const command = e.target.dataset.command;
-      if (command) {
+      if (command === 'commands') {
+        this.command(new KeyboardEvent('keydown', {
+          code: 'KeyS',
+          ctrlKey: true
+        }));
+      }
+      else if (command) {
         this.emit('tools-view:command', {
           command,
           shiftKey: e.shiftKey
@@ -126,7 +133,7 @@ class ToolsView extends HTMLElement {
     }
     return -1;
   }
-  command(e, callback) {
+  command(e, callback = () => {}) {
     const meta = e.ctrlKey || e.metaKey;
     let command = '';
     if (e.code === 'KeyC' && meta) {
@@ -176,14 +183,21 @@ class ToolsView extends HTMLElement {
       engine.user.ask(`Enter a Command:
 
 icon=[default|light|dark]
+theme=[default|dark|light]
 font-size=[number]px
 font-family=[font-name]
 views=[1|2]
-column-widths=[name]px, [added]px, [modified]px `).then(command => {
+column-widths=[name]px, [added]px, [modified]px`).then(command => {
         if (command.startsWith('icon=')) {
           const path = command.replace('icon=', '') || 'default';
           chrome.storage.local.set({
             'custom-icon': path === 'default' ? '' : path
+          });
+        }
+        else if (command.startsWith('theme=')) {
+          const path = command.replace('theme=', '') || 'default';
+          chrome.storage.local.set({
+            'theme': path === 'default' ? '' : path
           });
         }
         else if (command.startsWith('font-size=')) {
@@ -204,7 +218,7 @@ column-widths=[name]px, [added]px, [modified]px `).then(command => {
           });
         }
         else if (command.startsWith('column-widths=')) {
-          const widths = [...command.replace('column-widths=', '').split(/\s*,\s*/).map(s => Number(s))].slice(0, 3);
+          const widths = [...command.replace('column-widths=', '').split(/\s*,\s*/).map(s => parseInt(s))].slice(0, 3);
           widths[0] = widths[0] ? Math.min(1000, Math.max(32, widths[0])) : 200;
           widths[1] = widths[1] ? Math.min(1000, Math.max(32, widths[1])) : 90;
           widths[2] = widths[2] ? Math.min(1000, Math.max(32, widths[2])) : 90;
@@ -220,7 +234,6 @@ column-widths=[name]px, [added]px, [modified]px `).then(command => {
       });
       e.preventDefault();
     }
-
     if (command) {
       const code = this.validate(command);
       if (code === 0 || code === 1) {

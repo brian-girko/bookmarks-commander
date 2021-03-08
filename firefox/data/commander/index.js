@@ -410,6 +410,7 @@ const styling = () => engine.storage.get({
   'font-size': 12,
   'font-family': 'Arial, "Helvetica Neue", Helvetica, sans-serif',
   'user-styles': '',
+  'theme': 'default',
   'views': 2,
   'widths': {
     name: 100,
@@ -417,6 +418,21 @@ const styling = () => engine.storage.get({
     modified: 90
   }
 }).then(prefs => {
+  if (prefs.theme === 'dark') {
+    document.documentElement.classList.add('dark');
+  }
+  else if (prefs.theme === 'light') {
+    document.documentElement.classList.remove('dark');
+  }
+  else {
+    if (matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.classList.add('dark');
+    }
+    else {
+      document.documentElement.classList.remove('dark');
+    }
+  }
+
   document.body.dataset.views = prefs.views;
   document.getElementById('user-styles').textContent = `
     body {
@@ -430,7 +446,7 @@ const styling = () => engine.storage.get({
 });
 styling();
 engine.storage.changed(ps => {
-  if (ps['font-size'] || ps['font-family'] || ps['user-styles'] || ps['views'] || ps['widths']) {
+  if (ps['font-size'] || ps['font-family'] || ps['user-styles'] || ps['views'] || ps['widths'] || ps['theme']) {
     styling();
   }
 });

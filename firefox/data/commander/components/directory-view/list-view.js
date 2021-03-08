@@ -9,11 +9,11 @@ class ListView extends HTMLElement {
     shadow.innerHTML = `
       <style>
         :host {
-          border: solid 1px #cacaca;
+          border: solid 1px var(--border, #cacaca);
           user-select: none;
         }
         :host(.active) {
-          background-color: #fff;
+          background-color: var(--bg-active, #fff);
         }
         #content {
           outline: none;
@@ -21,7 +21,7 @@ class ListView extends HTMLElement {
           overflow: auto;
         }
         div.entry {
-          padding: 1px 0;
+          padding: 5px 0;
           display: grid;
           grid-template-columns: 32px minmax(32px, var(--name-width, 200px)) minmax(32px, 1fr) minmax(32px, var(--added-width, 90px)) minmax(32px, var(--modified-width, 90px));
         }
@@ -37,10 +37,10 @@ class ListView extends HTMLElement {
           pointer-events: none;
         }
         div.entry.hr {
-          border-bottom: solid 1px #e8e3e9;
+          border-bottom: solid 1px var(--border-alt, #e8e3e9);
           position: sticky;
           top: 0;
-          background: #f5f5f5;
+          background: var(--bg-header, #f5f5f5);
         }
         div.entry.hr span {
           pointer-events: none;
@@ -52,16 +52,16 @@ class ListView extends HTMLElement {
         }
         div.entry.hr i {
           width: 2px;
-          background-color: #e8e3e9;
+          background-color: var(--border-alt, #e8e3e9);
           display: inline-block;
           height: 12px;
           cursor: col-resize;
         }
         div.entry:not(.hr):nth-child(even) {
-          background-color: #f5f5f5;
+          background-color: var(--bg-even-row, #f5f5f5);
         }
         div.entry[data-selected=true] {
-          background-color: #c0e7ff !important;
+          background-color: var(--bg-selected-row, #c0e7ff) !important;
         }
         #content[data-path=true] div.entry [data-id=added],
         #content[data-path=true] div.entry [data-id=modified] {
