@@ -109,6 +109,19 @@ const bookmarks = {
       });
     });
   },
+  tree(id) {
+    return new Promise((resolve, reject) => {
+      chrome.bookmarks.getSubTree(id, nodes => {
+        const lastError = chrome.runtime.lastError;
+        if (lastError) {
+          reject(lastError);
+        }
+        else {
+          resolve(nodes);
+        }
+      });
+    });
+  },
   update(id, o) {
     return new Promise((resolve, reject) => chrome.bookmarks.update(id, o, nodes => {
       const lastError = chrome.runtime.lastError;
@@ -218,7 +231,20 @@ window.engine = {
         };
         document.execCommand('Copy', false, null);
       }));
+    },
+    read() {
+      return navigator.clipboard.readText();
     }
+  },
+  download(content, name, type) {
+    const a = document.createElement('a');
+    const b = new Blob([content], {
+      type
+    });
+    a.href = URL.createObjectURL(b);
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
 };
 

@@ -10,6 +10,7 @@
     "contextMenus",
     "notifications",
     "storage",
+    "clipboardRead",
     "clipboardWrite"
   ],
   "homepage_url": "https://add0n.com/bookmarks-commander.html",

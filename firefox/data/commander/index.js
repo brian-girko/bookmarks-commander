@@ -31,7 +31,16 @@ document.addEventListener('directory-view:submit', e => {
   detail.entries.forEach(o => {
     if (o.type === 'DIRECTORY' && detail.entries.length === 1) {
       const {id, openerId} = detail.entries[0];
-      if (openerId) {
+      // prevent looping
+      if (openerId && openerId.id) {
+        if (openerId.id.id) {
+          e.target.build(openerId.id, undefined, [openerId.id.id]);
+        }
+        else {
+          e.target.build(openerId.id, undefined, []);
+        }
+      }
+      else if (openerId) {
         e.target.build(id, undefined, [openerId]);
       }
       else {
@@ -136,6 +145,9 @@ const views = {
     toolsView.state('new-file', active.isRoot() || active.isSearch() ? false : true);
     // new-directory (test; create directory on [..])
     toolsView.state('new-directory', active.isRoot() || active.isSearch() ? false : true);
+    // import-tree;
+    // allow on root; does not allow on back button; does not allow on search
+    toolsView.state('import-tree', entries.length === 1 && active.isSearch() === false && (readonly === false || active.isRoot()));
   },
   update() {
     views.left.update(views.left.id());
@@ -177,6 +189,84 @@ const command = async (command, e) => {
     // copy-link
     else if (command === 'copy-link') {
       engine.clipboard.copy(entries.map(o => o.url).filter(a => a).join('\n'));
+    }
+    // import-tree
+    else if (command === 'import-tree') {
+      engine.clipboard.read().then(JSON.parse).then(async nodes => {
+        if (Array.isArray(nodes) === false) {
+          throw Error('This is not a valid JSON array');
+        }
+        console.log(nodes);
+        const entry = entries[0];
+        const step = async (node, parentId) => {
+          const o = {
+            parentId
+          };
+          if (node.index) {
+            o.index = Number(node.index) + 1;
+          }
+          o.title = node.title;
+          if (!o.title) {
+            throw Error('Bookmark needs title');
+          }
+          if (node.type === 'FILE') {
+            o.url = node.url;
+            if (!o.url) {
+              throw Error('Bookmark needs URL');
+            }
+          }
+          const n = await engine.bookmarks.create(o);
+          if (node.type === 'DIRECTORY') {
+            for (const e of node.children) {
+              await step(e, n.id);
+            }
+          }
+        };
+        let msg = 'Insert the bookmark tree after this node?';
+        if (entry.type === 'DIRECTORY') {
+          msg = 'Insert the bookmark tree inside this node?';
+        }
+        if (window.confirm(msg)) {
+          for (const node of nodes) {
+            if (entry.type === 'FILE') {
+              node.index = entry.index;
+            }
+            await step(node, entry.type === 'FILE' ? entry.parentId : entry.id).then(() => views.update());
+          }
+        }
+      }).catch(engine.notify);
+    }
+    // export-tree
+    else if (command === 'export-tree') {
+      const items = [];
+      for (const entry of entries) {
+        await engine.bookmarks.tree(entry.id).then(nodes => {
+          const step = (parent, node) => {
+            parent.title = node.title;
+            parent.type = node.url ? 'FILE' : 'DIRECTORY';
+            if (parent.type === 'FILE') {
+              parent.url = node.url;
+            }
+            else {
+              parent.children = [];
+              for (const n of (node.children || [])) {
+                const p = {};
+                parent.children.push(p);
+                step(p, n);
+              }
+            }
+          };
+          const root = {};
+          step(root, nodes[0]);
+          items.push(root);
+        });
+        if (e.shiftKey) {
+          engine.download(JSON.stringify(items, undefined, '  '), 'tree.json', 'application/json');
+        }
+        else {
+          engine.clipboard.copy(JSON.stringify(items, undefined, '  '));
+        }
+      }
     }
     // edit-title
     else if (command === 'edit-title' || command === 'edit-link') {
@@ -290,11 +380,17 @@ const command = async (command, e) => {
       else if (id.query) {
         value = id.query;
       }
-
       engine.user.ask(
         'Search For:\n\nUse "duplicates" keyword to find duplicated bookmarks in the current tree)',
         value
-      ).then(query => query && view.build({query}));
+      ).then(query => {
+        if (query) {
+          view.build({
+            id,
+            query
+          });
+        }
+      });
     }
     else if (command === 'sort') {
       const entries = view.entries(false);
