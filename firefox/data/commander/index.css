@@ -14,7 +14,6 @@
   --border: #cacaca;
   --border-alt: #e8e3e9;
   --selection: #8a8c8d;
-
 }
 :root.dark {
   --color: #9c9c9c;

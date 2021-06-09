@@ -245,10 +245,25 @@ class ListView extends HTMLElement {
     });
     shadow.addEventListener('dragover', e => e.preventDefault());
     shadow.addEventListener('dragstart', e => {
+      const ids = [];
+      const types = [];
+      const selected = [];
+      if (e.target.dataset.selected) {
+        const es = [...this.content.querySelectorAll('.entry[data-selected=true]')];
+        ids.push(...es.map(e => e.dataset.id));
+        types.push(...es.map(e => e.dataset.type));
+        selected.push(...es.map(e => e.dataset.selected));
+      }
+      else {
+        ids.push(e.target.dataset.id);
+        types.push(e.target.dataset.type);
+        selected.push(e.target.dataset.selected);
+      }
+
       e.dataTransfer.setData('application/bc.bookmark', JSON.stringify({
-        ids: [e.target.dataset.id],
-        type: e.target.dataset.type,
-        selected: e.target.dataset.selected,
+        ids,
+        types,
+        selected,
         source: e.target.getRootNode().host.getAttribute('owner')
       }));
       e.dataTransfer.setData('text/uri-list', e.target.querySelector('[data-id="href"]').textContent);

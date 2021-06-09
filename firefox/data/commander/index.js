@@ -72,7 +72,7 @@ document.addEventListener('directory-view:submit', e => {
   });
 });
 document.addEventListener('directory-view:drop-request', async e => {
-  const {ids, type, selected, source, destination} = e.detail;
+  const {ids, types, selected, source, destination} = e.detail;
   if (source === destination) {
     return;
   }
@@ -87,7 +87,7 @@ document.addEventListener('directory-view:drop-request', async e => {
     return;
   }
   // cannot move a directory to a child directory
-  if (type === 'DIRECTORY') {
+  if (types.some(type => type === 'DIRECTORY')) {
     const d = views[destination].list();
     // if any selected directory is in the path of destination directory, prevent moving
     if (ids.some(id => d.some(de => de.id === id))) {
@@ -98,7 +98,7 @@ document.addEventListener('directory-view:drop-request', async e => {
 
   const s = source === 'right' ? views.right : views.left;
   const d = destination === 'right' ? views.right : views.left;
-  if (selected === 'true') {
+  if (selected.some(s => s === 'true')) {
     s.navigate('previous');
   }
   for (const id of ids) {
