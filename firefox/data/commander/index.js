@@ -35,7 +35,7 @@ document.addEventListener('directory-view:path', e => {
 });
 // user-action
 document.addEventListener('directory-view:submit', e => {
-  const {detail} = e;
+  const {detail} = e;;
   detail.entries.forEach(o => {
     if (o.type === 'DIRECTORY' && detail.entries.length === 1) {
       const {id, openerId} = detail.entries[0];
@@ -60,6 +60,11 @@ document.addEventListener('directory-view:submit', e => {
         engine.tabs.create({
           url: o.url,
           active: false
+        });
+      }
+      else if (detail.shiftKey) {
+        engine.windows.create({
+          url: o.url
         });
       }
       else {
@@ -552,7 +557,7 @@ if (args.get('mode') === 'window') {
 
 // styling
 const styling = () => engine.storage.get({
-  'font-size': 12,
+  'font-size': 14,
   'font-family': 'Arial, "Helvetica Neue", Helvetica, sans-serif',
   'user-styles': '',
   'theme': 'default',

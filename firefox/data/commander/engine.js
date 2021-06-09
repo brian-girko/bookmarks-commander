@@ -183,6 +183,12 @@ const tabs = {
   }
 };
 
+const windows = {
+  create(o) {
+    return new Promise(resolve => chrome.windows.create(o, resolve));
+  }
+};
+
 const storage = {
   get(o) {
     return new Promise(resolve => chrome.storage.local.get(o, resolve));
@@ -208,6 +214,7 @@ const user = {
 window.engine = {
   bookmarks,
   tabs,
+  windows,
   storage,
   user,
   notify(e) {

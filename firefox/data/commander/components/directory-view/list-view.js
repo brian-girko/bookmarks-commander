@@ -91,7 +91,7 @@ class ListView extends HTMLElement {
       </style>
       <style id="styles"></style>
       <template>
-        <div class="entry">
+        <div class="entry" contextmenu="menu">
           <span data-id="icon"></span>
           <span data-id="name"></span>
           <span data-id="path"></span>
@@ -100,6 +100,10 @@ class ListView extends HTMLElement {
           <span data-id="modified"></span>
         </div>
       </template>
+      <menu type="toolbar" id="menu">
+        <menuitem label="Copy Tile"></menuitem>
+        <menuitem label="Copy Link"></menuitem>
+      </menu>
       <div id="content" tabindex="-1">
         <div class="entry hr">
           <div data-id="icon"><span></span></div>
@@ -169,15 +173,22 @@ class ListView extends HTMLElement {
         }
         // double-click => submit selection
         else {
-          const e = Object.assign({}, target.node, target.dataset);
-          if (e.id.startsWith('{')) {
-            e.id = JSON.parse(e.id);
+          const entries = [];
+          if (target.dataset.selected === 'true') {
+            entries.push(...this.entries(true));
+          }
+          else {
+            const entry = Object.assign({}, target.node, target.dataset);
+            if (entry.id.startsWith('{')) {
+              entry.id = JSON.parse(entry.id);
+            }
+            entries.push(entry);
           }
           this.emit('submit', {
             shiftKey: e.shiftKey,
             ctrlKey: e.ctrlKey,
             metaKey: e.metaKey,
-            entries: [e]
+            entries
           });
         }
       }

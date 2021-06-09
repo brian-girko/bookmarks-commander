@@ -20,7 +20,7 @@
   --bg: #18191b;
   --bg-light: #35363a;
   --bg-even-row: rgba(255, 255, 255, 0.05);
-  --bg-selected-row: #35437b;
+  --bg-selected-row: #0f488e;
   --bg-header: #35363a;
   --bg-active: #000;
   --bg-path: #202124;
@@ -34,7 +34,7 @@
 }
 
 body {
-  font-size: 12px;
+  font-size: 14px;
   font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
   height: 100vh;
   margin: 0;
