@@ -257,7 +257,7 @@ class ListView extends HTMLElement {
       const ids = [];
       const types = [];
       const selected = [];
-      if (e.target.dataset.selected) {
+      if (e.target.dataset.selected === 'true') {
         const es = [...this.content.querySelectorAll('.entry[data-selected=true]')];
         ids.push(...es.map(e => e.dataset.id));
         types.push(...es.map(e => e.dataset.type));

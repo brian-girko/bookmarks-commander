@@ -79,6 +79,19 @@ prompt-view {
   background-color: var(--bg-blur, rgba(0, 0, 0, 0.6));
 }
 
+#toast {
+  padding: 10px;
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  width: 300px;
+  background-color: var(--bg, rgba(0, 0, 0, 0.6));
+  border: solid 1px var(--border);
+}
+#toast:empty {
+  display: none;
+}
+
 .hidden {
   display: none;
 }

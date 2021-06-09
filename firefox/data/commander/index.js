@@ -14,6 +14,14 @@ const title = {
   'directory-view-2': '...'
 };
 
+const toast = msg => {
+  clearTimeout(toast.id);
+  toast.id = setTimeout(() => {
+    document.getElementById('toast').textContent = '';
+  }, 2000);
+  document.getElementById('toast').textContent = msg;
+};
+
 /* events */
 // persist last visited paths and update title
 document.addEventListener('directory-view:path', e => {
@@ -78,12 +86,12 @@ document.addEventListener('directory-view:drop-request', async e => {
   }
   // cannot move to the root directory
   if (views[destination].isRoot()) {
-    console.log('Cannot move to the root directory');
+    toast('Cannot move to the root directory');
     return;
   }
   // cannot move to a search directory
   if (views[destination].isSearch()) {
-    console.log('Cannot move to a search view');
+    toast('Cannot move to a search view');
     return;
   }
   // cannot move a directory to a child directory
@@ -91,7 +99,7 @@ document.addEventListener('directory-view:drop-request', async e => {
     const d = views[destination].list();
     // if any selected directory is in the path of destination directory, prevent moving
     if (ids.some(id => d.some(de => de.id === id))) {
-      console.log('Cannot move to a child directory');
+      toast('Cannot move to a child directory');
       return;
     }
   }
