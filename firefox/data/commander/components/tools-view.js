@@ -14,27 +14,30 @@ class ToolsView extends HTMLElement {
           margin: 0 2px;
           user-select: none;
         }
-        button {
-          display: inline-flex;
+        div {
+          display: flex;
           align-items: center;
-          background-color: transparent;
-          border: none;
-          outline: none;
-          font-size: inherit;
-          font-family: inherit;
-          color: inherit;
-          padding: 0;
-          margin-bottom: 2px;
+          flex-flow: wrap;
+          margin-top: -5px;
         }
-        button span {
+        div > * {
+          margin-top: 5px !important;
+        }
+        div > u {
+          text-decoration: none;
+          margin: 0 5px;
+        }
+        div > span {
+          margin-right: 2px;
+          white-space: nowrap;
           background-color: var(--bg-light, #dadada);
           cursor: pointer;
           display: inline-flex;
           align-items: center;
           height: 28px;
-          padding: 0 5px;
+          padding: 0 10px;
         }
-        button span:hover {
+        div > span:hover {
           background-color: rgba(0, 0, 0, 0.15);
         }
         span[data-enabled=false] {
@@ -51,36 +54,60 @@ class ToolsView extends HTMLElement {
         :host-context(body[data-views="1"]) .view-2 {
           display: none;
         }
+        .ha {
+          white-space: pre;
+        }
+        @media screen and (max-width: 1200px) {
+          .ha {
+            display: none;
+          }
+        }
+        @media screen and (max-width: 800px) {
+          span[data-enabled=false] {
+            display: none;
+          }
+          .ja {
+            display: none;
+          }
+        }
+        @media screen and (max-width: 600px) {
+          span[data-command="copy-id"],
+          span[data-command="commands"],
+          span[data-command="root"],
+          span[data-command="mirror"] {
+            display: none;
+          }
+        }
+        u + u {
+          color: red
+        }
       </style>
-      <button>
-        &nbsp;Copy&nbsp;<span title="Ctrl + X or Command + X ➝ Copy bookmark's title to the clipboard" data-command="copy-title">Title (<u>X</u>)</span>&nbsp;
-                  <span title="Ctrl + C or Command + C ➝ Copy bookmark's link to the clipboard" data-command="copy-link">Link (C)</span>&nbsp;
-                  <span title="Ctrl + I or Command + I ➝ Copy bookmark's internal ID to the clipboard" data-command="copy-id"><u>I</u>D</span>&nbsp;
-      </button>
-      <button>
-        &nbsp;Edit&nbsp;<span title="Ctrl + E or Command + E ➝ Change bookmark's title" data-command="edit-title">Titl<u>e</u></span>&nbsp;
-                  <span title="Ctrl + L or Command + L ➝ Change bookmark's link" data-command="edit-link"><u>L</u>ink</span>
-      </button>
-      <button>
-        &nbsp;JSON&nbsp;<span title="Ctrl + P or Command + P ➝ Paste the current bookmark tree inside a directory or next to the current bookmark" data-command="import-tree">Im<u>p</u>ort</span>&nbsp;
-                  <span title="Ctrl + Y or Command + Y ➝ Copy the selected bookmarks to the clipboard&#013;Ctrl + Shift + Y or Command + Shift + Y ➝ Export selected bookmarks to a JSON file" data-command="export-tree">Export (Y)</span>
-      </button>
-      <button>
-        &nbsp;New&nbsp;<span title="Ctrl + B or Command + B ➝ Create a new bookmark" data-command="new-file"><u>B</u>ookmark</span>&nbsp;
-                 <span title="Ctrl + D or Command + D ➝ Create a new empty directory" data-command="new-directory"><u>D</u>irectory</span>
-      </button>
-      <button class="view-2">
-        &nbsp;Move&nbsp;<span title="Ctrl + ArrowLeft or Command + ArrowLeft ➝ Move selected bookmarks to the left pane" data-command="move-left">Left (&#x2190;)</span>&nbsp;
-                  <span title="Ctrl + ArrowRight or Command + ArrowRight ➝ Move the selected bookmarks to the right pane" data-command="move-right">Right (&#x2192;)</span>
-      </button>
-      <button>
-        &nbsp;Tools&nbsp;<span title="Ctrl + S or Command + S ➝ Open commands box" data-command="commands">CMD (<u>S</u>)</span>&nbsp;
-                   <span title="Ctrl + O or Command + O ➝ Reset both panes&#013;Ctrl + Shift + O or Command + Shift + O ➝ Reset only the active pane" data-command="root">R<u>o</u>ot</span>&nbsp;
-                   <div class="view-2"><span title="Ctrl + M or Command + M ➝ Mirror the inactive pane" data-command="mirror"><u>M</u>irror</span>&nbsp;</div>
-                   <span title="Ctrl + Delete, Ctrl + Backspace, Command + Delete, or Command + Backspace ➝ Delete the active bookmarks and directories" data-command="trash">Delete</span>&nbsp;
-                   <span title="Ctrl + F or Command + F ➝ Search inside the active directory&#013;Ctrl + Shift + F or Command + Shift + F ➝ Search for duplicates inside the active directory" data-command="search">Search (<u>F</u>)</span>&nbsp;
-                   <span title="Ctrl + J or Command + J ➝ Sort A-Z&#013;Ctrl + Shift + J or Command + Shift + J ➝ Sort Z-A&#013;Alt + J ➝ Custom Sorting (A-Z)&#013;Alt + Shift + J ➝ Custom Sorting (Z-A)" data-command="sort">Sort (<u>J</u>)</span>
-      </button>
+
+      <div>
+        <u title="Copy">C<span class="ja">opy</span></u>
+        <span title="Ctrl + X or Command + X ➝ Copy bookmark's title to the clipboard" data-command="copy-title">Title<span class="ha"> (<u>X</u>)</span></span>
+        <span title="Ctrl + C or Command + C ➝ Copy bookmark's link to the clipboard" data-command="copy-link">Link<span class="ha"> (C)</span></span>
+        <span title="Ctrl + I or Command + I ➝ Copy bookmark's internal ID to the clipboard" data-command="copy-id"><u>I</u>D</span>
+        <u title="Edit">E<span class="ja">dit</span></u>
+        <span title="Ctrl + E or Command + E ➝ Change bookmark's title" data-command="edit-title">Titl<u>e</u></span>
+        <span title="Ctrl + L or Command + L ➝ Change bookmark's link" data-command="edit-link"><u>L</u>ink</span>
+        <u title="JSON">J<span class="ja">SON</span></u>
+        <span title="Ctrl + P or Command + P ➝ Paste the current bookmark tree inside a directory or next to the current bookmark" data-command="import-tree">Im<u>p</u>ort</span>
+        <span title="Ctrl + Y or Command + Y ➝ Copy the selected bookmarks to the clipboard&#013;Ctrl + Shift + Y or Command + Shift + Y ➝ Export selected bookmarks to a JSON file" data-command="export-tree">Export<span class="ha"> (Y)</span></span>
+        <u title="New">N<span class="ja">ew</span></u>
+        <span title="Ctrl + B or Command + B ➝ Create a new bookmark" data-command="new-file"><u>B</u>ookmark</span>
+        <span title="Ctrl + D or Command + D ➝ Create a new empty directory" data-command="new-directory"><u>D</u>irectory</span>
+        <u title="Move">M<span class="ja">ove</span></u>
+        <span title="Ctrl + ArrowLeft or Command + ArrowLeft ➝ Move selected bookmarks to the left pane" data-command="move-left">Left<span class="ha"> (&#x2190;)</span></span>
+        <span title="Ctrl + ArrowRight or Command + ArrowRight ➝ Move the selected bookmarks to the right pane" data-command="move-right">Right<span class="ha"> (&#x2192;)</span></span>
+        <u title="Tools">T<span class="ja">ools</span></u>
+        <span title="Ctrl + S or Command + S ➝ Open commands box" data-command="commands">CMD<span class="ha"> (<u>S</u>)</span></span>
+        <span title="Ctrl + O or Command + O ➝ Reset both panes&#013;Ctrl + Shift + O or Command + Shift + O ➝ Reset only the active pane" data-command="root">R<u>o</u>ot</span>
+        <span class="view-2" title="Ctrl + M or Command + M ➝ Mirror the inactive pane" data-command="mirror"><u>M</u>irror</span>
+        <span title="Ctrl + Delete, Ctrl + Backspace, Command + Delete, or Command + Backspace ➝ Delete the active bookmarks and directories" data-command="trash">Delete</span>
+        <span title="Ctrl + F or Command + F ➝ Search inside the active directory&#013;Ctrl + Shift + F or Command + Shift + F ➝ Search for duplicates inside the active directory" data-command="search">Search<span class="ha"> (<u>F</u>)</span></span>
+        <span title="Ctrl + J or Command + J ➝ Sort A-Z&#013;Ctrl + Shift + J or Command + Shift + J ➝ Sort Z-A&#013;Alt + J ➝ Custom Sorting (A-Z)&#013;Alt + Shift + J ➝ Custom Sorting (Z-A)" data-command="sort">Sort<span class="ha"> (<u>J</u>)</span></span>
+      </div>
     `;
     this.shadow.addEventListener('click', e => {
       const command = e.target.dataset.command;

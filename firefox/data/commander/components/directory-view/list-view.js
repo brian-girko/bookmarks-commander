@@ -99,6 +99,10 @@ class ListView extends HTMLElement {
           white-space: nowrap;
           outline: none;
         }
+        #menu hr {
+          border: none;
+          border-top: solid 1px var(--border, #cacaca);
+        }
         #menu li {
           padding: 5px 10px;
           cursor: pointer;
@@ -108,7 +112,7 @@ class ListView extends HTMLElement {
           pointer-events: none;
         }
         #menu li:hover {
-          background-color: var(--bg-selected-row, #c0e7ff);
+          background-color: var(--bg-header, #f5f5f5);
         }
         .hidden {
           display: none;
@@ -128,9 +132,13 @@ class ListView extends HTMLElement {
       <ul id="menu" tabindex="1" class="hidden">
         <li data-id="open-in-new-tab">Open Link in New Tab</li>
         <li data-id="open-in-new-window">Open Link in New Window</li>
+        <hr/>
         <li data-id="copy-title">Copy Title</li>
         <li data-id="copy-link">Copy Link</li>
         <li data-id="copy-id">Copy Bookmark ID</li>
+        <li data-id="copy-details">Copy Details</li>
+        <hr/>
+        <li data-id="import-tree">Import as JSON</li>
         <li data-id="export-tree">Export as JSON</li>
       </ul>
 
@@ -258,7 +266,10 @@ class ListView extends HTMLElement {
           shiftKey: true
         }));
       }
-      else if (['copy-link', 'copy-id', 'copy-title', 'export-tree'].indexOf(target.dataset.id) !== -1) {
+      else if (
+        ['copy-link', 'copy-id', 'copy-title', 'copy-details'].indexOf(target.dataset.id) !== -1 ||
+        ['import-tree', 'export-tree'].indexOf(target.dataset.id) !== -1
+      ) {
         this.emit('command', {
           command: target.dataset.id,
           shiftKey: e.shiftKey

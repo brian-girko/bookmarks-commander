@@ -242,8 +242,12 @@ const command = async (command, e) => {
   const view = views.active();
   if (view) {
     const entries = view.entries();
+    // copy-details
+    if (command === 'copy-details') {
+      engine.clipboard.copy(entries.map(o => [o.title, o.url, o.id].filter(a => a).join('\n')).join('\n\n'));
+    }
     // copy-title
-    if (command === 'copy-title') {
+    else if (command === 'copy-title') {
       engine.clipboard.copy(entries.map(o => o.title).join('\n'));
     }
     // copy-id
