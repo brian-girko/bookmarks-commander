@@ -53,33 +53,33 @@ class ToolsView extends HTMLElement {
         }
       </style>
       <button>
-        &nbsp;Copy&nbsp;<span title="Ctrl + X or Command + X: Copy bookmark's title to the clipboard" data-command="copy-title">Title (<u>X</u>)</span>&nbsp;
-                  <span title="Ctrl + C or Command + C: Copy bookmark's link to the clipboard" data-command="copy-link">Link (C)</span>&nbsp;
-                  <span title="Ctrl + I or Command + I: Copy bookmark's internal ID to the clipboard" data-command="copy-id"><u>I</u>D</span>&nbsp;
+        &nbsp;Copy&nbsp;<span title="Ctrl + X or Command + X ➝ Copy bookmark's title to the clipboard" data-command="copy-title">Title (<u>X</u>)</span>&nbsp;
+                  <span title="Ctrl + C or Command + C ➝ Copy bookmark's link to the clipboard" data-command="copy-link">Link (C)</span>&nbsp;
+                  <span title="Ctrl + I or Command + I ➝ Copy bookmark's internal ID to the clipboard" data-command="copy-id"><u>I</u>D</span>&nbsp;
       </button>
       <button>
-        &nbsp;Edit&nbsp;<span title="Ctrl + E or Command + E: Change bookmark's title" data-command="edit-title">Titl<u>e</u></span>&nbsp;
-                  <span title="Ctrl + L or Command + L: Change bookmark's link" data-command="edit-link"><u>L</u>ink</span>
+        &nbsp;Edit&nbsp;<span title="Ctrl + E or Command + E ➝ Change bookmark's title" data-command="edit-title">Titl<u>e</u></span>&nbsp;
+                  <span title="Ctrl + L or Command + L ➝ Change bookmark's link" data-command="edit-link"><u>L</u>ink</span>
       </button>
       <button>
-        &nbsp;JSON&nbsp;<span title="Ctrl + P or Command + P: Paste the current bookmark tree inside a directory or next to the current bookmark" data-command="import-tree">Im<u>p</u>ort</span>&nbsp;
-                  <span title="Ctrl + Y or Command + Y" data-command="export-tree">Export (Y)</span>
+        &nbsp;JSON&nbsp;<span title="Ctrl + P or Command + P ➝ Paste the current bookmark tree inside a directory or next to the current bookmark" data-command="import-tree">Im<u>p</u>ort</span>&nbsp;
+                  <span title="Ctrl + Y or Command + Y ➝ Copy the selected bookmarks to the clipboard&#013;Ctrl + Shift + Y or Command + Shift + Y ➝ Export selected bookmarks to a JSON file" data-command="export-tree">Export (Y)</span>
       </button>
       <button>
-        &nbsp;New&nbsp;<span title="Ctrl + B or Command + B" data-command="new-file"><u>B</u>ookmark</span>&nbsp;
-                 <span title="Ctrl + D or Command + D" data-command="new-directory"><u>D</u>irectory</span>
+        &nbsp;New&nbsp;<span title="Ctrl + B or Command + B ➝ Create a new bookmark" data-command="new-file"><u>B</u>ookmark</span>&nbsp;
+                 <span title="Ctrl + D or Command + D ➝ Create a new empty directory" data-command="new-directory"><u>D</u>irectory</span>
       </button>
       <button class="view-2">
-        &nbsp;Move&nbsp;<span title="Ctrl + ArrowLeft or Command + ArrowLeft" data-command="move-left">Left (&#x2190;)</span>&nbsp;
-                  <span title="Ctrl + ArrowRight or Command + ArrowRight" data-command="move-right">Right (&#x2192;)</span>
+        &nbsp;Move&nbsp;<span title="Ctrl + ArrowLeft or Command + ArrowLeft ➝ Move selected bookmarks to the left pane" data-command="move-left">Left (&#x2190;)</span>&nbsp;
+                  <span title="Ctrl + ArrowRight or Command + ArrowRight ➝ Move the selected bookmarks to the right pane" data-command="move-right">Right (&#x2192;)</span>
       </button>
       <button>
-        &nbsp;Tools&nbsp;<span title="Ctrl + S or Command + S" data-command="commands">CMD (<u>S</u>)</span>&nbsp;
-                   <span title="Both panes: Ctrl + O or Command + O&#013;Active pane: Ctrl + Shift + O or Command + Shift + O" data-command="root">R<u>o</u>ot</span>&nbsp;
-                   <div class="view-2"><span title="Ctrl + M or Command + M" data-command="mirror"><u>M</u>irror</span>&nbsp;</div>
-                   <span title="Ctrl + Delete, Ctrl + Backspace, Command + Delete, or Command + Backspace" data-command="trash">Delete</span>&nbsp;
-                   <span title="Search for a query: Ctrl + F or Command + F&#013;Find duplicates: Ctrl + Shift + F or Command + Shift + F" data-command="search">Search (<u>F</u>)</span>&nbsp;
-                   <span title="A-Z: Ctrl + J or Command + J&#013;Z-A: Ctrl + Shift + J or Command + Shift + J&#013;Custom Sorting (A-Z): Alt + J&#013;Custom Sorting (Z-A): Alt + Shift + J" data-command="sort">Sort (<u>J</u>)</span>
+        &nbsp;Tools&nbsp;<span title="Ctrl + S or Command + S ➝ Open commands box" data-command="commands">CMD (<u>S</u>)</span>&nbsp;
+                   <span title="Ctrl + O or Command + O ➝ Reset both panes&#013;Ctrl + Shift + O or Command + Shift + O ➝ Reset only the active pane" data-command="root">R<u>o</u>ot</span>&nbsp;
+                   <div class="view-2"><span title="Ctrl + M or Command + M ➝ Mirror the inactive pane" data-command="mirror"><u>M</u>irror</span>&nbsp;</div>
+                   <span title="Ctrl + Delete, Ctrl + Backspace, Command + Delete, or Command + Backspace ➝ Delete the active bookmarks and directories" data-command="trash">Delete</span>&nbsp;
+                   <span title="Ctrl + F or Command + F ➝ Search inside the active directory&#013;Ctrl + Shift + F or Command + Shift + F ➝ Search for duplicates inside the active directory" data-command="search">Search (<u>F</u>)</span>&nbsp;
+                   <span title="Ctrl + J or Command + J ➝ Sort A-Z&#013;Ctrl + Shift + J or Command + Shift + J ➝ Sort Z-A&#013;Alt + J ➝ Custom Sorting (A-Z)&#013;Alt + Shift + J ➝ Custom Sorting (Z-A)" data-command="sort">Sort (<u>J</u>)</span>
       </button>
     `;
     this.shadow.addEventListener('click', e => {

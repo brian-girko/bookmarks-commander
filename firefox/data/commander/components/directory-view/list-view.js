@@ -231,6 +231,29 @@ class ListView extends HTMLElement {
         this[e.key === 'ArrowUp' ? 'previous' : 'next'](meta, reverse);
       }
     });
+    // drag and drop
+    shadow.addEventListener('drop', e => {
+      e.preventDefault();
+      const j = e.dataTransfer.getData('application/bc.bookmark');
+      try {
+        this.emit('drop-request', {
+          ...JSON.parse(j),
+          destination: e.target.getRootNode().host.getAttribute('owner')
+        });
+      }
+      catch (e) {}
+    });
+    shadow.addEventListener('dragover', e => e.preventDefault());
+    shadow.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('application/bc.bookmark', JSON.stringify({
+        ids: [e.target.dataset.id],
+        type: e.target.dataset.type,
+        selected: e.target.dataset.selected,
+        source: e.target.getRootNode().host.getAttribute('owner')
+      }));
+      e.dataTransfer.setData('text/uri-list', e.target.querySelector('[data-id="href"]').textContent);
+      e.dataTransfer.setData('text/plain', e.target.querySelector('[data-id="name"]').textContent);
+    });
   }
   query(q) {
     return this.content.querySelector(q);
@@ -347,6 +370,9 @@ class ListView extends HTMLElement {
           id: typeof node.id === 'string' ? node.id : JSON.stringify(node.id),
           readonly: node.readonly || false
         });
+        if (node.readonly !== true) {
+          div.setAttribute('draggable', 'true');
+        }
         div.node = node;
         div.dataset.selected = ids.length ? ids.indexOf(node.id) !== -1 : node === nodes[0];
         if (type === 'FILE') {

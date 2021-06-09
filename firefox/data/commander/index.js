@@ -71,6 +71,45 @@ document.addEventListener('directory-view:submit', e => {
     }
   });
 });
+document.addEventListener('directory-view:drop-request', async e => {
+  const {ids, type, selected, source, destination} = e.detail;
+  if (source === destination) {
+    return;
+  }
+  // cannot move to the root directory
+  if (views[destination].isRoot()) {
+    console.log('Cannot move to the root directory');
+    return;
+  }
+  // cannot move to a search directory
+  if (views[destination].isSearch()) {
+    console.log('Cannot move to a search view');
+    return;
+  }
+  // cannot move a directory to a child directory
+  if (type === 'DIRECTORY') {
+    const d = views[destination].list();
+    // if any selected directory is in the path of destination directory, prevent moving
+    if (ids.some(id => d.some(de => de.id === id))) {
+      console.log('Cannot move to a child directory');
+      return;
+    }
+  }
+
+  const s = source === 'right' ? views.right : views.left;
+  const d = destination === 'right' ? views.right : views.left;
+  if (selected === 'true') {
+    s.navigate('previous');
+  }
+  for (const id of ids) {
+    await engine.bookmarks.move(id, {
+      parentId: d.id(),
+      index: Number(d.entries()[0].index) + 1
+    }).catch(engine.notify);
+  }
+  // update both views
+  views.update();
+});
 document.addEventListener('directory-view:selection-changed', () => views.changed());
 document.addEventListener('tools-view:command', e => {
   command(e.detail.command, {
@@ -154,6 +193,8 @@ const views = {
     views.right.update(views.right.id());
   }
 };
+views.left.owner('left');
+views.right.owner('right');
 const toolsView = document.getElementById('tools-view');
 
 /* restore, and active a pane after DOM content is loaded */

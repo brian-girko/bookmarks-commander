@@ -38,6 +38,7 @@ class DirectoryView extends HTMLElement {
     this.pathView.addEventListener('submit', onsubmit);
     this.listView.addEventListener('submit', onsubmit);
     this.listView.addEventListener('selection-changed', () => this.emit('directory-view:selection-changed'));
+    this.listView.addEventListener('drop-request', e => this.emit('directory-view:drop-request', e.detail));
     // focus the list-view element
     this.addEventListener('click', () => {
       this.listView.focus();
@@ -153,6 +154,11 @@ class DirectoryView extends HTMLElement {
   }
   navigate(direction = 'forward') {
     this.listView[direction === 'forward' ? 'next' : 'previous']();
+  }
+  owner(name) {
+    this.setAttribute('owner', name);
+    this.listView.setAttribute('owner', name);
+    this.pathView.setAttribute('owner', name);
   }
   static get observedAttributes() {
     return ['path'];
