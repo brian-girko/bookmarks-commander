@@ -210,6 +210,7 @@ class ListView extends HTMLElement {
       }
     });
     shadow.addEventListener('keydown', e => {
+      const meta = e.metaKey || e.ctrlKey || e.shiftKey;
       if (e.code === 'Enter') {
         const entries = this.entries();
         if (entries.length) {
@@ -219,6 +220,14 @@ class ListView extends HTMLElement {
             metaKey: e.metaKey,
             entries
           });
+        }
+      }
+      // select all
+      else if (e.code === 'KeyA' && meta) {
+        const [e, ...es] = [...this.content.querySelectorAll('.entry[data-readonly=false]')];
+        this.select(e);
+        for (const e of es) {
+          this.select(e, true);
         }
       }
     });
