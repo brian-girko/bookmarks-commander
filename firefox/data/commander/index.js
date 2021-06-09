@@ -35,7 +35,7 @@ document.addEventListener('directory-view:path', e => {
 });
 // user-action
 document.addEventListener('directory-view:submit', e => {
-  const {detail} = e;;
+  const {detail} = e;
   detail.entries.forEach(o => {
     if (o.type === 'DIRECTORY' && detail.entries.length === 1) {
       const {id, openerId} = detail.entries[0];
@@ -123,13 +123,23 @@ document.addEventListener('directory-view:drop-request', async e => {
   // update both views
   views.update();
 });
-document.addEventListener('directory-view:selection-changed', () => views.changed());
-document.addEventListener('tools-view:command', e => {
-  command(e.detail.command, {
-    shiftKey: e.detail.shiftKey
-  });
-  views.active().click();
+document.addEventListener('directory-view:selection-changed', e => {
+  const input = e.target.parentElement.querySelector('input[type=radio]');
+  if (input) {
+    input.click();
+  }
+  views.changed();
 });
+{
+  const commit = e => {
+    command(e.detail.command, {
+      shiftKey: e.detail.shiftKey
+    });
+    views.active().click();
+  };
+  document.addEventListener('directory-view:command', commit);
+  document.addEventListener('tools-view:command', commit);
+}
 
 engine.user.on('blur', () => views.active().click());
 

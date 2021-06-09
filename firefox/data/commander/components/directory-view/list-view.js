@@ -88,6 +88,31 @@ class ListView extends HTMLElement {
         div.entry [data-id="modified"] {
           text-align: center;
         }
+        #menu {
+          position: absolute;
+          background-color: var(--bg-active, #fff);
+          border: solid 1px var(--border, #cacaca);
+          z-index: 1;
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          white-space: nowrap;
+          outline: none;
+        }
+        #menu li {
+          padding: 5px 10px;
+          cursor: pointer;
+        }
+        #menu li.disabled {
+          opacity: 0.5;
+          pointer-events: none;
+        }
+        #menu li:hover {
+          background-color: var(--bg-selected-row, #c0e7ff);
+        }
+        .hidden {
+          display: none;
+        }
       </style>
       <style id="styles"></style>
       <template>
@@ -100,10 +125,15 @@ class ListView extends HTMLElement {
           <span data-id="modified"></span>
         </div>
       </template>
-      <menu type="toolbar" id="menu">
-        <menuitem label="Copy Tile"></menuitem>
-        <menuitem label="Copy Link"></menuitem>
-      </menu>
+      <ul id="menu" tabindex="1" class="hidden">
+        <li data-id="open-in-new-tab">Open Link in New Tab</li>
+        <li data-id="open-in-new-window">Open Link in New Window</li>
+        <li data-id="copy-title">Copy Title</li>
+        <li data-id="copy-link">Copy Link</li>
+        <li data-id="copy-id">Copy Bookmark ID</li>
+        <li data-id="export-tree">Export as JSON</li>
+      </ul>
+
       <div id="content" tabindex="-1">
         <div class="entry hr">
           <div data-id="icon"><span></span></div>
@@ -127,6 +157,30 @@ class ListView extends HTMLElement {
         this.classList.remove('active');
       }
     });
+
+    // context menu
+    this.content.addEventListener('contextmenu', e => {
+      const {target} = e;
+      if (target.classList.contains('entry') && target.dataset.index !== '-1') {
+        e.preventDefault();
+        this.emit('selection-changed');
+        // is this entry selected?
+        if (target.dataset.selected === 'false') {
+          this.select(target);
+        }
+
+        const m = this.shadowRoot.getElementById('menu');
+        const directory = target.dataset.type === 'DIRECTORY';
+        m.querySelector('[data-id="open-in-new-tab"]').classList[directory ? 'add' : 'remove']('disabled');
+        m.querySelector('[data-id="open-in-new-window"]').classList[directory ? 'add' : 'remove']('disabled');
+        m.querySelector('[data-id="copy-link"]').classList[directory ? 'add' : 'remove']('disabled');
+        m.style.left = (e.clientX - 10) + 'px';
+        m.style.top = (e.clientY - 10) + 'px';
+        m.classList.remove('hidden');
+        m.focus();
+      }
+    });
+    this.shadowRoot.getElementById('menu').onblur = e => e.target.classList.add('hidden');
 
     this.config = {
       remote: false
@@ -191,6 +245,24 @@ class ListView extends HTMLElement {
             entries
           });
         }
+      }
+      else if (target.dataset.id === 'open-in-new-tab') {
+        shadow.dispatchEvent(new KeyboardEvent('keydown', {
+          code: 'Enter',
+          metaKey: true
+        }));
+      }
+      else if (target.dataset.id === 'open-in-new-window') {
+        shadow.dispatchEvent(new KeyboardEvent('keydown', {
+          code: 'Enter',
+          shiftKey: true
+        }));
+      }
+      else if (['copy-link', 'copy-id', 'copy-title', 'export-tree'].indexOf(target.dataset.id) !== -1) {
+        this.emit('command', {
+          command: target.dataset.id,
+          shiftKey: e.shiftKey
+        });
       }
     });
     // to prevent conflict with command access
