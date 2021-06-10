@@ -140,6 +140,8 @@ class ListView extends HTMLElement {
         <hr/>
         <li data-id="import-tree">Import as JSON</li>
         <li data-id="export-tree">Export as JSON</li>
+        <hr/>
+        <li data-id="trash">Delete</li>
       </ul>
 
       <div id="content" tabindex="-1">
@@ -268,8 +270,12 @@ class ListView extends HTMLElement {
       }
       else if (
         ['copy-link', 'copy-id', 'copy-title', 'copy-details'].indexOf(target.dataset.id) !== -1 ||
-        ['import-tree', 'export-tree'].indexOf(target.dataset.id) !== -1
+        ['import-tree', 'export-tree'].indexOf(target.dataset.id) !== -1 ||
+        ['trash'].indexOf(target.dataset.id) !== -1
       ) {
+        if (target.dataset.id === 'trash' && confirm('Are you sure?') === false) {
+          return;
+        }
         this.emit('command', {
           command: target.dataset.id,
           shiftKey: e.shiftKey

@@ -86,9 +86,6 @@ document.addEventListener('directory-view:submit', e => {
 });
 document.addEventListener('directory-view:drop-request', async e => {
   const {ids, types, selected, source, destination} = e.detail;
-  if (source === destination) {
-    return;
-  }
   // cannot move to the root directory
   if (views[destination].isRoot()) {
     toast('Cannot move to the root directory');
@@ -264,7 +261,6 @@ const command = async (command, e) => {
         if (Array.isArray(nodes) === false) {
           throw Error('This is not a valid JSON array');
         }
-        console.log(nodes);
         const entry = entries[0];
         const step = async (node, parentId) => {
           const o = {
