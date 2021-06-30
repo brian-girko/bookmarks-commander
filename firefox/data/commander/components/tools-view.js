@@ -103,7 +103,7 @@ class ToolsView extends HTMLElement {
         <u title="Tools">T<span class="ja">ools</span></u>
         <span title="Ctrl + S or Command + S ➝ Open commands box" data-command="commands">CMD<span class="ha"> (<u>S</u>)</span></span>
         <span title="Ctrl + O or Command + O ➝ Reset both panes&#013;Ctrl + Shift + O or Command + Shift + O ➝ Reset only the active pane" data-command="root">R<u>o</u>ot</span>
-        <span class="view-2" title="Ctrl + M or Command + M ➝ Mirror the inactive pane" data-command="mirror"><u>M</u>irror</span>
+        <span class="view-2" title="Ctrl + M or Command + M ➝ Mirror the inactive pane&#013;Ctrl + Shift + M or Command + Shift + M ➝ Navigate inactive pane into the first selected Dir" data-command="mirror"><u>M</u>irror</span>
         <span title="Ctrl + Delete, Ctrl + Backspace, Command + Delete, or Command + Backspace ➝ Delete the active bookmarks and directories" data-command="trash">Delete</span>
         <span title="Ctrl + F or Command + F ➝ Search inside the active directory&#013;Ctrl + Shift + F or Command + Shift + F ➝ Search for duplicates inside the active directory" data-command="search">Search<span class="ha"> (<u>F</u>)</span></span>
         <span title="Ctrl + J or Command + J ➝ Sort A-Z&#013;Ctrl + Shift + J or Command + Shift + J ➝ Sort Z-A&#013;Alt + J ➝ Custom Sorting (A-Z)&#013;Alt + Shift + J ➝ Custom Sorting (Z-A)" data-command="sort">Sort<span class="ha"> (<u>J</u>)</span></span>

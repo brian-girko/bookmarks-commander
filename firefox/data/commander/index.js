@@ -127,6 +127,9 @@ document.addEventListener('directory-view:selection-changed', e => {
   }
   views.changed();
 });
+document.addEventListener('directory-view:content-updated', () => {
+  views.changed();
+});
 {
   const commit = e => {
     command(e.detail.command, {
@@ -433,7 +436,16 @@ const command = async (command, e) => {
       views.update();
     }
     else if (command === 'mirror') {
-      views[view === views.left ? 'right' : 'left'].build(view.id());
+      const next = (...args) => {
+        views[view === views.left ? 'right' : 'left'].build(...args);
+      };
+      if (e.shiftKey) {
+        const dir = entries.filter(o => o.type === 'DIRECTORY').shift();
+        if (dir) {
+          return next(dir.id);
+        }
+      }
+      next(view.id(), undefined, entries.map(o => o.id));
     }
     else if (command === 'search') {
       const id = view.id();

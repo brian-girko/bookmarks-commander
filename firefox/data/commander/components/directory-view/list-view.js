@@ -513,8 +513,6 @@ class ListView extends HTMLElement {
         this.scroll(e);
       }
     }
-
-    this.emit('selection-changed');
   }
   mode(o) {
     this.content.dataset.path = Boolean(o.path);

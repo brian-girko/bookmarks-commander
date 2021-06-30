@@ -120,10 +120,12 @@ class DirectoryView extends HTMLElement {
       window.setTimeout(() => this.build(''), 2000);
     }
   }
-  build(id, arr, selectedIDs = []) {
+  async build(id, arr, selectedIDs = []) {
     id = id || engine.bookmarks.rootID;
     this.buildListView(id, false, selectedIDs);
-    this.buildPathView(id, arr);
+    this.buildPathView(id, arr).then(() => {
+      this.emit('directory-view:content-updated');
+    });
     this._id = id;
   }
   style({
