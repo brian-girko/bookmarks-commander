@@ -156,7 +156,12 @@ class DirectoryView extends HTMLElement {
     return engine.bookmarks.isSearch(id || this.id());
   }
   navigate(direction = 'forward') {
-    this.listView[direction === 'forward' ? 'next' : 'previous']();
+    if (direction === 'first' || direction === 'last') {
+      this.listView[direction]();
+    }
+    else {
+      this.listView[direction === 'forward' ? 'next' : 'previous']();
+    }
   }
   owner(name) {
     this.setAttribute('owner', name);

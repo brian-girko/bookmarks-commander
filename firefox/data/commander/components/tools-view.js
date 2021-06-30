@@ -141,12 +141,22 @@ class ToolsView extends HTMLElement {
         return 1;
       }
     }
+    // commands without buttons
+    else if (['first', 'last'].some(s => s === name)) {
+      return 1;
+    }
     return -1;
   }
   command(e, callback = () => {}) {
     const meta = e.ctrlKey || e.metaKey;
     let command = '';
-    if (e.code === 'KeyC' && meta) {
+    if (e.key === 'Home') {
+      command = 'first';
+    }
+    else if (e.key === 'End') {
+      command = 'last';
+    }
+    else if (e.code === 'KeyC' && meta) {
       command = 'copy-link';
     }
     else if (e.code === 'KeyP' && meta) {

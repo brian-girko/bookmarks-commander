@@ -387,6 +387,18 @@ class ListView extends HTMLElement {
     event.initMouseEvent('click', true, true, window, 0, 0, 0, 0, 0, metaKey, false, false, metaKey, 0, null);
     e.dispatchEvent(event);
   }
+  first(metaKey = false) {
+    const e = this.content.querySelector('.entry[data-index]');
+    if (e) {
+      this.select(e, metaKey);
+    }
+  }
+  last(metaKey = false) {
+    const e = this.content.querySelector('.entry[data-index]:last-child');
+    if (e) {
+      this.select(e, metaKey);
+    }
+  }
   previous(metaKey = false, reverse = false) {
     if (reverse) {
       const es = this.content.querySelectorAll('.entry[data-selected=true]');

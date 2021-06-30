@@ -525,6 +525,9 @@ const command = async (command, e) => {
       // update both views
       views.update();
     }
+    else if (command === 'first' || command === 'last') {
+      view.navigate(command);
+    }
   }
 };
 
