@@ -1,0 +1,104 @@
+:root {
+  --color: #3e3e3e;
+  --bg: #eee;
+  --bg-light: #dadada;
+  --bg-active: #fff;
+  --bg-header: #f5f5f5;
+  --bg-even-row: #f5f5f5;
+  --bg-selected-row: #c0e7ff;
+  --bg-path: #dadada;
+  --bg-path-active: #fff;
+  --bg-blur: rgba(0, 0, 0, 0.6);
+  --disabled-color: #a0a0a0;
+  --disabled-shadow: #fcffff;
+  --border: #cacaca;
+  --border-alt: #e8e3e9;
+  --selection: #8a8c8d;
+}
+:root.dark {
+  --color: #9c9c9c;
+  --bg: #18191b;
+  --bg-light: #35363a;
+  --bg-even-row: rgba(255, 255, 255, 0.05);
+  --bg-selected-row: #0f488e;
+  --bg-header: #35363a;
+  --bg-active: #000;
+  --bg-path: #202124;
+  --bg-path-active: #000;
+  --bg-blur: rgba(255, 255, 255, 0.05);
+  --disabled-color: #5b5b5b;
+  --disabled-shadow: #393b42;
+  --border: #4f5052;
+  --border-alt: #4f5052;
+  --selection: #000;
+}
+
+body {
+  font-size: 14px;
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  height: 100vh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg, #eee);
+  color: var(--color, #3e3e3e);
+}
+#directories {
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  flex: 1;
+  margin: 2px;
+}
+#directories label {
+  display: flex;
+  overflow: hidden;
+}
+#directories input[type=radio] {
+  display: none;
+}
+directory-view {
+  flex: 1;
+  overflow: hidden;
+}
+label:not(:first-child) directory-view {
+  margin-left: 2px;
+}
+@media screen and (max-width: 600px) {
+  #directories {
+    grid-template-columns: 1fr;
+  }
+}
+
+prompt-view {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-blur, rgba(0, 0, 0, 0.6));
+}
+
+#toast {
+  padding: 10px;
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  width: 300px;
+  background-color: var(--bg, rgba(0, 0, 0, 0.6));
+  border: solid 1px var(--border);
+}
+#toast:empty {
+  display: none;
+}
+
+.hidden {
+  display: none;
+}
+
+body[data-views="1"] #directories {
+  grid-template-columns: 1fr;
+}
+body[data-views="1"] label[data-id="right"] {
+  display: none !important;
+}

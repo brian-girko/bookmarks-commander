@@ -1,57 +1,45 @@
 'use strict';
 
-const ports = [];
-chrome.runtime.onConnect.addListener(port => {
-  ports.push(port);
-  port.onDisconnect.addListener(p => {
-    const i = ports.indexOf(p);
-    if (i !== -1) {
-      ports.splice(i, 1);
+chrome.action.onClicked.addListener(tab => {
+  chrome.runtime.sendMessage({
+    cmd: 'interface',
+    tabId: tab.id,
+    windowId: tab.windowId
+  }, res => {
+    if (!res) {
+      chrome.storage.local.get({
+        mode: 'tab'
+      }, ({mode}) => {
+        if (mode === 'tab') {
+          chrome.tabs.create({
+            url: 'data/commander/index.html'
+          });
+        }
+        else if (mode === 'window') {
+          chrome.windows.getCurrent(win => {
+            chrome.storage.local.get({
+              'window.width': 750,
+              'window.height': 500,
+              'window.left': win.left + Math.round((win.width - 700) / 2),
+              'window.top': win.top + Math.round((win.height - 500) / 2)
+            }, prefs => {
+              chrome.windows.create({
+                url: chrome.runtime.getURL('data/commander/index.html?mode=window'),
+                width: Math.max(400, prefs['window.width']),
+                height: Math.max(300, prefs['window.height']),
+                left: prefs['window.left'],
+                top: prefs['window.top'],
+                type: 'popup'
+              });
+            });
+          });
+        }
+      });
     }
   });
 });
 
-chrome.browserAction.onClicked.addListener(() => {
-  if (ports.length) {
-    const tab = ports[0].sender.tab;
-    chrome.windows.update(tab.windowId, {
-      focused: true
-    });
-    chrome.tabs.update(tab.id, {
-      active: true
-    });
-  }
-  else {
-    chrome.storage.local.get({
-      mode: 'tab'
-    }, ({mode}) => {
-      if (mode === 'tab') {
-        chrome.tabs.create({
-          url: 'data/commander/index.html'
-        });
-      }
-      else if (mode === 'window') {
-        chrome.storage.local.get({
-          'window.width': 750,
-          'window.height': 500,
-          'window.left': screen.availLeft + Math.round((screen.availWidth - 700) / 2),
-          'window.top': screen.availTop + Math.round((screen.availHeight - 500) / 2)
-        }, prefs => {
-          chrome.windows.create({
-            url: chrome.extension.getURL('data/commander/index.html?mode=window'),
-            width: Math.max(400, prefs['window.width']),
-            height: Math.max(300, prefs['window.height']),
-            left: prefs['window.left'],
-            top: prefs['window.top'],
-            type: 'popup'
-          });
-        });
-      }
-    });
-  }
-});
-
-const icon = mode => chrome.browserAction.setIcon({
+const icon = mode => chrome.action.setIcon({
   path: {
     '16': 'data/icons/' + mode + '/128.png'
   }
@@ -70,21 +58,21 @@ const icon = mode => chrome.browserAction.setIcon({
     chrome.contextMenus.create({
       id: 'mode-tab',
       title: 'Open in Tab',
-      contexts: ['browser_action'],
+      contexts: ['action'],
       type: 'radio',
       checked: prefs.mode === 'tab'
     });
     chrome.contextMenus.create({
       id: 'mode-window',
       title: 'Open in Window',
-      contexts: ['browser_action'],
+      contexts: ['action'],
       type: 'radio',
       checked: prefs.mode === 'window'
     });
     chrome.contextMenus.create({
       id: 'mode-popup',
       title: 'Open in Popup',
-      contexts: ['browser_action'],
+      contexts: ['action'],
       type: 'radio',
       checked: prefs.mode === 'popup'
     });
@@ -123,9 +111,11 @@ chrome.storage.onChanged.addListener(ps => {
   }
 });
 
-window.save = o => {
-  chrome.storage.local.set(o);
-};
+chrome.runtime.onMessage.addListener(request => {
+  if (request.method === 'save-size') {
+    chrome.storage.local.set(request.prefs);
+  }
+});
 
 /* FAQs & Feedback */
 {
