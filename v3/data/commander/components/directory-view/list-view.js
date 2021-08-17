@@ -184,6 +184,10 @@ class ListView extends HTMLElement {
         m.querySelector('[data-id="open-in-new-tab"]').classList[directory ? 'add' : 'remove']('disabled');
         m.querySelector('[data-id="open-in-new-window"]').classList[directory ? 'add' : 'remove']('disabled');
         m.querySelector('[data-id="copy-link"]').classList[directory ? 'add' : 'remove']('disabled');
+        m.querySelector('[data-id="import-tree"]').classList[
+          this?.extra?.origin === 'search' ? 'add' : 'remove'
+        ]('disabled');
+
         m.style.left = (e.clientX - 10) + 'px';
         m.style.top = (e.clientY - 10) + 'px';
         m.classList.remove('hidden');
@@ -476,8 +480,9 @@ class ListView extends HTMLElement {
     [...this.content.querySelectorAll('.entry:not(.hr)')].forEach(e => e.remove());
   }
   // ids of selected elements
-  build(nodes, err, ids = []) {
+  build(nodes, err, ids = [], extra) { // extra = {origin: ['root', 'search', 'extra']}
     this.clean();
+    this.extra = extra;
 
     // remove unknown ids
     ids = ids.filter(id => nodes.some(n => n.id === id));
