@@ -125,6 +125,8 @@ class DirectoryView extends HTMLElement {
     }
   }
   async build(id, arr, selectedIDs = []) {
+    this.emit('directory-view:update-requested');
+
     id = id || engine.bookmarks.rootID;
     this.buildListView(id, false, selectedIDs);
     this.buildPathView(id, arr).then(() => {

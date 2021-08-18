@@ -28,11 +28,42 @@ document.addEventListener('directory-view:path', e => {
   const {detail} = e;
   const id = e.target.getAttribute('id');
   title[id] = detail.arr[detail.arr.length - 1].title;
+
   document.title = '[L] ' + title['directory-view-1'] + ' [R] ' + title['directory-view-2'];
   engine.storage.set({
     [id]: detail.id
   });
 });
+/* history */
+document.addEventListener('directory-view:path', () => {
+  const state = {
+    'directory-view-1': views.left.id(),
+    'directory-view-1-ids': views.left.entries().map(o => o.id),
+    'directory-view-2': views.right.id(),
+    'directory-view-2-ids': views.right.entries().map(o => o.id),
+    'active': views.active() === views.left ? 'left' : 'right'
+  };
+  // do not push state if history.state is equal to the current state => state is set by history.state
+  if (history.state) {
+    if (
+      JSON.stringify(history.state['directory-view-1']) === JSON.stringify(state['directory-view-1']) &&
+      JSON.stringify(history.state['directory-view-2']) === JSON.stringify(state['directory-view-2'])
+    ) {
+      return;
+    }
+  }
+  clearTimeout(history.id);
+  history.id = setTimeout(() => {
+    history[history.state ? 'pushState' : 'replaceState'](state, document.title);
+  }, 100);
+});
+window.addEventListener('popstate', e => {
+  if (history.state && history.state.active) {
+    start(e.state);
+  }
+});
+history.busy = false;
+
 // user-action
 document.addEventListener('directory-view:submit', e => {
   const {detail} = e;
@@ -126,6 +157,10 @@ document.addEventListener('directory-view:selection-changed', e => {
     input.click();
   }
   views.changed();
+
+  engine.storage.set({
+    [e.target.getAttribute('id') + '-ids']: e.target.entries().map(o => o.id)
+  });
 });
 document.addEventListener('directory-view:content-updated', () => {
   views.changed();
@@ -133,7 +168,10 @@ document.addEventListener('directory-view:content-updated', () => {
 {
   const commit = e => {
     command(e.detail.command, {
-      shiftKey: e.detail.shiftKey
+      shiftKey: e.detail.shiftKey,
+      altKey: e.detail.altKey,
+      metaKey: e.detail.metaKey,
+      ctrlKey: e.detail.ctrlKey
     });
     views.active().click();
   };
@@ -159,6 +197,9 @@ const views = {
     const active = views.active();
 
     const direction = active === views.left ? 'LEFT' : 'RIGHT';
+    engine.storage.set({
+      active: active === views.left ? 'left' : 'right'
+    });
     const entries = active.entries();
 
     const readonly = entries.some(o => o.readonly === 'true');
@@ -221,21 +262,27 @@ views.right.owner('right');
 const toolsView = document.getElementById('tools-view');
 
 /* restore, and active a pane after DOM content is loaded */
-Promise.all([
-  new Promise(resolve => document.addEventListener('DOMContentLoaded', engine.storage.get({
-    'directory-view-1': '',
-    'directory-view-2': ''
-  }).then(prefs => {
-    Object.entries(prefs).forEach(([name, id]) => {
-      const e = document.getElementById(name);
-      if (e) {
-        e.build(id);
-      }
-    });
-    resolve();
-  }))),
-  new Promise(resolve => window.addEventListener('load', resolve))
-]).then(() => views.left.click());
+const start = state => {
+  document.getElementById('directory-view-1').build(
+    state['directory-view-1'],
+    undefined,
+    state['directory-view-1-ids'] || []
+  );
+  document.getElementById('directory-view-2').build(
+    state['directory-view-2'],
+    undefined,
+    state['directory-view-2-ids'] || []
+  );
+
+  views[state.active].click();
+};
+document.addEventListener('DOMContentLoaded', () => engine.storage.get({
+  'directory-view-1': '',
+  'directory-view-1-ids': [],
+  'directory-view-2': '',
+  'directory-view-2-ids': [],
+  'active': 'left'
+}).then(start));
 
 /* on command */
 const command = async (command, e) => {
@@ -445,7 +492,20 @@ const command = async (command, e) => {
           return next(dir.id);
         }
       }
-      next(view.id(), undefined, entries.map(o => o.id));
+      // on search pane, entries[0].id browse the directory while view.id() browse the search
+      next(e.altKey ? entries[0].parentId : view.id(), undefined, entries.map(o => o.id));
+    }
+    else if (command === 'open-folder') {
+      const next = (...args) => {
+        views[view === views.left ? 'left' : 'right'].build(...args);
+      };
+      if (e.shiftKey) {
+        const dir = entries.filter(o => o.type === 'DIRECTORY').shift();
+        if (dir) {
+          return next(dir.id);
+        }
+      }
+      next(entries[0].parentId, undefined, entries.map(o => o.id));
     }
     else if (command === 'search') {
       const id = view.id();
@@ -571,7 +631,7 @@ toolsView.addEventListener('click', () => views.active().click());
 // remember last state
 if (args.get('mode') === 'window') {
   const resize = () => {
-    chrome.storage.local.set({
+    engine.storage.set({
       'window.left': window.screenX,
       'window.top': window.screenY,
       'window.width': window.outerWidth,
@@ -625,17 +685,5 @@ styling();
 engine.storage.changed(ps => {
   if (ps['font-size'] || ps['font-family'] || ps['user-styles'] || ps['views'] || ps['widths'] || ps['theme']) {
     styling();
-  }
-});
-
-//
-chrome.runtime.onMessage.addListener(request => {
-  if (request.method === 'interface') {
-    chrome.windows.update(request.windowId, {
-      focused: true
-    });
-    chrome.tabs.update(request.id, {
-      active: true
-    });
   }
 });

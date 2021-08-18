@@ -1,5 +1,5 @@
 {
-  "manifest_version": 3,
+  "manifest_version": 2,
   "version": "0.3.0",
   "name": "Bookmarks Commander",
   "description": "__MSG_description__",
@@ -9,10 +9,8 @@
     "bookmarks",
     "contextMenus",
     "notifications",
+    "chrome://favicon/*",
     "storage"
-  ],
-  "host_permissions": [
-    "chrome://favicon/*"
   ],
   "homepage_url": "https://add0n.com/bookmarks-commander.html",
   "background": {
@@ -29,6 +27,6 @@
     "256": "data/icons/256.png",
     "512": "data/icons/512.png"
   },
-  "action": {},
+  "browser_action": {},
   "incognito": "split"
 }

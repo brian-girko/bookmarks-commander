@@ -132,6 +132,8 @@ class ListView extends HTMLElement {
       <ul id="menu" tabindex="1" class="hidden">
         <li data-id="open-in-new-tab">Open Link in New Tab</li>
         <li data-id="open-in-new-window">Open Link in New Window</li>
+        <li data-id="open-folder">Open Path Folder</li>
+        <li data-id="open-folder-other-pane">Open Path Folder in Opposite Pane</li>
         <hr/>
         <li data-id="copy-title">Copy Title</li>
         <li data-id="copy-link">Copy Link</li>
@@ -186,6 +188,9 @@ class ListView extends HTMLElement {
         m.querySelector('[data-id="copy-link"]').classList[directory ? 'add' : 'remove']('disabled');
         m.querySelector('[data-id="import-tree"]').classList[
           this?.extra?.origin === 'search' ? 'add' : 'remove'
+        ]('disabled');
+        m.querySelector('[data-id="open-folder"]').classList[
+          this?.extra?.origin === 'other' && directory === false ? 'add' : 'remove'
         ]('disabled');
 
         m.style.left = (e.clientX - 10) + 'px';
@@ -271,6 +276,18 @@ class ListView extends HTMLElement {
           code: 'Enter',
           shiftKey: true
         }));
+      }
+      else if (target.dataset.id === 'open-folder') {
+        this.emit('command', {
+          command: 'open-folder',
+          shiftKey: true
+        });
+      }
+      else if (target.dataset.id === 'open-folder-other-pane') {
+        this.emit('command', {
+          command: 'mirror',
+          altKey: true
+        });
       }
       else if (
         ['copy-link', 'copy-id', 'copy-title', 'copy-details'].indexOf(target.dataset.id) !== -1 ||
@@ -511,6 +528,10 @@ class ListView extends HTMLElement {
           id: typeof node.id === 'string' ? node.id : JSON.stringify(node.id),
           readonly: node.readonly || false
         });
+        div.title = `${node.title}
+${node.url}
+${node.relativePath}`;
+
         if (node.readonly !== true) {
           div.setAttribute('draggable', 'true');
         }
