@@ -644,7 +644,7 @@ if (args.get('mode') === 'window') {
 
 // styling
 const styling = () => engine.storage.get({
-  'font-size': 14,
+  'font-size': 13,
   'font-family': 'Arial, "Helvetica Neue", Helvetica, sans-serif',
   'user-styles': '',
   'theme': 'default',

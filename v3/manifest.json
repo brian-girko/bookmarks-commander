@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "version": "0.3.0",
+  "version": "0.4.0",
   "name": "Bookmarks Commander",
   "description": "__MSG_description__",
   "default_locale": "en",

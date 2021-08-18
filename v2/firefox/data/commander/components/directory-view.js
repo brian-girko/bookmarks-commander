@@ -102,8 +102,12 @@ class DirectoryView extends HTMLElement {
           readonly: true
         });
       }
+      const origin = this.isSearch(id) ? 'search' : (
+        this.isRoot(id) ? 'root' : 'other'
+      );
+
       if (method === 'build') {
-        this.listView.build(nodes, undefined, selectedIDs);
+        this.listView.build(nodes, undefined, selectedIDs, {origin});
       }
       else {
         this.listView.update(nodes);
@@ -115,12 +119,14 @@ class DirectoryView extends HTMLElement {
       this.history.push(id);
     }
     catch (e) {
-      this.listView.build(undefined, e);
+      this.listView.build(undefined, e, undefined, {origin});
       console.warn(e);
       window.setTimeout(() => this.build(''), 2000);
     }
   }
   async build(id, arr, selectedIDs = []) {
+    this.emit('directory-view:update-requested');
+
     id = id || engine.bookmarks.rootID;
     this.buildListView(id, false, selectedIDs);
     this.buildPathView(id, arr).then(() => {

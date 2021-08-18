@@ -254,8 +254,3 @@ window.engine = {
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
 };
-
-// single window
-chrome.runtime.connect({
-  name: 'instance'
-});
