@@ -167,16 +167,12 @@ document.addEventListener('directory-view:content-updated', () => {
 });
 {
   const commit = e => {
-    command(e.detail.command, {
-      shiftKey: e.detail.shiftKey,
-      altKey: e.detail.altKey,
-      metaKey: e.detail.metaKey,
-      ctrlKey: e.detail.ctrlKey
-    });
+    command(e.detail.command, e.detail);
     views.active().click();
   };
   document.addEventListener('directory-view:command', commit);
   document.addEventListener('tools-view:command', commit);
+  document.addEventListener('tools-view:blur', () => views.active().click());
 }
 
 engine.user.on('blur', () => views.active().click());
@@ -251,6 +247,17 @@ const views = {
     // import-tree;
     // allow on root; does not allow on back button; does not allow on search
     toolsView.state('import-tree', entries.length === 1 && active.isSearch() === false && (readonly === false || active.isRoot()));
+    // sync
+    if (
+      views.left.isRoot() || views.left.isSearch() ||
+      views.right.isRoot() || views.right.isSearch() ||
+      views.left.id() === views.right.id()
+    ) {
+      toolsView.state('sync', false);
+    }
+    else {
+      toolsView.state('sync', true);
+    }
   },
   update() {
     views.left.update(views.left.id());
@@ -495,38 +502,46 @@ const command = async (command, e) => {
       // on search pane, entries[0].id browse the directory while view.id() browse the search
       next(e.altKey ? entries[0].parentId : view.id(), undefined, entries.map(o => o.id));
     }
+    else if (command === 'sync') {
+      const el = views.left.entries(false).filter(o => o.type === 'FILE');
+      const er = views.right.entries(false).filter(o => o.type === 'FILE');
+
+      const combined = [...el, ...er].map(o => ({
+        title: o.title,
+        url: o.url
+      })).map(o => JSON.stringify(o)).filter((s, i, l) => s && l.indexOf(s) === i).map(JSON.parse);
+      // sync panes
+      for (const [view, list] of [[views.left, el], [views.right, er]]) {
+        const selected = [];
+        for (const o of combined) {
+          if (list.some(e => e.title === o.title && e.url === o.url) === false) {
+            const b = {
+              ...o,
+              parentId: view.id()
+            };
+            const node = await engine.bookmarks.create(b);
+            selected.push(node.id);
+          }
+        }
+        if (selected.length) {
+          view.build(view.id(), undefined, selected);
+        }
+      }
+    }
     else if (command === 'open-folder') {
       const next = (...args) => {
         views[view === views.left ? 'left' : 'right'].build(...args);
       };
-      if (e.shiftKey) {
-        const dir = entries.filter(o => o.type === 'DIRECTORY').shift();
-        if (dir) {
-          return next(dir.id);
-        }
-      }
       next(entries[0].parentId, undefined, entries.map(o => o.id));
     }
     else if (command === 'search') {
       const id = view.id();
-      let value = '';
-      if (e.shiftKey) {
-        value = 'duplicates';
+      if (e.query) {
+        view.build({
+          id,
+          query: e.query
+        });
       }
-      else if (id.query) {
-        value = id.query;
-      }
-      engine.user.ask(
-        'Search For:\n\nUse "duplicates" keyword to find duplicated bookmarks in the current tree)',
-        value
-      ).then(query => {
-        if (query) {
-          view.build({
-            id,
-            query
-          });
-        }
-      });
     }
     else if (command === 'sort') {
       const entries = view.entries(false);
@@ -685,5 +700,13 @@ styling();
 engine.storage.changed(ps => {
   if (ps['font-size'] || ps['font-family'] || ps['user-styles'] || ps['views'] || ps['widths'] || ps['theme']) {
     styling();
+  }
+});
+
+// messaging
+chrome.runtime.onMessage.addListener((request, sender, response) => {
+  if (request.method === 'instance') {
+    response(true);
+    chrome.runtime.sendMessage({method: 'activate'});
   }
 });

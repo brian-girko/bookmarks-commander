@@ -17,7 +17,7 @@ class ToolsView extends HTMLElement {
         div {
           display: flex;
           align-items: center;
-          flex-flow: wrap;
+          flex-flow: nowrap;
           margin-top: -5px;
         }
         div > * {
@@ -51,28 +51,45 @@ class ToolsView extends HTMLElement {
         span u {
           pointer-events: none;
         }
+        #search {
+          flex: 1;
+          color: var(--color, #3e3e3e);
+          background-color: var(--bg-light, #dadada);
+          border: none;
+          padding: 0 5px;
+          outline: none;
+        }
+        #search:focus {
+          background-color: var(--bg-active, #fff);
+        }
         :host-context(body[data-views="1"]) .view-2 {
           display: none;
         }
         .ha {
           white-space: pre;
         }
-        @media screen and (max-width: 1200px) {
+        @media screen and (max-width: 1600px) {
           .ha {
             display: none;
           }
         }
-        @media screen and (max-width: 800px) {
-          span[data-enabled=false] {
-            display: none;
-          }
+        @media screen and (max-width: 1400px) {
           .ja {
             display: none;
           }
         }
-        @media screen and (max-width: 600px) {
+        @media screen and (max-width: 1200px) {
+          span[data-enabled=false] {
+            display: none;
+          }
+        }
+        @media screen and (max-width: 800px) {
+          span[data-command="copy-title"],
+          span[data-command="copy-link"],
           span[data-command="copy-id"],
           span[data-command="commands"],
+          span[data-command="sort"],
+          span[data-command="edit-title"],
           span[data-command="root"],
           span[data-command="mirror"] {
             display: none;
@@ -84,33 +101,46 @@ class ToolsView extends HTMLElement {
       </style>
 
       <div>
-        <u title="Copy">C<span class="ja">opy</span></u>
+        <u title="Copy" class="ja">Copy</u>
         <span title="Ctrl + X or Command + X ➝ Copy bookmark's title to the clipboard" data-command="copy-title">Title<span class="ha"> (<u>X</u>)</span></span>
         <span title="Ctrl + C or Command + C ➝ Copy bookmark's link to the clipboard" data-command="copy-link">Link<span class="ha"> (C)</span></span>
         <span title="Ctrl + I or Command + I ➝ Copy bookmark's internal ID to the clipboard" data-command="copy-id"><u>I</u>D</span>
-        <u title="Edit">E<span class="ja">dit</span></u>
+        <u title="Edit" class="ja">Edit</u>
         <span title="Ctrl + E or Command + E ➝ Change bookmark's title" data-command="edit-title">Titl<u>e</u></span>
         <span title="Ctrl + L or Command + L ➝ Change bookmark's link" data-command="edit-link"><u>L</u>ink</span>
-        <u title="JSON">J<span class="ja">SON</span></u>
+        <u title="JSON" class="ja">JSON</u>
         <span title="Ctrl + P or Command + P ➝ Paste the current bookmark tree inside a directory or next to the current bookmark" data-command="import-tree">Im<u>p</u>ort</span>
         <span title="Ctrl + Y or Command + Y ➝ Copy the selected bookmarks to the clipboard&#013;Ctrl + Shift + Y or Command + Shift + Y ➝ Export selected bookmarks to a JSON file" data-command="export-tree">Export<span class="ha"> (Y)</span></span>
-        <u title="New">N<span class="ja">ew</span></u>
+        <u title="New" class="ja">New</u>
         <span title="Ctrl + B or Command + B ➝ Create a new bookmark" data-command="new-file"><u>B</u>ookmark</span>
         <span title="Ctrl + D or Command + D ➝ Create a new empty directory" data-command="new-directory"><u>D</u>irectory</span>
-        <u title="Move">M<span class="ja">ove</span></u>
+        <u title="Move" class="ja">Focus</u>
         <span title="Ctrl + ArrowLeft or Command + ArrowLeft ➝ Move selected bookmarks to the left pane" data-command="move-left">Left<span class="ha"> (&#x2190;)</span></span>
         <span title="Ctrl + ArrowRight or Command + ArrowRight ➝ Move the selected bookmarks to the right pane" data-command="move-right">Right<span class="ha"> (&#x2192;)</span></span>
-        <u title="Tools">T<span class="ja">ools</span></u>
+        <u title="Tools" class="ja">Tools</u>
         <span title="Ctrl + S or Command + S ➝ Open commands box" data-command="commands">CMD<span class="ha"> (<u>S</u>)</span></span>
         <span title="Ctrl + O or Command + O ➝ Reset both panes&#013;Ctrl + Shift + O or Command + Shift + O ➝ Reset only the active pane" data-command="root">R<u>o</u>ot</span>
-        <span class="view-2" title="Ctrl + M or Command + M ➝ Mirror the inactive pane&#013;Ctrl + Shift + M or Command + Shift + M ➝ Navigate inactive pane into the first selected Dir&#013;Al + M ➝ Open path folder in opposite pane" data-command="mirror"><u>M</u>irror</span>
+        <span class="view-2" title="Ctrl + M or Command + M ➝ Mirror the inactive pane&#013;Ctrl + Shift + M or Command + Shift + M ➝ Navigate inactive pane into the first selected Dir&#013;Alt + M ➝ Open path folder in opposite pane&#013;Alt + Shift + M ➝ Open path folder" data-command="mirror"><u>M</u>irror</span>
+        <span class="view-2" title="Ctrl + Shift + S or Command + Shift + S ➝ Sync bookmarks (not directories) of two panes" data-command="sync"><u>S</u>ync</span>
         <span title="Ctrl + Delete, Ctrl + Backspace, Command + Delete, or Command + Backspace ➝ Delete the active bookmarks and directories" data-command="trash">Delete</span>
-        <span title="Ctrl + F or Command + F ➝ Search inside the active directory&#013;Ctrl + Shift + F or Command + Shift + F ➝ Search for duplicates inside the active directory" data-command="search">Search<span class="ha"> (<u>F</u>)</span></span>
         <span title="Ctrl + J or Command + J ➝ Sort A-Z&#013;Ctrl + Shift + J or Command + Shift + J ➝ Sort Z-A&#013;Alt + J ➝ Custom Sorting (A-Z)&#013;Alt + Shift + J ➝ Custom Sorting (Z-A)" data-command="sort">Sort<span class="ha"> (<u>J</u>)</span></span>
       </div>
+      <input type=search id="search" placeholder="Search active pane" title="Ctrl + F or Command + F ➝ Search inside the active directory&#013;Ctrl + Shift + F or Command + Shift + F ➝ Search for duplicates inside the active directory&#013;Escape ➝ Focus active pane">
     `;
+
+    this.shadow.getElementById('search').addEventListener('search', e => {
+      this.emit('tools-view:command', {
+        command: 'search',
+        query: e.target.value
+      });
+    });
+    this.shadow.getElementById('search').addEventListener('keydown', e => {
+      if (e.code === 'Escape') {
+        this.emit('tools-view:blur');
+      }
+    });
     this.shadow.addEventListener('click', e => {
-      const command = e.target.dataset.command;
+      const command = e.target?.dataset?.command;
       if (command === 'commands') {
         this.command(new KeyboardEvent('keydown', {
           code: 'KeyS',
@@ -123,15 +153,25 @@ class ToolsView extends HTMLElement {
           shiftKey: e.shiftKey
         });
       }
+      // allow the search box to get focused
+      else if (e.target.id === 'search') {
+        e.stopPropagation();
+      }
     });
   }
-  emit(name, detail) {
+  emit(name, detail = {}) {
     return this.dispatchEvent(new CustomEvent(name, {
       bubbles: true,
       detail
     }));
   }
   validate(name) {
+    if (name === 'ignore') {
+      return -1;
+    }
+    if (name === 'open-folder') {
+      name = 'mirror';
+    }
     const d = this.shadow.querySelector(`[data-command="${name}"]`);
     if (d) {
       if (d.dataset.enabled === 'false') {
@@ -195,20 +235,32 @@ class ToolsView extends HTMLElement {
     else if (e.code === 'KeyO' && meta) {
       command = 'root';
     }
-    else if (e.code === 'KeyM' && meta) {
-      command = 'mirror';
+    else if (e.code === 'KeyM' && e.altKey && e.shiftKey) {
+      command = 'open-folder';
     }
     else if (e.code === 'KeyM' && e.altKey) {
       command = 'mirror';
     }
+    else if (e.code === 'KeyM' && meta) {
+      command = 'mirror';
+    }
     else if (e.code === 'KeyF' && meta) {
-      command = 'search';
+      command = 'ignore';
+      const o = this.shadow.getElementById('search');
+
+      if (e.shiftKey) {
+        o.value = 'duplicates';
+      }
+      o.focus();
     }
     else if (e.code === 'KeyJ' && (meta || e.altKey)) {
       command = 'sort';
     }
+    else if (e.code === 'KeyS' && meta && e.shiftKey) {
+      command = 'sync';
+    }
     // command box
-    if (e.code === 'KeyS' && meta) {
+    if (e.code === 'KeyS' && meta && e.shiftKey === false) {
       engine.user.ask(`Enter a Command:
 
 icon=[default|light|dark]
@@ -265,7 +317,7 @@ column-widths=[name]px, [added]px, [modified]px`).then(command => {
     }
     if (command) {
       const code = this.validate(command);
-      if (code === 0 || code === 1) {
+      if (code === 0 || code === 1 || code === -1) {
         e.preventDefault();
         e.stopPropagation(); // to prevent other modules from running
       }

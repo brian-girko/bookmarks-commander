@@ -2,19 +2,14 @@
 
 chrome.browserAction.onClicked.addListener(() => {
   chrome.storage.local.get({
-    'tab': -1,
     'mode': 'tab'
   }, async prefs => {
+    // try to find an open instance
     try {
-      const tab = await new Promise(resolve => chrome.tabs.get(prefs.tab, tab => {
-        chrome.runtime.lastError;
-        resolve(tab);
-      }));
-      chrome.windows.update(tab.windowId, {
-        focused: true
-      });
-      chrome.tabs.update(tab.id, {
-        active: true
+      await new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage({
+          method: 'instance'
+        }, r => r ? resolve() : reject(chrome.runtime.lastError));
       });
     }
     catch (e) {
@@ -29,12 +24,12 @@ chrome.browserAction.onClicked.addListener(() => {
         chrome.windows.getCurrent(win => {
           chrome.storage.local.get({
             'window.width': 750,
-            'window.height': 500,
+            'window.height': 600,
             'window.left': win.left + Math.round((win.width - 700) / 2),
             'window.top': win.top + Math.round((win.height - 500) / 2)
           }, prefs => {
             chrome.windows.create({
-              url: chrome.runtime.getURL('data/commander/index.html?mode=window'),
+              url: '/data/commander/index.html?mode=window',
               width: Math.max(400, prefs['window.width']),
               height: Math.max(300, prefs['window.height']),
               left: prefs['window.left'],
@@ -120,9 +115,19 @@ chrome.storage.onChanged.addListener(ps => {
   }
 });
 
-window.save = o => {
-  chrome.storage.local.set(o);
-};
+chrome.runtime.onMessage.addListener((request, sender) => {
+  if (request.method === 'save-size') {
+    chrome.storage.local.set(request.prefs);
+  }
+  else if (request.method === 'activate') {
+    chrome.windows.update(sender.tab.windowId, {
+      focused: true
+    });
+    chrome.tabs.update(sender.tab.id, {
+      active: true
+    });
+  }
+});
 
 /* FAQs & Feedback */
 {

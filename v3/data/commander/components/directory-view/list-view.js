@@ -279,8 +279,7 @@ class ListView extends HTMLElement {
       }
       else if (target.dataset.id === 'open-folder') {
         this.emit('command', {
-          command: 'open-folder',
-          shiftKey: true
+          command: 'open-folder'
         });
       }
       else if (target.dataset.id === 'open-folder-other-pane') {
