@@ -80,6 +80,11 @@ const icon = mode => chrome.browserAction.setIcon({
       type: 'radio',
       checked: prefs.mode === 'popup'
     });
+    chrome.contextMenus.create({
+      id: 'restart',
+      title: 'Restart Commander',
+      contexts: ['browser_action']
+    });
     if (prefs.mode === 'popup') {
       chrome.browserAction.setPopup({
         popup: `data/commander/index.html?mode=popup&width=${prefs['popup.width']}&height=${prefs['popup.height']}`
@@ -90,7 +95,10 @@ const icon = mode => chrome.browserAction.setIcon({
   chrome.runtime.onStartup.addListener(startup);
 }
 chrome.contextMenus.onClicked.addListener(info => {
-  if (info.menuItemId.startsWith('mode-')) {
+  if (info.menuItemId === 'restart') {
+    chrome.runtime.reload();
+  }
+  else if (info.menuItemId.startsWith('mode-')) {
     chrome.storage.local.set({
       mode: info.menuItemId.replace('mode-', '')
     });
