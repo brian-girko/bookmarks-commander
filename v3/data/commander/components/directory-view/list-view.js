@@ -140,6 +140,11 @@ class ListView extends HTMLElement {
         <li data-id="copy-id">Copy Bookmark ID</li>
         <li data-id="copy-details">Copy Details</li>
         <hr/>
+        <li data-id="move-top">Move First</li>
+        <li data-id="move-up">Move UP</li>
+        <li data-id="move-down">Move Down</li>
+        <li data-id="move-bottom">Move Last</li>
+        <hr/>
         <li data-id="import-tree">Import as JSON</li>
         <li data-id="export-tree">Export as JSON</li>
         <hr/>
@@ -185,10 +190,6 @@ class ListView extends HTMLElement {
         const directory = target.dataset.type === 'DIRECTORY';
         m.querySelector('[data-id="open-in-new-tab"]').classList[directory ? 'add' : 'remove']('disabled');
         m.querySelector('[data-id="open-in-new-window"]').classList[directory ? 'add' : 'remove']('disabled');
-        m.querySelector('[data-id="copy-link"]').classList[directory ? 'add' : 'remove']('disabled');
-        m.querySelector('[data-id="import-tree"]').classList[
-          this?.extra?.origin === 'search' ? 'add' : 'remove'
-        ]('disabled');
         m.querySelector('[data-id="open-folder"]').classList[
           this?.extra?.origin === 'other' && directory === false ? 'add' : 'remove'
         ]('disabled');
@@ -290,6 +291,7 @@ class ListView extends HTMLElement {
       }
       else if (
         ['copy-link', 'copy-id', 'copy-title', 'copy-details'].indexOf(target.dataset.id) !== -1 ||
+        ['move-top', 'move-up', 'move-down', 'move-bottom'].indexOf(target.dataset.id) !== -1 ||
         ['import-tree', 'export-tree'].indexOf(target.dataset.id) !== -1 ||
         ['trash'].indexOf(target.dataset.id) !== -1
       ) {
@@ -354,10 +356,12 @@ class ListView extends HTMLElement {
     // keyboard navigation
     shadow.addEventListener('keydown', e => {
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-        e.preventDefault();
-        const meta = e.metaKey || e.ctrlKey || e.shiftKey;
-        const reverse = (e.metaKey && e.shiftKey) || (e.ctrlKey && e.shiftKey);
-        this[e.key === 'ArrowUp' ? 'previous' : 'next'](meta, reverse);
+        if (e.altKey === false) {
+          e.preventDefault();
+          const meta = e.metaKey || e.ctrlKey || e.shiftKey;
+          const reverse = (e.metaKey && e.shiftKey) || (e.ctrlKey && e.shiftKey);
+          this[e.key === 'ArrowUp' ? 'previous' : 'next'](meta, reverse);
+        }
       }
     });
     // drag and drop
@@ -580,6 +584,14 @@ ${node.relativePath}`;
       target.scrollIntoView({
         block: 'end'
       });
+    }
+  }
+  state(command, enabled) {
+    const m = this.shadowRoot.getElementById('menu');
+    const e = m.querySelector(`[data-id="${command}"]`);
+    console.log(e, command);
+    if (e) {
+      e.classList[enabled ? 'remove' : 'add']('disabled');
     }
   }
   connectedCallback() {

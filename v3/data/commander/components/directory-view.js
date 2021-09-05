@@ -128,8 +128,10 @@ class DirectoryView extends HTMLElement {
     this.emit('directory-view:update-requested');
 
     id = id || engine.bookmarks.rootID;
-    this.buildListView(id, false, selectedIDs);
-    this.buildPathView(id, arr).then(() => {
+    Promise.all([
+      this.buildListView(id, false, selectedIDs),
+      this.buildPathView(id, arr)
+    ]).then(() => {
       this.emit('directory-view:content-updated');
     });
     this._id = id;
@@ -144,7 +146,9 @@ class DirectoryView extends HTMLElement {
     this.listView.style.setProperty('--modified-width', modified + 'px');
   }
   update(id) {
-    this.buildListView(id, true);
+    this.buildListView(id, true).then(() => {
+      this.emit('directory-view:content-updated');
+    });
   }
   entries(...args) {
     return this.listView.entries(...args);
@@ -168,6 +172,9 @@ class DirectoryView extends HTMLElement {
     else {
       this.listView[direction === 'forward' ? 'next' : 'previous']();
     }
+  }
+  state(command, enabled) {
+    this.listView.state(command, enabled);
   }
   owner(name) {
     this.setAttribute('owner', name);

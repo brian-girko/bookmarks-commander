@@ -197,6 +197,7 @@ const views = {
       active: active === views.left ? 'left' : 'right'
     });
     const entries = active.entries();
+    const uentries = active.entries(false);
 
     const readonly = entries.some(o => o.readonly === 'true');
     const directory = entries.some(o => o.type === 'DIRECTORY');
@@ -236,6 +237,7 @@ const views = {
     toolsView.state('sort', active.isRoot() === false && active.count > 1 && active.isSearch() === false);
     // copy-link
     toolsView.state('copy-link', file);
+    active.state('copy-link', file);
     // edit-link
     toolsView.state('edit-link', readonly === false && file && entries.length === 1);
     // edit-title
@@ -246,7 +248,9 @@ const views = {
     toolsView.state('new-directory', active.isRoot() || active.isSearch() ? false : true);
     // import-tree;
     // allow on root; does not allow on back button; does not allow on search
-    toolsView.state('import-tree', entries.length === 1 && active.isSearch() === false && (readonly === false || active.isRoot()));
+    const imt = entries.length === 1 && active.isSearch() === false && (readonly === false || active.isRoot());
+    toolsView.state('import-tree', imt);
+    active.state('import-tree', imt);
     // sync
     if (
       views.left.isRoot() || views.left.isSearch() ||
@@ -258,6 +262,19 @@ const views = {
     else {
       toolsView.state('sync', true);
     }
+    // move
+    const first = active.isRoot() === false && active.isSearch() === false &&
+      entries.some(e => Number(e.index) === 0) === false;
+    const last = active.isRoot() === false && active.isSearch() === false &&
+      entries.some(e => Number(e.index) === uentries.length - 1) === false;
+    toolsView.state('move-top', first);
+    active.state('move-top', first);
+    toolsView.state('move-up', first);
+    active.state('move-up', first);
+    toolsView.state('move-down', last);
+    active.state('move-down', last);
+    toolsView.state('move-bottom', last);
+    active.state('move-bottom', last);
   },
   update() {
     views.left.update(views.left.id());
@@ -602,6 +619,35 @@ const command = async (command, e) => {
     }
     else if (command === 'first' || command === 'last') {
       view.navigate(command);
+    }
+    else if (command === 'move-top' || command === 'move-up' || command === 'move-down' || command === 'move-bottom') {
+      const t = view.entries(false).length;
+
+      for (let n = 0; n < entries.length; n += 1) {
+        let entry = entries[n];
+        if (command === 'move-down' || command === 'move-bottom') {
+          entry = entries[entries.length - n - 1];
+        }
+        let index = n;
+        if (command === 'move-up') {
+          index = Number(entry.index) - 1;
+        }
+        else if (command === 'move-down') {
+          index = Number(entry.index) + 2;
+        }
+        else if (command === 'move-bottom') {
+          index = t - index;
+        }
+        await engine.bookmarks.move(entry.id, {
+          parentId: view.id(),
+          index
+        }).catch(engine.notify);
+      }
+      // update both views
+      views.update();
+    }
+    else {
+      console.warn('Command is not supported:', command);
     }
   }
 };

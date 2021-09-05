@@ -65,6 +65,9 @@ class ToolsView extends HTMLElement {
         :host-context(body[data-views="1"]) .view-2 {
           display: none;
         }
+        .hi {
+          display: none;
+        }
         .ha {
           white-space: pre;
         }
@@ -114,9 +117,14 @@ class ToolsView extends HTMLElement {
         <u title="New" class="ja">New</u>
         <span title="Ctrl + B or Command + B ➝ Create a new bookmark" data-command="new-file"><u>B</u>ookmark</span>
         <span title="Ctrl + D or Command + D ➝ Create a new empty directory" data-command="new-directory"><u>D</u>irectory</span>
-        <u title="Move" class="ja">Focus</u>
+        <u title="Focus" class="ja">Focus</u>
         <span title="Ctrl + ArrowLeft or Command + ArrowLeft ➝ Move selected bookmarks to the left pane" data-command="move-left">Left<span class="ha"> (&#x2190;)</span></span>
         <span title="Ctrl + ArrowRight or Command + ArrowRight ➝ Move the selected bookmarks to the right pane" data-command="move-right">Right<span class="ha"> (&#x2192;)</span></span>
+        <u title="Move" class="hi">Move</u>
+        <span class="hi" title="Alt + Home ➝ Move to the top of the list" data-command="move-top">Top<span class="ha"></span></span>
+        <span class="hi" title="Alt + ArrowUp ➝ Move one-level up" data-command="move-up">Up<span class="ha"></span></span>
+        <span class="hi" title="Alt + ArrowDown ➝ Move one-level down" data-command="move-down">Down<span class="ha"></span></span>
+        <span class="hi" title="Alt + End ➝ Move to the end of the list" data-command="move-bottom">Last<span class="ha"></span></span>
         <u title="Tools" class="ja">Tools</u>
         <span title="Ctrl + S or Command + S ➝ Open commands box" data-command="commands">CMD<span class="ha"> (<u>S</u>)</span></span>
         <span title="Ctrl + O or Command + O ➝ Reset both panes&#013;Ctrl + Shift + O or Command + Shift + O ➝ Reset only the active pane" data-command="root">R<u>o</u>ot</span>
@@ -190,7 +198,19 @@ class ToolsView extends HTMLElement {
   command(e, callback = () => {}) {
     const meta = e.ctrlKey || e.metaKey;
     let command = '';
-    if (e.key === 'Home') {
+    if (e.key === 'Home' && e.altKey) {
+      command = 'move-top';
+    }
+    else if (e.key === 'End' && e.altKey) {
+      command = 'move-bottom';
+    }
+    else if (e.key === 'ArrowUp' && e.altKey) {
+      command = 'move-up';
+    }
+    else if (e.key === 'ArrowDown' && e.altKey) {
+      command = 'move-down';
+    }
+    else if (e.key === 'Home') {
       command = 'first';
     }
     else if (e.key === 'End') {
