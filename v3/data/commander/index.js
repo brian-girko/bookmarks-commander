@@ -308,6 +308,37 @@ document.addEventListener('DOMContentLoaded', () => engine.storage.get({
   'active': 'left'
 }).then(start));
 
+const exporting = async (entries, e) => {
+  const items = [];
+  for (const entry of entries) {
+    await engine.bookmarks.tree(entry.id).then(nodes => {
+      const step = (parent, node) => {
+        parent.title = node.title;
+        parent.type = node.url ? 'FILE' : 'DIRECTORY';
+        if (parent.type === 'FILE') {
+          parent.url = node.url;
+        }
+        else {
+          parent.children = [];
+          for (const n of (node.children || [])) {
+            const p = {};
+            parent.children.push(p);
+            step(p, n);
+          }
+        }
+      };
+      const root = {};
+      step(root, nodes[0]);
+      items.push(root);
+    });
+    if (e.shiftKey) {
+      engine.download(JSON.stringify(items, undefined, '  '), 'tree.json', 'application/json');
+    }
+    else {
+      engine.clipboard.copy(JSON.stringify(items, undefined, '  '));
+    }
+  }
+};
 /* on command */
 const command = async (command, e) => {
   const view = views.active();
@@ -376,34 +407,32 @@ const command = async (command, e) => {
     }
     // export-tree
     else if (command === 'export-tree') {
-      const items = [];
-      for (const entry of entries) {
-        await engine.bookmarks.tree(entry.id).then(nodes => {
-          const step = (parent, node) => {
-            parent.title = node.title;
-            parent.type = node.url ? 'FILE' : 'DIRECTORY';
-            if (parent.type === 'FILE') {
-              parent.url = node.url;
-            }
-            else {
-              parent.children = [];
-              for (const n of (node.children || [])) {
-                const p = {};
-                parent.children.push(p);
-                step(p, n);
+      await exporting(entries, e);
+    }
+    else if (command === 'trash') {
+      const prefs = await engine.storage.get({
+        'ask-before-delete': true
+      });
+
+      if (!prefs['ask-before-delete'] || window.confirm(`Are you sure you want to delete ${entries.length} item${entries.length > 1 ? 's' : ''}?
+
+-> Deleted entries will always be exported to the clipboard.`)) {
+        await exporting(entries, e);
+
+        view.navigate('previous');
+        for (const entry of entries) {
+          await engine.bookmarks.remove(entry.id).catch(e => {
+            if (entry.type === 'DIRECTORY') {
+              if (window.confirm(`"${entry.title}" directory is not empty. Remove anyway?`)) {
+                engine.bookmarks.remove(entry.id, true).catch(engine.notify);
               }
             }
-          };
-          const root = {};
-          step(root, nodes[0]);
-          items.push(root);
-        });
-        if (e.shiftKey) {
-          engine.download(JSON.stringify(items, undefined, '  '), 'tree.json', 'application/json');
+            else {
+              engine.notify(e);
+            }
+          });
         }
-        else {
-          engine.clipboard.copy(JSON.stringify(items, undefined, '  '));
-        }
+        views.update();
       }
     }
     // edit-title
@@ -489,22 +518,6 @@ const command = async (command, e) => {
         // update both views
         views.update();
       }, engine.notify);
-    }
-    else if (command === 'trash') {
-      view.navigate('previous');
-      for (const entry of entries) {
-        await engine.bookmarks.remove(entry.id).catch(e => {
-          if (entry.type === 'DIRECTORY') {
-            if (window.confirm(`"${entry.title}" directory is not empty. Remove anyway?`)) {
-              engine.bookmarks.remove(entry.id, true).catch(engine.notify);
-            }
-          }
-          else {
-            engine.notify(e);
-          }
-        });
-      }
-      views.update();
     }
     else if (command === 'mirror') {
       const next = (...args) => {

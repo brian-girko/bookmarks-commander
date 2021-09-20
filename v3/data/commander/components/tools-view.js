@@ -288,33 +288,39 @@ theme=[default|dark|light]
 font-size=[number]px
 font-family=[font-name]
 views=[1|2]
-column-widths=[name]px, [added]px, [modified]px`).then(command => {
+column-widths=[name]px, [added]px, [modified]px
+ask-before-delete=[true|false]`).then(command => {
         if (command.startsWith('icon=')) {
           const path = command.replace('icon=', '') || 'default';
-          chrome.storage.local.set({
+          engine.storage.set({
             'custom-icon': path === 'default' ? '' : path
           });
         }
         else if (command.startsWith('theme=')) {
           const path = command.replace('theme=', '') || 'default';
-          chrome.storage.local.set({
+          engine.storage.set({
             'theme': path === 'default' ? '' : path
           });
         }
         else if (command.startsWith('font-size=')) {
           const px = /font-size=(\d+)px/.exec(command);
-          chrome.storage.local.set({
+          engine.storage.set({
             'font-size': px && px.length ? px[1] : ''
           });
         }
         else if (command.startsWith('font-family=')) {
-          chrome.storage.local.set({
+          engine.storage.set({
             'font-family': command.replace('font-family=', '')
+          });
+        }
+        else if (command.startsWith('ask-before-delete=')) {
+          engine.storage.set({
+            'ask-before-delete': command.replace('ask-before-delete=', '') === 'false' ? false : true
           });
         }
         else if (command.startsWith('views=')) {
           const views = Math.min(2, Math.max(1, Number(command.replace('views=', ''))));
-          chrome.storage.local.set({
+          engine.storage.set({
             views
           });
         }
@@ -324,7 +330,7 @@ column-widths=[name]px, [added]px, [modified]px`).then(command => {
           widths[1] = widths[1] ? Math.min(1000, Math.max(32, widths[1])) : 90;
           widths[2] = widths[2] ? Math.min(1000, Math.max(32, widths[2])) : 90;
 
-          chrome.storage.local.set({
+          engine.storage.set({
             widths: {
               name: widths[0],
               added: widths[1],
