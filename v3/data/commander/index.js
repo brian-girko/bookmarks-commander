@@ -87,15 +87,16 @@ document.addEventListener('directory-view:submit', e => {
       }
     }
     else if (o.type === 'FILE') {
-      if (detail.metaKey || detail.ctrlKey) {
+      if (detail.shiftKey) {
+        engine.windows.create({
+          url: o.url,
+          incognito: detail.metaKey || detail.ctrlKey
+        });
+      }
+      else if (detail.metaKey || detail.ctrlKey) {
         engine.tabs.create({
           url: o.url,
           active: false
-        });
-      }
-      else if (detail.shiftKey) {
-        engine.windows.create({
-          url: o.url
         });
       }
       else {
@@ -191,6 +192,7 @@ const views = {
   },
   changed() {
     const active = views.active();
+    const other = active === views.left ? views.right : views.left;
 
     const direction = active === views.left ? 'LEFT' : 'RIGHT';
     engine.storage.set({
@@ -202,6 +204,15 @@ const views = {
     const readonly = entries.some(o => o.readonly === 'true');
     const directory = entries.some(o => o.type === 'DIRECTORY');
     const file = entries.some(o => o.type === 'FILE');
+
+
+    // duplicate
+    if (other.isSearch() || other.isRoot()) {
+      toolsView.state('duplicate', false);
+    }
+    else {
+      toolsView.state('duplicate', readonly ? false : true);
+    }
 
     // move-left or move-right
     if (readonly) {
@@ -223,9 +234,11 @@ const views = {
         // cannot move a directory to a child directory
         if (move && directory) {
           const d = views[moveTo].list();
-          // if any selected directory is in the path of destination directory, prevent moving
-          if (entries.some(e => d.some(de => de.id === e.id))) {
-            move = false;
+          if (d) {
+            // if any selected directory is in the path of destination directory, prevent moving
+            if (entries.some(e => d.some(de => de.id === e.id))) {
+              move = false;
+            }
           }
         }
         toolsView.state('move-' + moveTo, move);
@@ -344,6 +357,12 @@ const command = async (command, e) => {
   const view = views.active();
   if (view) {
     const entries = view.entries();
+    // shortcuts
+    if (command === 'shortcuts') {
+      chrome.tabs.create({
+        url: chrome.runtime.getManifest().homepage_url + '#faq4'
+      });
+    }
     // copy-details
     if (command === 'copy-details') {
       engine.clipboard.copy(entries.map(o => [o.title, o.url, o.id].filter(a => a).join('\n')).join('\n\n'));
@@ -359,6 +378,44 @@ const command = async (command, e) => {
     // copy-link
     else if (command === 'copy-link') {
       engine.clipboard.copy(entries.map(o => o.url).filter(a => a).join('\n'));
+    }
+    // duplicate
+    else if (command === 'duplicate') {
+      const other = views.left === view ? views.right : views.left;
+      const b = other.entries().pop();
+
+      const step = async (node, index, parentId) => {
+        const o = {
+          parentId,
+          title: node.title,
+          index
+        };
+        if (!('children' in node)) {
+          o.url = node.url;
+        }
+        const d = await engine.bookmarks.create(o);
+
+        // directory
+        if ('children' in node) {
+          for (let n = 0; n < node.children.length; n += 1) {
+            step(node.children[n], n, d.id);
+          }
+        }
+      };
+
+      if (b) {
+        const parentId = b.openerId || b.parentId;
+        try {
+          for (let n = 0; n < entries.length; n += 1) {
+            const node = await engine.bookmarks.tree(entries[n].id);
+            await step(node[0], n + Number(b.index) + 1, parentId);
+          }
+        }
+        catch (e) {
+          engine.notify(e);
+        }
+      }
+      views.update();
     }
     // import-tree
     else if (command === 'import-tree') {

@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "version": "0.4.4",
+  "version": "0.4.5",
   "name": "Bookmarks Commander",
   "description": "__MSG_description__",
   "default_locale": "en",
@@ -14,7 +14,10 @@
   ],
   "homepage_url": "https://add0n.com/bookmarks-commander.html",
   "background": {
-    "service_worker": "worker.js"
+    "persistent": false,
+    "scripts": [
+      "worker.js"
+    ]
   },
   "icons": {
     "16": "data/icons/16.png",

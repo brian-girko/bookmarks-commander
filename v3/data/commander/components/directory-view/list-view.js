@@ -132,6 +132,7 @@ class ListView extends HTMLElement {
       <ul id="menu" tabindex="1" class="hidden">
         <li data-id="open-in-new-tab">Open Link in New Tab</li>
         <li data-id="open-in-new-window">Open Link in New Window</li>
+        <li data-id="open-in-new-incognito-window">Open Link in Incognito Window</li>
         <li data-id="open-folder">Open Path Folder</li>
         <li data-id="open-folder-other-pane">Open Path Folder in Opposite Pane</li>
         <hr/>
@@ -190,6 +191,7 @@ class ListView extends HTMLElement {
         const directory = target.dataset.type === 'DIRECTORY';
         m.querySelector('[data-id="open-in-new-tab"]').classList[directory ? 'add' : 'remove']('disabled');
         m.querySelector('[data-id="open-in-new-window"]').classList[directory ? 'add' : 'remove']('disabled');
+        m.querySelector('[data-id="open-in-new-incognito-window"]').classList[directory ? 'add' : 'remove']('disabled');
         m.querySelector('[data-id="open-folder"]').classList[
           this?.extra?.origin === 'other' && directory === false ? 'add' : 'remove'
         ]('disabled');
@@ -276,6 +278,13 @@ class ListView extends HTMLElement {
         shadow.dispatchEvent(new KeyboardEvent('keydown', {
           code: 'Enter',
           shiftKey: true
+        }));
+      }
+      else if (target.dataset.id === 'open-in-new-incognito-window') {
+        shadow.dispatchEvent(new KeyboardEvent('keydown', {
+          code: 'Enter',
+          shiftKey: true,
+          metaKey: true
         }));
       }
       else if (target.dataset.id === 'open-folder') {
@@ -589,7 +598,7 @@ ${node.relativePath}`;
   state(command, enabled) {
     const m = this.shadowRoot.getElementById('menu');
     const e = m.querySelector(`[data-id="${command}"]`);
-    console.log(e, command);
+
     if (e) {
       e.classList[enabled ? 'remove' : 'add']('disabled');
     }

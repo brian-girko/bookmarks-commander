@@ -221,6 +221,7 @@ window.engine = {
     if (e === 'beep') {
       return (new Audio('/data/assets/bell.wav')).play();
     }
+    console.warn(e);
     chrome.notifications.create({
       type: 'basic',
       iconUrl: '/data/icons/48.png',

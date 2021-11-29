@@ -14,6 +14,7 @@
   --border: #cacaca;
   --border-alt: #e8e3e9;
   --selection: #8a8c8d;
+  --bg-command: rgba(0, 0, 0, 0.15);
 }
 :root.dark {
   --color: #9c9c9c;
@@ -31,6 +32,7 @@
   --border: #4f5052;
   --border-alt: #4f5052;
   --selection: #000;
+  --bg-command: rgba(255, 255, 255, 0.25);
 }
 
 body {

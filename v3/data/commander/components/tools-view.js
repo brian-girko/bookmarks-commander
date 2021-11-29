@@ -38,7 +38,7 @@ class ToolsView extends HTMLElement {
           padding: 0 10px;
         }
         div > span:hover {
-          background-color: rgba(0, 0, 0, 0.15);
+          background-color: var(--bg-command, rgba(0, 0, 0, 0.15));
         }
         span[data-enabled=false] {
           color: var(--disabled-color, #a0a0a0);
@@ -56,7 +56,8 @@ class ToolsView extends HTMLElement {
           color: var(--color, #3e3e3e);
           background-color: var(--bg-light, #dadada);
           border: none;
-          padding: 0 5px;
+          height: 28px;
+          padding: 0 10px;
           outline: none;
         }
         #search:focus {
@@ -86,7 +87,7 @@ class ToolsView extends HTMLElement {
             display: none;
           }
         }
-        @media screen and (max-width: 800px) {
+        @media screen and (max-width: 1000px) {
           span[data-command="copy-title"],
           span[data-command="copy-link"],
           span[data-command="copy-id"],
@@ -107,7 +108,8 @@ class ToolsView extends HTMLElement {
         <u title="Copy" class="ja">Copy</u>
         <span title="Ctrl + X or Command + X ➝ Copy bookmark's title to the clipboard" data-command="copy-title">Title<span class="ha"> (<u>X</u>)</span></span>
         <span title="Ctrl + C or Command + C ➝ Copy bookmark's link to the clipboard" data-command="copy-link">Link<span class="ha"> (C)</span></span>
-        <span title="Ctrl + I or Command + I ➝ Copy bookmark's internal ID to the clipboard" data-command="copy-id"><u>I</u>D</span>
+        <span title="Ctrl + I or Command + I ➝ Copy bookmark's internal ID to the clipboard" data-command="copy-id" class="hi"><u>I</u>D</span>
+        <span title="Ctrl + U or Command + U ➝ Duplicate bookmark to the other pane" data-command="duplicate" class="ha">D<u>u</u>p</span>
         <u title="Edit" class="ja">Edit</u>
         <span title="Ctrl + E or Command + E ➝ Change bookmark's title" data-command="edit-title">Titl<u>e</u></span>
         <span title="Ctrl + L or Command + L ➝ Change bookmark's link" data-command="edit-link"><u>L</u>ink</span>
@@ -132,6 +134,7 @@ class ToolsView extends HTMLElement {
         <span class="view-2" title="Ctrl + Shift + S or Command + Shift + S ➝ Sync bookmarks (not directories) of two panes" data-command="sync"><u>S</u>ync</span>
         <span title="Ctrl + Delete, Ctrl + Backspace, Command + Delete, or Command + Backspace ➝ Delete the active bookmarks and directories" data-command="trash">Delete</span>
         <span title="Ctrl + J or Command + J ➝ Sort A-Z&#013;Ctrl + Shift + J or Command + Shift + J ➝ Sort Z-A&#013;Alt + J ➝ Custom Sorting (A-Z)&#013;Alt + Shift + J ➝ Custom Sorting (Z-A)" data-command="sort">Sort<span class="ha"> (<u>J</u>)</span></span>
+        <span title="Ctrl + H or Command + H ➝ View shortcuts" data-command="shortcuts" class="ha"><u>H</u>elp</span>
       </div>
       <input type=search id="search" placeholder="Search active pane" title="Ctrl + F or Command + F ➝ Search inside the active directory&#013;Ctrl + Shift + F or Command + Shift + F ➝ Search for duplicates inside the active directory&#013;Escape ➝ Focus active pane">
     `;
@@ -219,6 +222,9 @@ class ToolsView extends HTMLElement {
     else if (e.code === 'KeyC' && meta) {
       command = 'copy-link';
     }
+    else if (e.code === 'KeyU' && meta) {
+      command = 'duplicate';
+    }
     else if (e.code === 'KeyP' && meta) {
       command = 'import-tree';
     }
@@ -263,6 +269,9 @@ class ToolsView extends HTMLElement {
     }
     else if (e.code === 'KeyM' && meta) {
       command = 'mirror';
+    }
+    else if (e.code === 'KeyH' && meta) {
+      command = 'shortcuts';
     }
     else if (e.code === 'KeyF' && meta) {
       command = 'ignore';
