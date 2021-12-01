@@ -205,6 +205,7 @@ class ListView extends HTMLElement {
     this.shadowRoot.getElementById('menu').onblur = e => e.target.classList.add('hidden');
 
     this.config = {
+      // opt-in feature without any interface!
       remote: localStorage.getItem('remote') === 'true' ? true : false
     };
 
