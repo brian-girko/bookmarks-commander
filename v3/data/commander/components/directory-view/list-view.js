@@ -205,7 +205,7 @@ class ListView extends HTMLElement {
     this.shadowRoot.getElementById('menu').onblur = e => e.target.classList.add('hidden');
 
     this.config = {
-      remote: false
+      remote: localStorage.getItem('remote') === 'true' ? true : false
     };
 
     shadow.addEventListener('click', e => {
