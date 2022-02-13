@@ -23,7 +23,11 @@ class ListView extends HTMLElement {
         div.entry {
           padding: 5px 0;
           display: grid;
-          grid-template-columns: 32px minmax(32px, var(--name-width, 200px)) minmax(32px, 1fr) minmax(32px, var(--added-width, 90px)) minmax(32px, var(--modified-width, 90px));
+          grid-template-columns: 32px
+            minmax(32px, var(--name-width, 200px))
+            minmax(32px, 1fr)
+            minmax(32px, var(--added-width, 90px))
+            minmax(32px, var(--modified-width, 90px));
         }
         #content[data-path=true] div.entry {
           grid-template-columns: 32px minmax(32px, 200px) minmax(32px, 1fr) minmax(32px, 1fr);
@@ -42,6 +46,13 @@ class ListView extends HTMLElement {
           top: 0;
           background: var(--bg-header, #f5f5f5);
         }
+        :host(.active)  div.entry.hr [data-id="icon"] span {
+          width: 10px;
+          aspect-ratio: 1;
+          background-color: var(--bg-indicator, #fff);
+          border-radius: 50%;
+          padding: 0;
+        }
         div.entry.hr span {
           pointer-events: none;
           width: 100%;
@@ -49,6 +60,7 @@ class ListView extends HTMLElement {
         div.entry.hr > div {
           display: flex;
           align-items: center;
+          justify-content: center;
         }
         div.entry.hr i {
           width: 2px;

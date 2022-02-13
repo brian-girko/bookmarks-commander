@@ -286,6 +286,7 @@ class ToolsView extends HTMLElement {
         o.value = 'duplicates';
       }
       o.focus();
+      o.select();
     }
     else if (e.code === 'KeyJ' && (meta || e.altKey)) {
       command = 'sort';
