@@ -37,6 +37,9 @@ class ToolsView extends HTMLElement {
           height: 28px;
           padding: 0 10px;
         }
+        div > span * {
+          pointer-events: none;
+        }
         div > span:hover {
           background-color: var(--bg-command, rgba(0, 0, 0, 0.15));
         }
@@ -139,14 +142,16 @@ class ToolsView extends HTMLElement {
       <input type=search id="search" placeholder="Search active pane" title="Ctrl + F or Command + F ➝ Search inside the active directory&#013;Ctrl + Shift + F or Command + Shift + F ➝ Search for duplicates inside the active directory&#013;Escape ➝ Focus active pane">
     `;
 
-    this.shadow.getElementById('search').addEventListener('search', e => {
-      this.emit('tools-view:command', {
-        command: 'search',
-        query: e.target.value
-      });
+    this.shadow.getElementById('search').addEventListener('keyup', e => {
+      if (e.key === 'Enter') {
+        this.emit('tools-view:command', {
+          command: 'search',
+          query: e.target.value
+        });
+      }
     });
     this.shadow.getElementById('search').addEventListener('keydown', e => {
-      if (e.code === 'Escape') {
+      if (e.key === 'Escape') {
         this.emit('tools-view:blur');
       }
     });
@@ -298,7 +303,23 @@ font-size=[number]px
 font-family=[font-name]
 views=[1|2]
 column-widths=[name]px, [added]px, [modified]px
-ask-before-delete=[true|false]`).then(command => {
+ask-before-delete=[true|false]
+ask-before-directory-delete=[true|false]`, '', [
+        'icon=default',
+        'icon=light',
+        'icon=dark',
+        'theme=default',
+        'theme=dark',
+        'theme=light',
+        'font-family=',
+        'views=1',
+        'views=2',
+        'column-widths=',
+        'ask-before-delete=true',
+        'ask-before-delete=false',
+        'ask-before-directory-delete=true',
+        'ask-before-directory-delete=false'
+      ]).then(command => {
         if (command.startsWith('icon=')) {
           const path = command.replace('icon=', '') || 'default';
           engine.storage.set({
@@ -325,6 +346,11 @@ ask-before-delete=[true|false]`).then(command => {
         else if (command.startsWith('ask-before-delete=')) {
           engine.storage.set({
             'ask-before-delete': command.replace('ask-before-delete=', '') === 'false' ? false : true
+          });
+        }
+        else if (command.startsWith('ask-before-directory-delete=')) {
+          engine.storage.set({
+            'ask-before-directory-delete': command.replace('ask-before-directory-delete=', '') === 'false' ? false : true
           });
         }
         else if (command.startsWith('views=')) {

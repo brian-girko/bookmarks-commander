@@ -348,7 +348,9 @@ const exporting = async (entries, e) => {
       engine.download(JSON.stringify(items, undefined, '  '), 'tree.json', 'application/json');
     }
     else {
-      engine.clipboard.copy(JSON.stringify(items, undefined, '  '));
+      engine.clipboard.copy(JSON.stringify(items, undefined, '  ')).then(() => {
+        engine.notify('Exported to the clipboard');
+      });
     }
   }
 };
@@ -468,7 +470,8 @@ const command = async (command, e) => {
     }
     else if (command === 'trash') {
       const prefs = await engine.storage.get({
-        'ask-before-delete': true
+        'ask-before-delete': true,
+        'ask-before-directory-delete': true
       });
 
       if (!prefs['ask-before-delete'] || window.confirm(`Are you sure you want to delete ${entries.length} item${entries.length > 1 ? 's' : ''}?
@@ -480,7 +483,7 @@ const command = async (command, e) => {
         for (const entry of entries) {
           await engine.bookmarks.remove(entry.id).catch(e => {
             if (entry.type === 'DIRECTORY') {
-              if (window.confirm(`"${entry.title}" directory is not empty. Remove anyway?`)) {
+              if (!prefs['ask-before-directory-delete'] || window.confirm(`"${entry.title}" directory is not empty. Remove anyway?`)) {
                 engine.bookmarks.remove(entry.id, true).catch(engine.notify);
               }
             }

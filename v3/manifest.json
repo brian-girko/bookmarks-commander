@@ -8,7 +8,6 @@
   "permissions": [
     "bookmarks",
     "contextMenus",
-    "notifications",
     "chrome://favicon/*",
     "storage"
   ],

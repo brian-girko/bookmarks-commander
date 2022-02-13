@@ -11,8 +11,12 @@ class PromptView extends HTMLElement {
           align-items: center;
           justify-content: center;
         }
+        dialog {
+          padding: 2px;
+        }
         form {
           padding: 10px;
+          color: var(--color, #3e3e3e);
           background-color: var(--bg-active, #fff);
           display: flex;
           flex-direction: column;
@@ -49,21 +53,26 @@ class PromptView extends HTMLElement {
           white-space: pre-wrap;
         }
       </style>
-      <form>
-        <span>This is a prompt message</span>
-        <input type="text" name="user">
-        <div>
-          <input type="button" value="Cancel">
-          <input type="submit" value="OK">
-        </div>
-      </form>
+      <dialog>
+        <form>
+          <span>This is a prompt message</span>
+          <input type="text" name="user" autofocus list="list">
+          <datalist id="list"></datalist>
+          <div>
+            <input type="button" value="Cancel">
+            <input type="submit" value="OK">
+          </div>
+        </form>
+      </dialog>
     `;
     this.events = {};
   }
   connectedCallback() {
+    const dialog = this.shadowRoot.querySelector('dialog');
+
     const input = this.shadowRoot.querySelector('input[type=text]');
     const next = value => {
-      this.classList.add('hidden');
+      dialog.close();
       for (const c of this.events.blur || []) {
         c();
       }
@@ -74,29 +83,34 @@ class PromptView extends HTMLElement {
       e.preventDefault();
       next(input.value);
     });
-    this.addEventListener('keyup', e => {
-      if (e.code === 'Escape') {
-        next('');
-      }
-    });
+    dialog.addEventListener('close', () => next(''));
     this.shadowRoot.querySelector('input[type=button]').addEventListener('click', () => {
-      next('');
+      dialog.close();
     });
-    this.addEventListener('click', () => {
-      input.focus();
-    });
+    this.addEventListener('click', () => input.focus());
 
     this.addEventListener('keypress', e => e.stopPropagation());
     this.addEventListener('keyup', e => e.stopPropagation());
     this.addEventListener('keydown', e => e.stopPropagation());
   }
-  ask(message, value = '') {
+  ask(message, value = '', history = []) {
+    const dialog = this.shadowRoot.querySelector('dialog');
     const input = this.shadowRoot.querySelector('input[type=text]');
     const span = this.shadowRoot.querySelector('span');
+    const list = this.shadowRoot.getElementById('list');
     span.textContent = message;
 
-    this.classList.remove('hidden');
     input.value = value;
+    list.textContent = '';
+
+    for (const s of history) {
+      const option = document.createElement('option');
+      option.value = s;
+      option.textContent = s;
+      list.appendChild(option);
+    }
+
+    dialog.showModal();
 
     window.setTimeout(() => {
       input.focus();

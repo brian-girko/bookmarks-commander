@@ -203,8 +203,8 @@ const storage = {
 
 const ue = document.querySelector('prompt-view');
 const user = {
-  ask(msg, value) {
-    return ue.ask(msg, value);
+  ask(msg, value, history = []) {
+    return ue.ask(msg, value, history);
   },
   on(name, callback) {
     ue.on(name, callback);
@@ -222,12 +222,7 @@ window.engine = {
       return (new Audio('/data/assets/bell.wav')).play();
     }
     console.warn(e);
-    chrome.notifications.create({
-      type: 'basic',
-      iconUrl: '/data/icons/48.png',
-      title: chrome.runtime.getManifest().name,
-      message: e.message || e
-    });
+    document.querySelector('notify-view').notify(e.message || e);
   },
   clipboard: {
     copy(str) {
