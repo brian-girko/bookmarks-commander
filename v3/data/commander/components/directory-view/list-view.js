@@ -282,23 +282,23 @@ class ListView extends HTMLElement {
         }
       }
       else if (target.dataset.id === 'open-in-new-tab') {
-        this.simulate(new KeyboardEvent('keydown', {
-          code: 'Enter',
+        this.emit('command', {
+          command: 'open-in-new-tab',
           metaKey: true
-        }));
+        });
       }
       else if (target.dataset.id === 'open-in-new-window') {
-        this.simulate(new KeyboardEvent('keydown', {
-          code: 'Enter',
+        this.emit('command', {
+          command: 'open-in-new-window',
           shiftKey: true
-        }));
+        });
       }
       else if (target.dataset.id === 'open-in-new-incognito-window') {
-        this.simulate(new KeyboardEvent('keydown', {
-          code: 'Enter',
+        this.emit('command', {
+          command: 'open-in-new-incognito-window',
           shiftKey: true,
           metaKey: true
-        }));
+        });
       }
       else if (target.dataset.id === 'open-folder') {
         this.emit('command', {

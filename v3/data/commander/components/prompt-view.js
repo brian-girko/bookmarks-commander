@@ -68,9 +68,9 @@ class PromptView extends HTMLElement {
     this.events = {};
   }
   connectedCallback() {
-    const input = this.shadowRoot.querySelector('input[type=text]');
-    this.addEventListener('click', () => input.focus());
-
+    this.shadowRoot.querySelector('input[type=button]').addEventListener('click', () => {
+      this.shadowRoot.querySelector('dialog').close();
+    });
     this.addEventListener('keypress', e => e.stopPropagation());
     this.addEventListener('keyup', e => e.stopPropagation());
     this.addEventListener('keydown', e => e.stopPropagation());
@@ -95,20 +95,17 @@ class PromptView extends HTMLElement {
 
     return new Promise(resolve => {
       const next = value => {
-        dialog.onclose = null;
         dialog.close();
         for (const c of this.events.blur || []) {
           c();
         }
-        setTimeout(() => resolve(value), 0);
+        setTimeout(() => resolve(value), 100);
       };
       form.onsubmit = e => {
         e.preventDefault();
         next(input.value);
       };
-      dialog.onclose = () => {
-        next('');
-      };
+      dialog.onclose = () => next('');
       dialog.showModal();
 
       window.setTimeout(() => {

@@ -359,7 +359,13 @@ const command = async (command, e) => {
   const view = views.active();
   if (view) {
     const entries = view.entries();
-    if (command === 'open-in-new-tab' || command === 'select-next' || command === 'select-previous') {
+    if (
+      command === 'open-in-new-window' ||
+      command === 'open-in-new-incognito-window' ||
+      command === 'open-in-new-tab' ||
+      command === 'select-next' ||
+      command === 'select-previous'
+    ) {
       let code = 'Enter';
       if (command === 'select-previous') {
         code = 'ArrowUp';
