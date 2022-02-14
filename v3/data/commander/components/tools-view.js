@@ -109,38 +109,39 @@ class ToolsView extends HTMLElement {
 
       <div>
         <u title="Copy" class="ja">Copy</u>
-        <span title="Ctrl + X or Command + X ➝ Copy bookmark's title to the clipboard" data-command="copy-title">Title<span class="ha"> (<u>X</u>)</span></span>
-        <span title="Ctrl + C or Command + C ➝ Copy bookmark's link to the clipboard" data-command="copy-link">Link<span class="ha"> (C)</span></span>
-        <span title="Ctrl + I or Command + I ➝ Copy bookmark's internal ID to the clipboard" data-command="copy-id" class="hi"><u>I</u>D</span>
-        <span title="Ctrl + U or Command + U ➝ Duplicate bookmark to the other pane" data-command="duplicate" class="ha">D<u>u</u>p</span>
+        <span data-command="copy-title">Title<span class="ha"> (<u>X</u>)</span></span>
+        <span data-command="copy-link">Link<span class="ha"> (C)</span></span>
+        <span data-command="copy-id" class="hi"><u>I</u>D</span>
+        <span data-command="duplicate" class="ha">D<u>u</u>p</span>
         <u title="Edit" class="ja">Edit</u>
-        <span title="Ctrl + E or Command + E ➝ Change bookmark's title" data-command="edit-title">Titl<u>e</u></span>
-        <span title="Ctrl + L or Command + L ➝ Change bookmark's link" data-command="edit-link"><u>L</u>ink</span>
+        <span data-command="edit-title">Titl<u>e</u></span>
+        <span data-command="edit-link"><u>L</u>ink</span>
         <u title="JSON" class="ja">JSON</u>
-        <span title="Ctrl + P or Command + P ➝ Paste the current bookmark tree inside a directory or next to the current bookmark" data-command="import-tree">Im<u>p</u>ort</span>
-        <span title="Ctrl + Y or Command + Y ➝ Copy the selected bookmarks to the clipboard&#013;Ctrl + Shift + Y or Command + Shift + Y ➝ Export selected bookmarks to a JSON file" data-command="export-tree">Export<span class="ha"> (Y)</span></span>
+        <span data-command="import-tree">Im<u>p</u>ort</span>
+        <span data-command="export-tree">Export<span class="ha"> (Y)</span></span>
         <u title="New" class="ja">New</u>
-        <span title="Ctrl + B or Command + B ➝ Create a new bookmark" data-command="new-file"><u>B</u>ookmark</span>
-        <span title="Ctrl + D or Command + D ➝ Create a new empty directory" data-command="new-directory"><u>D</u>irectory</span>
+        <span data-command="new-file"><u>B</u>ookmark</span>
+        <span data-command="new-directory"><u>D</u>irectory</span>
         <u title="Focus" class="ja">Focus</u>
-        <span title="Ctrl + ArrowLeft or Command + ArrowLeft ➝ Move selected bookmarks to the left pane" data-command="move-left">Left<span class="ha"> (&#x2190;)</span></span>
-        <span title="Ctrl + ArrowRight or Command + ArrowRight ➝ Move the selected bookmarks to the right pane" data-command="move-right">Right<span class="ha"> (&#x2192;)</span></span>
+        <span data-command="move-left">Left<span class="ha"> (&#x2190;)</span></span>
+        <span data-command="move-right">Right<span class="ha"> (&#x2192;)</span></span>
         <u title="Move" class="hi">Move</u>
-        <span class="hi" title="Alt + Home ➝ Move to the top of the list" data-command="move-top">Top<span class="ha"></span></span>
-        <span class="hi" title="Alt + ArrowUp ➝ Move one-level up" data-command="move-up">Up<span class="ha"></span></span>
-        <span class="hi" title="Alt + ArrowDown ➝ Move one-level down" data-command="move-down">Down<span class="ha"></span></span>
-        <span class="hi" title="Alt + End ➝ Move to the end of the list" data-command="move-bottom">Last<span class="ha"></span></span>
+        <span class="hi" data-command="move-top">Top<span class="ha"></span></span>
+        <span class="hi" data-command="move-up">Up<span class="ha"></span></span>
+        <span class="hi" data-command="move-down">Down<span class="ha"></span></span>
+        <span class="hi" data-command="move-bottom">Last<span class="ha"></span></span>
         <u title="Tools" class="ja">Tools</u>
-        <span title="Ctrl + S or Command + S ➝ Open commands box" data-command="commands">CMD<span class="ha"> (<u>S</u>)</span></span>
-        <span title="Ctrl + O or Command + O ➝ Reset both panes&#013;Ctrl + Shift + O or Command + Shift + O ➝ Reset only the active pane" data-command="root">R<u>o</u>ot</span>
-        <span class="view-2" title="Ctrl + M or Command + M ➝ Mirror the inactive pane&#013;Ctrl + Shift + M or Command + Shift + M ➝ Navigate inactive pane into the first selected Dir&#013;Alt + M ➝ Open path folder in opposite pane&#013;Alt + Shift + M ➝ Open path folder" data-command="mirror"><u>M</u>irror</span>
-        <span class="view-2" title="Ctrl + Shift + S or Command + Shift + S ➝ Sync bookmarks (not directories) of two panes" data-command="sync"><u>S</u>ync</span>
-        <span title="Ctrl + Delete, Ctrl + Backspace, Command + Delete, or Command + Backspace ➝ Delete the active bookmarks and directories" data-command="trash">Delete</span>
-        <span title="Ctrl + J or Command + J ➝ Sort A-Z&#013;Ctrl + Shift + J or Command + Shift + J ➝ Sort Z-A&#013;Alt + J ➝ Custom Sorting (A-Z)&#013;Alt + Shift + J ➝ Custom Sorting (Z-A)" data-command="sort">Sort<span class="ha"> (<u>J</u>)</span></span>
-        <span title="Ctrl + H or Command + H ➝ View shortcuts" data-command="shortcuts" class="ha"><u>H</u>elp</span>
+        <span data-command="commands">CMD<span class="ha"> (<u>S</u>)</span></span>
+        <span data-command="root">R<u>o</u>ot</span>
+        <span class="view-2" data-command="mirror"><u>M</u>irror</span>
+        <span class="view-2" data-command="sync"><u>S</u>ync</span>
+        <span data-command="trash">Delete</span>
+        <span data-command="sort">Sort<span class="ha"> (<u>J</u>)</span></span>
+        <span data-command="shortcuts" class="ha"><u>H</u>elp</span>
       </div>
-      <input type=search id="search" placeholder="Search active pane" title="Ctrl + F or Command + F ➝ Search inside the active directory&#013;Ctrl + Shift + F or Command + Shift + F ➝ Search for duplicates inside the active directory&#013;Escape ➝ Focus active pane">
+      <input type=search id="search" placeholder="Search active pane">
     `;
+    this.commands = [];
 
     this.shadow.getElementById('search').addEventListener('keyup', e => {
       if (e.key === 'Enter') {
@@ -185,8 +186,15 @@ class ToolsView extends HTMLElement {
     if (name === 'ignore') {
       return -1;
     }
-    if (name === 'open-folder') {
+    // since the command does not exist, map it to sometime close to pass validation
+    if (name === 'open-in-new-tab') {
+      name = 'copy-link';
+    }
+    else if (name === 'open-folder') {
       name = 'mirror';
+    }
+    else if (name === 'select-previous' || name === 'select-next') {
+      return 1;
     }
     const d = this.shadow.querySelector(`[data-command="${name}"]`);
     if (d) {
@@ -204,81 +212,37 @@ class ToolsView extends HTMLElement {
     return -1;
   }
   command(e, callback = () => {}) {
+    const parts = [];
+    if (e.altKey) {
+      parts.push('Alt');
+    }
+    if (e.ctrlKey) {
+      parts.push('Ctrl');
+    }
+    else if (e.metaKey) {
+      parts.push('Command');
+    }
+    if (e.shiftKey) {
+      parts.push('Shift');
+    }
+    parts.push(e.code);
+    const cmd = parts.join(' + ');
+    let command = (() => {
+      for (const {name, shortcuts} of this.commands) {
+        for (const o of shortcuts) {
+          for (const key of o.keys) {
+            if (cmd === key) {
+              return o.name || name;
+            }
+          }
+        }
+      }
+      return '';
+    })();
+
     const meta = e.ctrlKey || e.metaKey;
-    let command = '';
-    if (e.key === 'Home' && e.altKey) {
-      command = 'move-top';
-    }
-    else if (e.key === 'End' && e.altKey) {
-      command = 'move-bottom';
-    }
-    else if (e.key === 'ArrowUp' && e.altKey) {
-      command = 'move-up';
-    }
-    else if (e.key === 'ArrowDown' && e.altKey) {
-      command = 'move-down';
-    }
-    else if (e.key === 'Home') {
-      command = 'first';
-    }
-    else if (e.key === 'End') {
-      command = 'last';
-    }
-    else if (e.code === 'KeyC' && meta) {
-      command = 'copy-link';
-    }
-    else if (e.code === 'KeyU' && meta) {
-      command = 'duplicate';
-    }
-    else if (e.code === 'KeyP' && meta) {
-      command = 'import-tree';
-    }
-    else if (e.code === 'KeyY' && meta) {
-      command = 'export-tree';
-    }
-    else if (e.code === 'KeyX' && meta) {
-      command = 'copy-title';
-    }
-    else if (e.code === 'KeyI' && meta) {
-      command = 'copy-id';
-    }
-    else if (e.code === 'KeyE' && meta) {
-      command = 'edit-title';
-    }
-    else if (e.code === 'KeyL' && meta) {
-      command = 'edit-link';
-    }
-    else if (e.code === 'KeyB' && meta) {
-      command = 'new-file';
-    }
-    else if (e.code === 'KeyD' && meta) {
-      command = 'new-directory';
-    }
-    else if (e.code === 'ArrowLeft' && meta) {
-      command = 'move-left';
-    }
-    else if (e.code === 'ArrowRight' && meta) {
-      command = 'move-right';
-    }
-    else if ((e.code === 'Delete' || e.code === 'Backspace') && meta) {
-      command = 'trash';
-    }
-    else if (e.code === 'KeyO' && meta) {
-      command = 'root';
-    }
-    else if (e.code === 'KeyM' && e.altKey && e.shiftKey) {
-      command = 'open-folder';
-    }
-    else if (e.code === 'KeyM' && e.altKey) {
-      command = 'mirror';
-    }
-    else if (e.code === 'KeyM' && meta) {
-      command = 'mirror';
-    }
-    else if (e.code === 'KeyH' && meta) {
-      command = 'shortcuts';
-    }
-    else if (e.code === 'KeyF' && meta) {
+
+    if (e.code === 'KeyF' && meta) {
       command = 'ignore';
       const o = this.shadow.getElementById('search');
 
@@ -287,12 +251,6 @@ class ToolsView extends HTMLElement {
       }
       o.focus();
       o.select();
-    }
-    else if (e.code === 'KeyJ' && (meta || e.altKey)) {
-      command = 'sort';
-    }
-    else if (e.code === 'KeyS' && meta && e.shiftKey) {
-      command = 'sync';
     }
     // command box
     if (e.code === 'KeyS' && meta && e.shiftKey === false) {
@@ -305,7 +263,8 @@ font-family=[font-name]
 views=[1|2]
 column-widths=[name]px, [added]px, [modified]px
 ask-before-delete=[true|false]
-ask-before-directory-delete=[true|false]`, '', [
+ask-before-directory-delete=[true|false]
+commands-mapping=[default|vim] (vim mapping is not ready)`, '', [
         'icon=default',
         'icon=light',
         'icon=dark',
@@ -319,7 +278,9 @@ ask-before-directory-delete=[true|false]`, '', [
         'ask-before-delete=true',
         'ask-before-delete=false',
         'ask-before-directory-delete=true',
-        'ask-before-directory-delete=false'
+        'ask-before-directory-delete=false',
+        'commands-mapping=default',
+        'commands-mapping=vim'
       ]).then(command => {
         if (command.startsWith('icon=')) {
           const path = command.replace('icon=', '') || 'default';
@@ -343,6 +304,11 @@ ask-before-directory-delete=[true|false]`, '', [
           engine.storage.set({
             'font-family': command.replace('font-family=', '')
           });
+        }
+        else if (command.startsWith('commands-mapping=')) {
+          engine.storage.set({
+            'commands-mapping': command.replace('commands-mapping=', '')
+          }).then(() => location.reload());
         }
         else if (command.startsWith('ask-before-delete=')) {
           engine.storage.set({
@@ -395,6 +361,18 @@ ask-before-directory-delete=[true|false]`, '', [
     const e = this.shadow.querySelector(`[data-command="${command}"]`);
     if (e) {
       e.dataset.enabled = enabled;
+    }
+  }
+  load(es) {
+    this.commands = es;
+
+    for (const {name, shortcuts} of es) {
+      const e = this.shadow.querySelector(`[data-command=${name}]`) || this.shadow.getElementById(name);
+      if (e) {
+        e.title = shortcuts.map(({keys, description}) => {
+          return keys.join(' or ') + ' ➝ ' + description;
+        }).join('\n\n');
+      }
     }
   }
 }

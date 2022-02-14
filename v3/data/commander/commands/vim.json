@@ -1,0 +1,19 @@
+[{
+  "name": "select-previous",
+  "shortcuts": [{
+    "keys": ["KeyJ"],
+    "description": "Select previous"
+  }]
+}, {
+  "name": "select-next",
+  "shortcuts": [{
+    "keys": ["KeyK"],
+    "description": "Select next"
+  }]
+}, {
+  "name": "open-in-new-tab",
+  "shortcuts": [{
+    "keys": ["KeyO", "Shift + KeyO", "Ctrl + KeyO", "Command + KeyO"],
+    "description": "Open in new tab"
+  }]
+}]

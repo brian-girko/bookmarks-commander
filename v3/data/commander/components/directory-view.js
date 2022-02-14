@@ -173,6 +173,9 @@ class DirectoryView extends HTMLElement {
       this.listView[direction === 'forward' ? 'next' : 'previous']();
     }
   }
+  simulate(e) {
+    this.listView.simulate(e);
+  }
   state(command, enabled) {
     this.listView.state(command, enabled);
   }

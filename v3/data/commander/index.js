@@ -359,14 +359,30 @@ const command = async (command, e) => {
   const view = views.active();
   if (view) {
     const entries = view.entries();
+    if (command === 'open-in-new-tab' || command === 'select-next' || command === 'select-previous') {
+      let code = 'Enter';
+      if (command === 'select-previous') {
+        code = 'ArrowUp';
+      }
+      else if (command === 'select-next') {
+        code = 'ArrowDown';
+      }
+      e = new KeyboardEvent('keydown', {
+        code,
+        key: code,
+        metaKey: e.metaKey,
+        shiftKey: e.shiftKey
+      });
+      view.simulate(e);
+    }
     // shortcuts
-    if (command === 'shortcuts') {
+    else if (command === 'shortcuts') {
       chrome.tabs.create({
         url: chrome.runtime.getManifest().homepage_url + '#faq4'
       });
     }
     // copy-details
-    if (command === 'copy-details') {
+    else if (command === 'copy-details') {
       engine.clipboard.copy(entries.map(o => [o.title, o.url, o.id].filter(a => a).join('\n')).join('\n\n'));
     }
     // copy-title
@@ -636,10 +652,31 @@ const command = async (command, e) => {
     else if (command === 'sort') {
       const entries = view.entries(false);
       // sort based on
-      const rules = (e.altKey ? await engine.user.ask(
-        'Sort By (link, name, date):',
-        'name, link'
-      ) : 'name').split(/\s*,\s*/).filter(a => a === 'link' || a === 'name' || a === 'date');
+      let rules;
+      if (e.altKey) {
+        rules = await engine.user.ask('Sort By (link, name, date):', 'name, link', [
+          'name',
+          'name, link',
+          'name, link, date',
+          'name, date',
+          'name, date, link',
+          'link',
+          'link, name',
+          'link, name, date',
+          'link, date',
+          'link, date, name',
+          'date',
+          'date, name',
+          'date, name, link',
+          'date, link',
+          'date, link, name'
+        ]);
+      }
+      else {
+        rules = 'name';
+      }
+      rules = rules.split(/\s*,\s*/).filter(a => a === 'link' || a === 'name' || a === 'date');
+
       if (rules.length === 0) {
         return;
       }
@@ -761,6 +798,21 @@ views.parent.addEventListener('change', () => {
 
 // select view on tools empty space
 toolsView.addEventListener('click', () => views.active().click());
+
+// load user-preferred shortcuts
+engine.storage.get({
+  'commands-mapping': 'default'
+}).then(prefs => {
+  const mappings = [prefs['commands-mapping'], 'default'].filter((s, i, l) => s && l.indexOf(s) === i)
+    .map(s => 'commands/' + s + '.json');
+
+  Promise.all(mappings.map(s => fetch(s).then(r => r.json()).catch(e => {
+    console.warn('cannot find this mapping', s, e);
+    return [];
+  }))).then(a => a.flat()).then(es => {
+    toolsView.load(es);
+  });
+});
 
 // remember last state
 if (args.get('mode') === 'window') {

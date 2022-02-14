@@ -282,19 +282,19 @@ class ListView extends HTMLElement {
         }
       }
       else if (target.dataset.id === 'open-in-new-tab') {
-        shadow.dispatchEvent(new KeyboardEvent('keydown', {
+        this.simulate(new KeyboardEvent('keydown', {
           code: 'Enter',
           metaKey: true
         }));
       }
       else if (target.dataset.id === 'open-in-new-window') {
-        shadow.dispatchEvent(new KeyboardEvent('keydown', {
+        this.simulate(new KeyboardEvent('keydown', {
           code: 'Enter',
           shiftKey: true
         }));
       }
       else if (target.dataset.id === 'open-in-new-incognito-window') {
-        shadow.dispatchEvent(new KeyboardEvent('keydown', {
+        this.simulate(new KeyboardEvent('keydown', {
           code: 'Enter',
           shiftKey: true,
           metaKey: true
@@ -494,6 +494,9 @@ class ListView extends HTMLElement {
       bubbles: true,
       detail
     }));
+  }
+  simulate(e) {
+    return this.shadowRoot.dispatchEvent(e);
   }
   dbclick(e) {
     return e.dispatchEvent(new CustomEvent('click', {

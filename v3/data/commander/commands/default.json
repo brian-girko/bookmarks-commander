@@ -1,0 +1,188 @@
+[{
+  "name": "first",
+  "shortcuts": [{
+    "keys": ["Home"],
+    "description": "Move selection to top"
+  }]
+}, {
+  "name": "last",
+  "shortcuts": [{
+    "keys": ["End"],
+    "description": "Move selection to bottom"
+  }]
+}, {
+  "name": "copy-title",
+  "shortcuts": [{
+    "keys": ["Ctrl + KeyX", "Command + KeyX"],
+    "description": "Copy bookmark's title to the clipboard"
+  }]
+}, {
+  "name": "copy-link",
+  "shortcuts": [{
+    "keys": ["Ctrl + KeyC", "Command + KeyC"],
+    "description": "Copy bookmark's link to the clipboard"
+  }]
+}, {
+  "name": "copy-id",
+  "shortcuts": [{
+    "keys": ["Ctrl + KeyI", "Command + KeyI"],
+    "description": "Copy bookmark's internal ID to the clipboard"
+  }]
+}, {
+  "name": "duplicate",
+  "shortcuts": [{
+    "keys": ["Ctrl + KeyU", "Command + KeyU"],
+    "description": "Duplicate bookmark to the other pane"
+  }]
+}, {
+  "name": "edit-title",
+  "shortcuts": [{
+    "keys": ["Ctrl + KeyE", "Command + KeyE"],
+    "description": "Change bookmark's title"
+  }]
+}, {
+  "name": "edit-link",
+  "shortcuts": [{
+    "keys": ["Ctrl + KeyL", "Command + KeyL"],
+    "description": "Change bookmark's link"
+  }]
+}, {
+  "name": "import-tree",
+  "shortcuts": [{
+    "keys": ["Ctrl + KeyP", "Command + KeyP"],
+    "description": "Paste the current bookmark tree inside a directory or next to the current bookmark"
+  }]
+}, {
+  "name": "export-tree",
+  "shortcuts": [{
+    "keys": ["Ctrl + KeyY", "Command + KeyY"],
+    "description": "Copy the selected bookmarks to the clipboard"
+  }, {
+    "keys": ["Ctrl + Shift + KeyY", "Command + Shift + KeyY"],
+    "description": ["Export selected bookmarks to a JSON file"]
+  }]
+}, {
+  "name": "new-file",
+  "shortcuts": [{
+    "keys": ["Ctrl + KeyB", "Command + KeyB"],
+    "description": "Create a new bookmark"
+  }]
+}, {
+  "name": "new-directory",
+  "shortcuts": [{
+    "keys": ["Ctrl + KeyD", "Command + KeyD"],
+    "description": "Create a new empty directory"
+  }]
+}, {
+  "name": "move-left",
+  "shortcuts": [{
+    "keys": ["Ctrl + ArrowLeft", "Command + ArrowLeft"],
+    "description": "Move selected bookmarks to the left pane"
+  }]
+}, {
+  "name": "move-right",
+  "shortcuts": [{
+    "keys": ["Ctrl + ArrowRight", "Command + ArrowRight"],
+    "description": "Move the selected bookmarks to the right pane"
+  }]
+}, {
+  "name": "move-top",
+  "shortcuts": [{
+    "keys": ["Alt + Home"],
+    "description": "Move to the top of the list"
+  }]
+}, {
+  "name": "move-up",
+  "shortcuts": [{
+    "keys": ["Alt + ArrowUp"],
+    "description": "Move one-level up"
+  }]
+}, {
+  "name": "move-down",
+  "shortcuts": [{
+    "keys": ["Alt + ArrowDown"],
+    "description": "Move one-level down"
+  }]
+}, {
+  "name": "move-bottom",
+  "shortcuts": [{
+    "keys": ["Alt + End"],
+    "description": "Move to the end of the list"
+  }]
+}, {
+  "name": "commands",
+  "shortcuts": [{
+    "keys": ["Ctrl + KeyS", "Command + KeyS"],
+    "description": "Open commands box"
+  }]
+}, {
+  "name": "root",
+  "shortcuts": [{
+    "keys": ["Ctrl + KeyO", "Command + KeyO"],
+    "description": "Reset both panes"
+  }, {
+    "keys": ["Ctrl + Shift + KeyO", "Command + Shift + KeyO"],
+    "description": "Reset only the active pane"
+  }]
+}, {
+  "name": "mirror",
+  "shortcuts": [{
+    "keys": ["Alt + Shift + KeyM"],
+    "description": "Open path folder",
+    "name": "open-folder"
+  }, {
+    "keys": ["Ctrl + KeyM", "Command + KeyM"],
+    "description": "Mirror the inactive pane"
+  }, {
+    "keys": ["Ctrl + Shift + KeyM", "Command + Shift + KeyM"],
+    "description": "Navigate inactive pane into the first selected Dir"
+  }, {
+    "keys": ["Alt + KeyM"],
+    "description": "Open path folder in opposite pane"
+  }]
+}, {
+  "name": "sync",
+  "shortcuts": [{
+    "keys": ["Ctrl + Shift + KeyS", "Command + Shift + KeyS"],
+    "description": "Sync bookmarks (not directories) of two panes"
+  }]
+}, {
+  "name": "trash",
+  "shortcuts": [{
+    "keys": ["Ctrl + Delete", "Ctrl + Backspace", "Command + Delete", "Command + Backspace"],
+    "description": "Delete the active bookmarks and directories"
+  }]
+}, {
+  "name": "sort",
+  "shortcuts": [{
+    "keys": ["Ctrl + KeyJ", "Command + KeyJ"],
+    "description": "Sort A-Z"
+  }, {
+    "keys": ["Ctrl + Shift + KeyJ", "Command + Shift + KeyJ"],
+    "description": "Sort Z-A"
+  }, {
+    "keys": ["Alt + KeyJ"],
+    "description": "Custom Sorting (A-Z)"
+  }, {
+    "keys": ["Alt + Shift + KeyJ"],
+    "description": "Custom Sorting (Z-A)"
+  }]
+}, {
+  "name": "shortcuts",
+  "shortcuts": [{
+    "keys": ["Ctrl + KeyH", "Command + KeyH"],
+    "description": "View shortcuts"
+  }]
+}, {
+  "name": "search",
+  "shortcuts": [{
+    "keys": ["Ctrl + KeyF", "Command + KeyF"],
+    "description": "Search inside the active directory"
+  }, {
+    "keys": ["Ctrl + Shift + KeyF", "Command + Shift + KeyF"],
+    "description": "Search for duplicates inside the active directory"
+  }, {
+    "keys": ["Escape"],
+    "description": "Focus active pane"
+  }]
+}]

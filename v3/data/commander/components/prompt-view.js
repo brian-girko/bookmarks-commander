@@ -68,25 +68,7 @@ class PromptView extends HTMLElement {
     this.events = {};
   }
   connectedCallback() {
-    const dialog = this.shadowRoot.querySelector('dialog');
-
     const input = this.shadowRoot.querySelector('input[type=text]');
-    const next = value => {
-      dialog.close();
-      for (const c of this.events.blur || []) {
-        c();
-      }
-      this.resolve(value);
-    };
-
-    this.shadowRoot.addEventListener('submit', e => {
-      e.preventDefault();
-      next(input.value);
-    });
-    dialog.addEventListener('close', () => next(''));
-    this.shadowRoot.querySelector('input[type=button]').addEventListener('click', () => {
-      dialog.close();
-    });
     this.addEventListener('click', () => input.focus());
 
     this.addEventListener('keypress', e => e.stopPropagation());
@@ -95,6 +77,7 @@ class PromptView extends HTMLElement {
   }
   ask(message, value = '', history = []) {
     const dialog = this.shadowRoot.querySelector('dialog');
+    const form = this.shadowRoot.querySelector('form');
     const input = this.shadowRoot.querySelector('input[type=text]');
     const span = this.shadowRoot.querySelector('span');
     const list = this.shadowRoot.getElementById('list');
@@ -110,14 +93,29 @@ class PromptView extends HTMLElement {
       list.appendChild(option);
     }
 
-    dialog.showModal();
+    return new Promise(resolve => {
+      const next = value => {
+        dialog.onclose = null;
+        dialog.close();
+        for (const c of this.events.blur || []) {
+          c();
+        }
+        setTimeout(() => resolve(value), 0);
+      };
+      form.onsubmit = e => {
+        e.preventDefault();
+        next(input.value);
+      };
+      dialog.onclose = () => {
+        next('');
+      };
+      dialog.showModal();
 
-    window.setTimeout(() => {
-      input.focus();
-      input.select();
+      window.setTimeout(() => {
+        input.focus();
+        input.select();
+      });
     });
-
-    return new Promise(resolve => this.resolve = resolve);
   }
   on(method, callback) {
     this.events[method] = this.events[method] || [];
