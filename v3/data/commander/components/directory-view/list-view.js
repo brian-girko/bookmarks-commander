@@ -129,6 +129,33 @@ class ListView extends HTMLElement {
         .hidden {
           display: none;
         }
+        div.entry.over {
+          position: relative;
+        }
+        div.entry.over::after {
+          content: ' ';
+          position: absolute;
+          top: 0;
+          width: 30px;
+          height: 30px;
+          background-image: url('/data/commander/images/drop-after.svg');
+          background-size: contain;
+        }
+        div[data-type="DIRECTORY"].entry.over.shift::after {
+          background-image: url('/data/commander/images/drop-inside.svg');
+        }
+        :host([owner="left"]) div.entry.over::after {
+          left: 0;
+        }
+        :host([owner="right"]) div.entry.over::after {
+          right: 0;
+        }
+
+        @media (prefers-color-scheme: dark) {
+          div.entry::after {
+            filter: invert(1);
+          }
+        }
       </style>
       <style id="styles"></style>
       <template>
@@ -389,16 +416,44 @@ class ListView extends HTMLElement {
     // drag and drop
     shadow.addEventListener('drop', e => {
       e.preventDefault();
+      //
+      for (const e of [...shadow.querySelectorAll('.entry.over')]) {
+        e.classList.remove('over');
+      }
+      //
       const j = e.dataTransfer.getData('application/bc.bookmark');
+      const n = e.target;
       try {
         this.emit('drop-request', {
           ...JSON.parse(j),
-          destination: e.target.getRootNode().host.getAttribute('owner')
+          destination: e.target.getRootNode().host.getAttribute('owner'),
+          over: {
+            id: n.dataset.id,
+            type: n.dataset.type,
+            index: n.dataset.index,
+            inside: e.shiftKey
+          }
         });
       }
       catch (e) {}
     });
-    shadow.addEventListener('dragover', e => e.preventDefault());
+    shadow.addEventListener('dragenter', e => {
+      if (e.target.classList.contains('entry')) {
+        e.target.classList.add('over');
+      }
+    });
+    shadow.addEventListener('dragover', e => {
+      const n = shadow.querySelector('.entry.over');
+      if (n) {
+        n.classList[e.shiftKey ? 'add' : 'remove']('shift');
+      }
+      e.preventDefault();
+    });
+    shadow.addEventListener('dragleave', e => {
+      if (e.target.classList.contains('entry')) {
+        e.target.classList.remove('over', 'shift');
+      }
+    });
     shadow.addEventListener('dragstart', e => {
       const ids = [];
       const types = [];
@@ -423,6 +478,7 @@ class ListView extends HTMLElement {
       }));
       e.dataTransfer.setData('text/uri-list', e.target.querySelector('[data-id="href"]').textContent);
       e.dataTransfer.setData('text/plain', e.target.querySelector('[data-id="name"]').textContent);
+      e.dataTransfer.effectAllowed = 'move';
     });
   }
   query(q) {
@@ -557,8 +613,9 @@ class ListView extends HTMLElement {
           readonly: node.readonly || false
         });
         div.title = `${node.title}
-${node.url}
-${node.relativePath}`;
+
+${node.url || ''}
+${node.relativePath || ''}`.trim();
 
         if (node.readonly !== true) {
           div.setAttribute('draggable', 'true');

@@ -116,21 +116,25 @@ document.addEventListener('directory-view:submit', e => {
     }
   });
 });
+
+// use shift key to drop inside a folder
 document.addEventListener('directory-view:drop-request', async e => {
-  const {ids, types, selected, source, destination} = e.detail;
+  const {ids, types, selected, source, destination, over} = e.detail;
+
   // cannot move to the root directory
   if (views[destination].isRoot()) {
     toast('Cannot move to the root directory');
     return;
   }
   // cannot move to a search directory
-  if (views[destination].isSearch()) {
+  if (views[destination].isSearch() && over.inside !== true) {
     toast('Cannot move to a search view');
     return;
   }
   // cannot move a directory to a child directory
   if (types.some(type => type === 'DIRECTORY')) {
     const d = views[destination].list();
+    console.log(d);
     // if any selected directory is in the path of destination directory, prevent moving
     if (ids.some(id => d.some(de => de.id === id))) {
       toast('Cannot move to a child directory');
@@ -140,14 +144,29 @@ document.addEventListener('directory-view:drop-request', async e => {
 
   const s = source === 'right' ? views.right : views.left;
   const d = destination === 'right' ? views.right : views.left;
+
   if (selected.some(s => s === 'true')) {
     s.navigate('previous');
   }
-  for (const id of ids) {
-    await engine.bookmarks.move(id, {
-      parentId: d.id(),
-      index: Number(d.entries()[0].index) + 1
-    }).catch(engine.notify);
+
+  // move inside a directory
+  if (over.type === 'DIRECTORY' && over.inside) {
+    for (const id of ids) {
+      await engine.bookmarks.move(id, {
+        parentId: over.id
+      }).catch(engine.notify);
+    }
+  }
+  // move after over or move after selected
+  else {
+    for (const id of ids) {
+      const index = isNaN(over.index) ? Number(d.entries()[0].index) + 1 : Number(over.index) + 1;
+
+      await engine.bookmarks.move(id, {
+        parentId: d.id(),
+        index
+      }).catch(engine.notify);
+    }
   }
   // update both views
   views.update();
@@ -879,6 +898,7 @@ engine.storage.changed(ps => {
     styling();
   }
 });
+matchMedia('(prefers-color-scheme: dark)').addListener(styling);
 
 // messaging
 chrome.runtime.onMessage.addListener((request, sender, response) => {

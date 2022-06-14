@@ -12,9 +12,13 @@ class NotifyView extends HTMLElement {
           justify-content: center;
           position: fixed;
           inset: auto 1rem 3rem auto;
-          border: solid 3px var(--border, #cacaca);
-          padding: 5px 10px;
           max-width: 300px;
+        }
+        div {
+          padding: 5px 10px;
+          color: var(--color-notify, #919073);
+          border: solid 1px var(--border-notify, #d7d7ae);
+          background-color: var(--bg-notify, #f9f8d4);
         }
       </style>
       <div>
@@ -22,7 +26,7 @@ class NotifyView extends HTMLElement {
       </div>
     `;
   }
-  notify(message, timeout = 2000) {
+  notify(message, timeout = 5000) {
     this.timeout = setTimeout(() => {
       this.classList.add('hidden');
     }, timeout);
