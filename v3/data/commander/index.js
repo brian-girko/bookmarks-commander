@@ -134,7 +134,6 @@ document.addEventListener('directory-view:drop-request', async e => {
   // cannot move a directory to a child directory
   if (types.some(type => type === 'DIRECTORY')) {
     const d = views[destination].list();
-    console.log(d);
     // if any selected directory is in the path of destination directory, prevent moving
     if (ids.some(id => d.some(de => de.id === id))) {
       toast('Cannot move to a child directory');
