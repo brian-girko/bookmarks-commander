@@ -22,24 +22,33 @@ class DirectoryView extends HTMLElement {
           text-shadow: 1px 1px var(--disabled-shadow, #fcffff);
           margin: 0 2px;
           font-size: 80%;
+          height: 100%;
         }
       </style>
-      <path-view>
+      <path-view style="--height: 32px">
         <span id="count">-</span>
       </path-view>
       <list-view></list-view>
     `;
-    this.pathView = shadow.querySelector('path-view');
     this.listView = shadow.querySelector('list-view');
     this.CountElement = shadow.getElementById('count');
 
     // events
     const onsubmit = e => this.emit('directory-view:submit', e.detail);
-    this.pathView.addEventListener('submit', onsubmit);
     this.listView.addEventListener('submit', onsubmit);
     this.listView.addEventListener('selection-changed', () => this.emit('directory-view:selection-changed'));
     this.listView.addEventListener('drop-request', e => this.emit('directory-view:drop-request', e.detail));
     this.listView.addEventListener('command', e => this.emit('directory-view:command', e.detail));
+
+    this.pathView = shadow.querySelector('path-view');
+    this.pathView.addEventListener('change', e => onsubmit({
+      detail: {
+        entries: [{
+          id: e.target.value.id,
+          type: 'DIRECTORY'
+        }]
+      }
+    }));
     // focus the list-view element
     this.addEventListener('click', () => {
       this.listView.focus();
