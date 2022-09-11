@@ -133,7 +133,7 @@ class DirectoryView extends HTMLElement {
       window.setTimeout(() => this.build(''), 2000);
     }
   }
-  async build(id, arr, selectedIDs = []) {
+  build(id, arr, selectedIDs = []) {
     this.emit('directory-view:update-requested');
 
     id = id || engine.bookmarks.rootID;
@@ -196,7 +196,7 @@ class DirectoryView extends HTMLElement {
   static get observedAttributes() {
     return ['path'];
   }
-  async attributeChangedCallback(name, oldValue, newValue) {
+  attributeChangedCallback(name, oldValue, newValue) {
     if (name === 'path') {
       this.build(newValue);
     }
