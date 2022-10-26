@@ -561,7 +561,7 @@ class ListView extends HTMLElement {
     }));
   }
   favicon(href) {
-    if (typeof InstallTrigger !== 'undefined') {
+    if (/Firefox/.test(navigator.userAgent)) {
       if (this.config.remote) {
         return 'http://www.google.com/s2/favicons?domain_url=' + href;
       }
