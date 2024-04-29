@@ -1,6 +1,6 @@
 {
-  "manifest_version": 2,
-  "version": "0.4.8",
+  "manifest_version": 3,
+  "version": "0.5.0",
   "name": "Bookmarks Commander",
   "description": "__MSG_description__",
   "default_locale": "en",
@@ -8,27 +8,24 @@
   "permissions": [
     "bookmarks",
     "contextMenus",
-    "chrome://favicon/*",
+    "favicon",
     "storage"
   ],
   "homepage_url": "https://add0n.com/bookmarks-commander.html",
   "background": {
-    "persistent": false,
-    "scripts": [
-      "worker.js"
-    ]
+    "service_worker": "worker.js"
   },
   "icons": {
-    "16": "data/icons/16.png",
-    "19": "data/icons/19.png",
-    "32": "data/icons/32.png",
-    "38": "data/icons/38.png",
-    "48": "data/icons/48.png",
-    "64": "data/icons/64.png",
-    "128": "data/icons/128.png",
-    "256": "data/icons/256.png",
-    "512": "data/icons/512.png"
+    "16": "/data/icons/16.png",
+    "19": "/data/icons/19.png",
+    "32": "/data/icons/32.png",
+    "38": "/data/icons/38.png",
+    "48": "/data/icons/48.png",
+    "64": "/data/icons/64.png",
+    "128": "/data/icons/128.png",
+    "256": "/data/icons/256.png",
+    "512": "/data/icons/512.png"
   },
-  "browser_action": {},
+  "action": {},
   "incognito": "split"
 }

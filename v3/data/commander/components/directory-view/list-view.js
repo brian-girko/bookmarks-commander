@@ -569,7 +569,7 @@ class ListView extends HTMLElement {
         return '/data/commander/images/page.svg';
       }
     }
-    return 'chrome://favicon/' + href;
+    return `chrome-extension://${chrome.runtime.id}/_favicon/?pageUrl=${encodeURIComponent(href)}&size=32`;
   }
   date(ms) {
     if (ms) {

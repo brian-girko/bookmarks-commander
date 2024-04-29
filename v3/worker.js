@@ -1,6 +1,6 @@
 'use strict';
 
-chrome.browserAction.onClicked.addListener(() => {
+chrome.action.onClicked.addListener(() => {
   chrome.storage.local.get({
     'mode': 'tab'
   }, async prefs => {
@@ -15,7 +15,7 @@ chrome.browserAction.onClicked.addListener(() => {
     catch (e) {
       if (prefs.mode === 'tab') {
         chrome.tabs.create({
-          url: 'data/commander/index.html'
+          url: '/data/commander/index.html'
         }, tab => chrome.storage.local.set({
           tab: tab.id
         }));
@@ -43,9 +43,9 @@ chrome.browserAction.onClicked.addListener(() => {
   });
 });
 
-const icon = mode => chrome.browserAction.setIcon({
+const icon = mode => chrome.action.setIcon({
   path: {
-    '16': 'data/icons/' + mode + '/128.png'
+    '16': '/data/icons/' + mode + '/128.png'
   }
 });
 
@@ -86,7 +86,7 @@ const icon = mode => chrome.browserAction.setIcon({
       contexts: ['browser_action']
     });
     if (prefs.mode === 'popup') {
-      chrome.browserAction.setPopup({
+      chrome.action.setPopup({
         popup: `data/commander/index.html?mode=popup&width=${prefs['popup.width']}&height=${prefs['popup.height']}`
       });
     }
@@ -111,7 +111,7 @@ chrome.storage.onChanged.addListener(ps => {
       'popup.width': 800,
       'popup.height': 600
     }, prefs => {
-      chrome.browserAction.setPopup({
+      chrome.action.setPopup({
         popup: ps.mode.newValue === 'popup' ?
           `data/commander/index.html?mode=popup&width=${prefs['popup.width']}&height=${prefs['popup.height']}` :
           ''
@@ -151,7 +151,7 @@ chrome.runtime.onMessage.addListener((request, sender) => {
         if (reason === 'install' || (prefs.faqs && reason === 'update')) {
           const doUpdate = (Date.now() - prefs['last-update']) / 1000 / 60 / 60 / 24 > 45;
           if (doUpdate && previousVersion !== version) {
-            tabs.query({active: true, currentWindow: true}, tbs => tabs.create({
+            tabs.query({active: true, lastFocusedWindow: true}, tbs => tabs.create({
               url: page + '?version=' + version + (previousVersion ? '&p=' + previousVersion : '') + '&type=' + reason,
               active: reason === 'install',
               ...(tbs && tbs.length && {index: tbs[0].index + 1})
