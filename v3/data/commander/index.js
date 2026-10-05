@@ -593,6 +593,10 @@ const command = async (command, e) => {
     }
     else if (command === 'new-file' || command === 'new-directory') {
       const entry = entries[0];
+      // the [..] row is a navigation control, do not create children in it
+      if (entry.readonly === 'true') {
+        return;
+      }
       const o = {
         parentId: view.id(),
         index: Number(entry.index) + 1

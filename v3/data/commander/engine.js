@@ -6,7 +6,8 @@ const bookmarks = {
     return id === '' || id === bookmarks.rootID;
   },
   isSearch(id) {
-    return Boolean(id.query);
+    // id is undefined until the pane's first build; do not throw on it
+    return Boolean(id && id.query);
   },
   parent(id) {
     return new Promise((resolve, reject) => {
@@ -20,6 +21,21 @@ const bookmarks = {
         }
       });
     });
+  },
+  async name(id) {
+    // name of a folder for the [..] rows; Chrome's root container ('0') has no
+    // node at all and the phantom root resolves to '/' (see hierarchy above)
+    if (this.isRoot(id)) {
+      if (/Firefox/.test(navigator.userAgent)) {
+        const node = await this.parent(id).catch(() => undefined);
+        if (node && node.title) {
+          return node.title;
+        }
+      }
+      return '/';
+    }
+    const node = await this.parent(id);
+    return node.title || '/';
   },
   async hierarchy(id) {
     const cache = [];

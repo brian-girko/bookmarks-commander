@@ -1,9 +1,13 @@
 /* global engine */
+// the [..] rows double as navigation controls; Alt+← (the browser's Back
+// button) also moves a single pane back, see issues #50/#51
+const navigationTip = "Tip: Alt+← or the browser's Back button does the same.";
+// the root container has no title in Chrome; the breadcrumb names that spot '/'
+const quoted = name => name === '/' ? 'the top level' : '"' + name + '"';
 class DirectoryView extends HTMLElement {
   constructor() {
     super();
 
-    this.history = [];
     const shadow = this.attachShadow({
       mode: 'open'
     });
@@ -60,6 +64,19 @@ class DirectoryView extends HTMLElement {
       detail
     }));
   }
+  // the folder the current search was launched from; undefined when not searching.
+  // repeated searches nest: {id: {id: '123', query: 'q1'}, query: 'q2'}
+  // note: should not call this.isSearch since its `id || this.id()` fallback
+  // cannot match a root folder id ('') and would loop forever while unwrapping
+  searchOrigin(id = this.id()) {
+    if (engine.bookmarks.isSearch(id) === false) {
+      return;
+    }
+    while (id && engine.bookmarks.isSearch(id)) {
+      id = id.id;
+    }
+    return id || '';
+  }
   async buildPathView(id, arr) {
     // store path only if it is needed
     if (!arr) {
@@ -75,6 +92,10 @@ class DirectoryView extends HTMLElement {
   // if update, then selected elements are persistent
   async buildListView(id, update = false, selectedIDs = []) {
     const method = update ? 'update' : 'build';
+    // compute it before try so that the catch block below has it as well
+    const origin = this.isSearch(id) ? 'search' : (
+      this.isRoot(id) ? 'root' : 'other'
+    );
     try {
       // add openerId to empty "duplicates" queries
       if (id.query && id.query === 'duplicates') {
@@ -92,28 +113,28 @@ class DirectoryView extends HTMLElement {
       const nodes = await engine.bookmarks.children(id);
       this.count = this.CountElement.textContent = nodes.length;
       if (this.isSearch(id)) {
-        const length = this.history.length;
+        const folder = this.searchOrigin(id);
+        const name = await engine.bookmarks.name(folder);
         nodes.unshift({
-          title: '[..]',
-          id: length ? this.history[length - 1] : '',
-          openerId: id,
+          title: '← Dismiss Search. Go to ' + quoted(name),
+          id: folder,
           index: -1,
-          readonly: true
+          readonly: true,
+          hint: 'Dismiss the search results and go back to ' + quoted(name) + '.\n\n' + navigationTip
         });
       }
       else if (this.isRoot(id) === false) {
         const parent = await engine.bookmarks.parent(id);
+        // static label; the breadcrumb above already shows where this leads
         nodes.unshift({
-          title: '[..]',
+          title: '← Go to parent directory',
           id: parent.parentId,
           openerId: id,
           index: -1,
-          readonly: true
+          readonly: true,
+          hint: 'Go up one level to the parent directory.\n\n' + navigationTip
         });
       }
-      const origin = this.isSearch(id) ? 'search' : (
-        this.isRoot(id) ? 'root' : 'other'
-      );
 
       if (method === 'build') {
         this.listView.build(nodes, undefined, selectedIDs, {origin});
@@ -124,16 +145,13 @@ class DirectoryView extends HTMLElement {
       this.listView.mode({
         path: this.isSearch(id)
       });
-
-      this.history.push(id);
     }
     catch (e) {
       this.listView.build(undefined, e, undefined, {origin});
       console.warn(e);
       window.setTimeout(() => this.build(''), 2000);
     }
-  }
-  build(id, arr, selectedIDs = []) {
+  }  build(id, arr, selectedIDs = []) {
     this.emit('directory-view:update-requested');
 
     id = id || engine.bookmarks.rootID;

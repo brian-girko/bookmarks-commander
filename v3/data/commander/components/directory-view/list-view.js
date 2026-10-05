@@ -40,6 +40,16 @@ class ListView extends HTMLElement {
           text-overflow: ellipsis;
           pointer-events: none;
         }
+        /* [..] rows are navigation controls; let their name use the row's full width */
+        div.entry[data-index="-1"] [data-id="name"] {
+          grid-column: 2 / -1;
+        }
+        div.entry[data-index="-1"] [data-id="path"],
+        div.entry[data-index="-1"] [data-id="link"],
+        div.entry[data-index="-1"] [data-id="added"],
+        div.entry[data-index="-1"] [data-id="modified"] {
+          display: none;
+        }
         div.entry.hr {
           border-bottom: solid 1px var(--border-alt, #e8e3e9);
           position: sticky;
@@ -684,7 +694,7 @@ class ListView extends HTMLElement {
           id: typeof node.id === 'string' ? node.id : JSON.stringify(node.id),
           readonly: node.readonly || false
         });
-        div.title = `${node.title}
+        div.title = node.hint || `${node.title}
 
 ${node.url || ''}
 ${node.relativePath || ''}`.trim();
