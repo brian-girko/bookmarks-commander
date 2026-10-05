@@ -36,6 +36,9 @@ class DirectoryView extends HTMLElement {
     `;
     this.listView = shadow.querySelector('list-view');
     this.CountElement = shadow.getElementById('count');
+    // draw the bookmark count on the folder icons; off until the preference says
+    // otherwise, and distinct from `count`, the children count shown in the path
+    this.showCount = false;
 
     // events
     const onsubmit = e => this.emit('directory-view:submit', e.detail);
@@ -112,6 +115,11 @@ class DirectoryView extends HTMLElement {
       }
       const nodes = await engine.bookmarks.children(id);
       this.count = this.CountElement.textContent = nodes.length;
+      // bookmark counts for the folder icons (issue #52); this runs before the
+      // [..] row is unshifted so that navigation row is never counted
+      if (this.showCount) {
+        await this.counts(nodes);
+      }
       if (this.isSearch(id)) {
         const folder = this.searchOrigin(id);
         const name = await engine.bookmarks.name(folder);
@@ -145,13 +153,29 @@ class DirectoryView extends HTMLElement {
       this.listView.mode({
         path: this.isSearch(id)
       });
+      this.rendered = true;
     }
     catch (e) {
       this.listView.build(undefined, e, undefined, {origin});
       console.warn(e);
       window.setTimeout(() => this.build(''), 2000);
     }
-  }  build(id, arr, selectedIDs = []) {
+  }
+  // attach the number of direct children (bookmarks and folders) to every folder
+  // node; a folder can disappear between the listing and these calls, so
+  // failures are not fatal
+  async counts(nodes) {
+    const folders = nodes.filter(n => !n.url && typeof n.id === 'string');
+    // the bookmarks API deals with a limited number of parallel calls well,
+    // hence the chunks instead of a single Promise.all over all folders
+    for (let i = 0; i < folders.length; i += 50) {
+      await Promise.all(folders.slice(i, i + 50).map(n => engine.bookmarks.count(n.id).then(tally => {
+        n.count = tally.bookmarks + tally.folders;
+        n.folders = tally.folders;
+      }).catch(() => {})));
+    }
+  }
+  build(id, arr, selectedIDs = []) {
     this.emit('directory-view:update-requested');
 
     id = id || engine.bookmarks.rootID;
@@ -175,6 +199,19 @@ class DirectoryView extends HTMLElement {
   // set the visible (and ordered) list of columns, e.g. ['icon', 'name', 'link']
   columns(list) {
     this.listView.columns = list;
+  }
+  // draw the bookmark count on the folder icons; the preference is opt-in,
+  // not a column, so it arrives through its own setter
+  counting(on) {
+    on = Boolean(on);
+    if (this.showCount === on) {
+      return;
+    }
+    this.showCount = on;
+    // rows built with the other setting carry a stale or a missing count
+    if (this.rendered) {
+      this.update(this._id);
+    }
   }
   // nested context menu sections, e.g. {open: false, copy: true, move: true, importExport: true}
   groups(prefs) {

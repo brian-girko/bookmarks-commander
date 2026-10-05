@@ -935,6 +935,20 @@ engine.storage.changed(ps => {
   }
 });
 
+// bookmark count on the folder icons
+const counting = () => engine.storage.get({
+  'show-count': false
+}).then(prefs => {
+  views.left.counting(prefs['show-count']);
+  views.right.counting(prefs['show-count']);
+});
+counting();
+engine.storage.changed(ps => {
+  if (ps['show-count']) {
+    counting();
+  }
+});
+
 // messaging
 chrome.runtime.onMessage.addListener((request, sender, response) => {
   if (request.method === 'instance') {

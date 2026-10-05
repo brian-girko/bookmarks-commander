@@ -89,9 +89,38 @@ class ListView extends HTMLElement {
           display: none;
         }
         div.entry [data-id="icon"] {
+          position: relative;
           background-size: 16px;
           background-repeat: no-repeat;
           background-position: center center;
+        }
+        /* the bookmark count is drawn on top of the folder icon (issue #52);
+           a dark tone is the only one legible on the blue and on the grey
+           folder, in the light and in the dark theme alike */
+        div.entry [data-id="count"] {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          /* the folder body is the lower half of the icon, so nudge the digits
+             down to keep them off the tab */
+          padding-top: 4px;
+          /* clicks must reach the row, not the digits */
+          pointer-events: none;
+          text-indent: 0;
+          line-height: 1;
+          font-weight: bold;
+          font-size: 8px;
+          color: #101010;
+          text-shadow: 0 0 1px rgba(255, 255, 255, 0.45);
+        }
+        /* the icon is 16px wide, so the font follows the number of glyphs */
+        div.entry [data-id="count"][data-digits="2"] {
+          font-size: 10px;
+        }
+        div.entry [data-id="count"][data-digits="3"] {
+          font-size: 8px;
         }
         div.entry[data-type="DIRECTORY"] [data-id="icon"] {
           background-image: url('/data/commander/images/directory.svg');
@@ -199,7 +228,7 @@ class ListView extends HTMLElement {
       <style id="styles"></style>
       <template>
         <div class="entry" contextmenu="menu">
-          <span data-id="icon"></span>
+          <span data-id="icon"><b data-id="count"></b></span>
           <span data-id="name"></span>
           <span data-id="path"></span>
           <span data-id="link"></span>
@@ -659,6 +688,18 @@ class ListView extends HTMLElement {
     }
     return '';
   }
+  // '12 bookmarks, 3 folders', or 'empty'
+  tally(total, folders) {
+    const parts = [];
+    const bookmarks = total - folders;
+    if (bookmarks) {
+      parts.push(bookmarks + ' bookmark' + (bookmarks === 1 ? '' : 's'));
+    }
+    if (folders) {
+      parts.push(folders + ' folder' + (folders === 1 ? '' : 's'));
+    }
+    return parts.join(', ') || 'empty';
+  }
   clean() {
     [...this.content.querySelectorAll('.entry:not(.hr)')].forEach(e => e.remove());
   }
@@ -681,6 +722,14 @@ class ListView extends HTMLElement {
       for (const node of nodes) {
         const clone = document.importNode(this.template.content, true);
         clone.querySelector('[data-id="name"]').textContent = node.title;
+        // bookmark count on the folder icon; the icon is 16px wide, so
+        // anything above 99 is capped (issue #52)
+        const badge = clone.querySelector('[data-id="count"]');
+        if (typeof node.count === 'number') {
+          const text = node.count > 99 ? '99+' : String(node.count);
+          badge.textContent = text;
+          badge.dataset.digits = text.length;
+        }
         clone.querySelector('[data-id="link"]').textContent = node.url;
         clone.querySelector('[data-id="path"]').textContent = node.relativePath;
         clone.querySelector('[data-id="added"]').textContent = this.date(node.dateAdded);
@@ -697,7 +746,8 @@ class ListView extends HTMLElement {
         div.title = node.hint || `${node.title}
 
 ${node.url || ''}
-${node.relativePath || ''}`.trim();
+${node.relativePath || ''}
+${typeof node.count === 'number' ? this.tally(node.count, node.folders) : ''}`.trim();
 
         if (node.readonly !== true) {
           div.setAttribute('draggable', 'true');

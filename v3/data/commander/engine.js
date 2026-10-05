@@ -125,6 +125,19 @@ const bookmarks = {
       });
     });
   },
+  // tally of what a folder stores directly: bookmarks and folders (issue #52)
+  count(id) {
+    return new Promise((resolve, reject) => chrome.bookmarks.getChildren(id, nodes => {
+      const lastError = chrome.runtime.lastError;
+      if (lastError) {
+        reject(lastError);
+      }
+      else {
+        const bookmarks = nodes.filter(n => n.url).length;
+        resolve({bookmarks, folders: nodes.length - bookmarks});
+      }
+    }));
+  },
   tree(id) {
     return new Promise((resolve, reject) => {
       chrome.bookmarks.getSubTree(id, nodes => {
