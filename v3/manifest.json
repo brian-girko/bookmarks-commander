@@ -13,7 +13,8 @@
   ],
   "homepage_url": "https://webextension.org/listing/bookmarks-commander.html",
   "background": {
-    "service_worker": "worker.js"
+    "service_worker": "worker.js",
+    "scripts": ["worker.js"]
   },
   "icons": {
     "16": "/data/icons/16.png",
@@ -27,5 +28,14 @@
     "512": "/data/icons/512.png"
   },
   "action": {},
-  "incognito": "split"
+  "incognito": "split",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{b03f9081-3859-4c8c-b964-6801d29b7271}",
+      "strict_min_version": "148.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  }
 }
