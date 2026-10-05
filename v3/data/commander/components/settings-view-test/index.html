@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>settings-view test</title>
+  <style>
+    body {
+      font-family: monospace;
+      white-space: pre;
+    }
+    input {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <p>storage log (no persistence in this test page):</p>
+  <p id="log">[]</p>
+  <input type="button" id="open" value="open settings">
+
+  <settings-view></settings-view>
+
+  <script type="text/javascript">
+    // stub of engine.storage without chrome.* dependency
+    const prefs = {
+      'theme': '',
+      'custom-icon': '',
+      'font-size': 13,
+      'font-family': '',
+      'views': 2,
+      'columns': ['icon', 'name', 'path', 'link', 'added', 'modified'],
+      'widths': {
+        name: 100,
+        added: 90,
+        modified: 90
+      },
+      'ask-before-delete': true,
+      'ask-before-directory-delete': true,
+      'commands-mapping': 'default'
+    };
+    window.engine = {
+      storage: {
+        get(defaults) {
+          const o = {};
+          for (const key of Object.keys(prefs)) {
+            o[key] = prefs[key];
+          }
+          return Promise.resolve(o);
+        },
+        set(o) {
+          Object.assign(prefs, o);
+          document.getElementById('log').textContent = JSON.stringify(prefs, null, 2);
+          return Promise.resolve();
+        }
+      }
+    };
+    document.getElementById('open').addEventListener('click', () => {
+      document.querySelector('settings-view').open();
+    });
+  </script>
+  <script type="text/javascript" src="../settings-view.js"></script>
+</body>
+</html>

@@ -11,7 +11,7 @@
     "favicon",
     "storage"
   ],
-  "homepage_url": "https://add0n.com/bookmarks-commander.html",
+  "homepage_url": "https://webextension.org/listing/bookmarks-commander.html",
   "background": {
     "service_worker": "worker.js"
   },

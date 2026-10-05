@@ -196,6 +196,8 @@ document.addEventListener('directory-view:content-updated', () => {
 
 engine.user.on('blur', () => views.active().click());
 
+document.addEventListener('settings-view:close', () => views.active().click());
+
 /* views */
 const views = {
   'parent': document.getElementById('directories'),
@@ -859,6 +861,7 @@ const styling = () => engine.storage.get({
   'user-styles': '',
   'theme': 'default',
   'views': 2,
+  'columns': ['icon', 'name', 'path', 'link', 'added', 'modified'],
   'widths': {
     name: 100,
     added: 90,
@@ -890,10 +893,12 @@ const styling = () => engine.storage.get({
   `;
   views.left.style(prefs.widths);
   views.right.style(prefs.widths);
+  views.left.columns(prefs.columns);
+  views.right.columns(prefs.columns);
 });
 styling();
 engine.storage.changed(ps => {
-  if (ps['font-size'] || ps['font-family'] || ps['user-styles'] || ps['views'] || ps['widths'] || ps['theme']) {
+  if (ps['font-size'] || ps['font-family'] || ps['user-styles'] || ps['views'] || ps['widths'] || ps['theme'] || ps['columns']) {
     styling();
   }
 });

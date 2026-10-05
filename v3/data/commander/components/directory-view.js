@@ -154,6 +154,10 @@ class DirectoryView extends HTMLElement {
     this.listView.style.setProperty('--added-width', added + 'px');
     this.listView.style.setProperty('--modified-width', modified + 'px');
   }
+  // set the visible (and ordered) list of columns, e.g. ['icon', 'name', 'link']
+  columns(list) {
+    this.listView.columns = list;
+  }
   update(id) {
     this.buildListView(id, true).then(() => {
       this.emit('directory-view:content-updated');

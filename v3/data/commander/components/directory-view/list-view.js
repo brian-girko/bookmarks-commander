@@ -1,5 +1,7 @@
 /* global engine */
 
+const ALL = ['icon', 'name', 'path', 'link', 'added', 'modified'];
+
 class ListView extends HTMLElement {
   constructor() {
     super();
@@ -23,14 +25,12 @@ class ListView extends HTMLElement {
         div.entry {
           padding: 5px 0;
           display: grid;
+          /* pre-JS default; replaced by the generated rules in <style id="styles"> */
           grid-template-columns: 32px
             minmax(32px, var(--name-width, 200px))
             minmax(32px, 1fr)
             minmax(32px, var(--added-width, 90px))
             minmax(32px, var(--modified-width, 90px));
-        }
-        #content[data-path=true] div.entry {
-          grid-template-columns: 32px minmax(32px, 200px) minmax(32px, 1fr) minmax(32px, 1fr);
         }
         div.entry span {
           text-indent: 5px;
@@ -74,10 +74,6 @@ class ListView extends HTMLElement {
         }
         div.entry[data-selected=true] {
           background-color: var(--bg-selected-row, #c0e7ff) !important;
-        }
-        #content[data-path=true] div.entry [data-id=added],
-        #content[data-path=true] div.entry [data-id=modified] {
-          display: none;
         }
         #content:not([data-path=true]) div.entry [data-id=path] {
           display: none;
@@ -163,7 +159,7 @@ class ListView extends HTMLElement {
           <span data-id="icon"></span>
           <span data-id="name"></span>
           <span data-id="path"></span>
-          <span data-id="href"></span>
+          <span data-id="link"></span>
           <span data-id="added"></span>
           <span data-id="modified"></span>
         </div>
@@ -196,7 +192,7 @@ class ListView extends HTMLElement {
           <div data-id="icon"><span></span></div>
           <div data-id="name"><i></i><span>Name</span></div>
           <div data-id="path"><i></i><span>Path</span></div>
-          <div data-id="href"><i></i><span>Link</span></div>
+          <div data-id="link"><i></i><span>Link</span></div>
           <div data-id="added"><i></i><span>Added</span></div>
           <div data-id="modified"><i></i><span>Modified</span></div>
         </div>
@@ -205,6 +201,9 @@ class ListView extends HTMLElement {
 
     this.template = shadow.querySelector('template');
     this.content = shadow.getElementById('content');
+    this.styles = shadow.getElementById('styles');
+    // visible (and ordered) columns; the generator is the single source of truth
+    this.columns = [...ALL];
 
     this.content.addEventListener('focus', () => this.classList.add('active'));
     this.content.addEventListener('blur', () => {
@@ -476,7 +475,7 @@ class ListView extends HTMLElement {
         selected,
         source: e.target.getRootNode().host.getAttribute('owner')
       }));
-      e.dataTransfer.setData('text/uri-list', e.target.querySelector('[data-id="href"]').textContent);
+      e.dataTransfer.setData('text/uri-list', e.target.querySelector('[data-id="link"]').textContent);
       e.dataTransfer.setData('text/plain', e.target.querySelector('[data-id="name"]').textContent);
       e.dataTransfer.effectAllowed = 'move';
     });
@@ -599,7 +598,7 @@ class ListView extends HTMLElement {
       for (const node of nodes) {
         const clone = document.importNode(this.template.content, true);
         clone.querySelector('[data-id="name"]').textContent = node.title;
-        clone.querySelector('[data-id="href"]').textContent = node.url;
+        clone.querySelector('[data-id="link"]').textContent = node.url;
         clone.querySelector('[data-id="path"]').textContent = node.relativePath;
         clone.querySelector('[data-id="added"]').textContent = this.date(node.dateAdded);
         clone.querySelector('[data-id="modified"]').textContent = this.date(node.dateGroupModified);
@@ -639,6 +638,79 @@ ${node.relativePath || ''}`.trim();
   }
   mode(o) {
     this.content.dataset.path = Boolean(o.path);
+    this.generate();
+  }
+  // list of visible (and ordered) columns, e.g. ['icon', 'name', 'link']
+  set columns(list) {
+    list = list.filter(id => ALL.indexOf(id) !== -1);
+    // name is always present
+    if (list.indexOf('name') === -1) {
+      list.push('name');
+    }
+    // keep drag sizes for the new visible set only
+    const same = JSON.stringify(list) === JSON.stringify(this.visible);
+    this.visible = list;
+    if (!same) {
+      this.sizesMap = {};
+      this.generate();
+    }
+  }
+  generate(sizes) {
+    if (!this.visible) {
+      return;
+    }
+    const path = this.content.dataset.path === 'true';
+    // 'path' is search-mode only; everything else is user-controlled.
+    // 'added' and 'modified' are always suppressed in search mode (extra condition in the filter)
+    const list = this.visible.filter(id => (id !== 'path' || path) && (path ? id !== 'added' && id !== 'modified' : true));
+    this.rendered = list;
+    // drag sizes are kept per column-set, so switching between
+    // search and list modes restores the last dragged widths of that set
+    const key = list.join(',');
+    this.sizesMap = this.sizesMap || {};
+    if (Array.isArray(sizes) && sizes.length === list.length) {
+      this.sizesMap[key] = sizes;
+    }
+    // build the tracks; sizes (px) come from the drag resizer
+    const stored = this.sizesMap[key];
+    let tracks;
+    if (stored && stored.length === list.length) {
+      const total = stored.reduce((p, c) => c + p, 0);
+      tracks = stored.map(w => (w / total * 100) + '%');
+    }
+    else {
+      // exactly one flexible track: prefer 'link', else 'path', else the last visible column
+      const flex = list.indexOf('link') !== -1 ? list.indexOf('link') :
+        list.indexOf('path') !== -1 ? list.indexOf('path') : list.length - 1;
+      tracks = list.map((id, index) => {
+        if (index === flex) {
+          return '1fr';
+        }
+        if (id === 'icon') {
+          return '32px';
+        }
+        if (id === 'name') {
+          return 'minmax(32px, var(--name-width, 200px))';
+        }
+        if (id === 'added') {
+          return 'minmax(32px, var(--added-width, 90px))';
+        }
+        if (id === 'modified') {
+          return 'minmax(32px, var(--modified-width, 90px))';
+        }
+        return '1fr';
+      });
+    }
+    // hidden columns are collapsed rather than removed from the DOM
+    const hidden = ALL.filter(id => list.indexOf(id) === -1)
+      .map(id => `div.entry [data-id="${id}"]{display:none}`)
+      .join('');
+    this.styles.textContent = `
+      div.entry {
+        grid-template-columns: ${tracks.join(' ')};
+      }
+      ${hidden}
+    `;
   }
   // refresh the list while keeping selections
   update(nodes, err) {
@@ -679,15 +751,27 @@ ${node.relativePath || ''}`.trim();
   connectedCallback() {
     const hr = this.content.querySelector('div.entry.hr');
     const entries = [...hr.querySelectorAll('div')];
-    entries.forEach((entry, index) => {
+    entries.forEach(entry => {
       const drag = entry.querySelector('i');
       if (!drag) {
         return;
       }
+      const id = entry.dataset.id;
       drag.onmousedown = () => {
+        // the handle of a hidden column is collapsed; nothing to resize
+        const index = (this.rendered || []).indexOf(id);
+        if (index === -1) {
+          return;
+        }
         const resize = e => {
-          const widths = entries.map(e => e.getBoundingClientRect().width);
+          // measure only the rendered (visible) columns
+          const widths = this.rendered.map(id =>
+            hr.querySelector(`[data-id="${id}"]`).getBoundingClientRect().width
+          );
           const total = widths.reduce((p, c) => c + p, 0);
+          if (!total) {
+            return;
+          }
 
           widths[index] -= e.movementX;
           if (widths[index] < 32) {
@@ -702,11 +786,8 @@ ${node.relativePath || ''}`.trim();
               break;
             }
           }
-          this.shadowRoot.getElementById('styles').textContent = `
-            #content[data-path=${this.content.dataset.path}] div.entry {
-              grid-template-columns: ${widths.filter(w => w).map(w => (w / total * 100) + '%').join(' ')};
-            }
-          `;
+          // emit percentages through the generator so hidden columns stay collapsed
+          this.generate(widths);
         };
         document.addEventListener('mousemove', resize);
         document.onmouseup = () => {

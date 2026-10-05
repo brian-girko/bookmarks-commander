@@ -74,7 +74,8 @@ label:not(:first-child) directory-view {
   }
 }
 
-prompt-view {
+prompt-view,
+settings-view {
   background-color: var(--bg-blur, rgba(0, 0, 0, 0.6));
 }
 

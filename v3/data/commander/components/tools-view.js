@@ -159,10 +159,7 @@ class ToolsView extends HTMLElement {
     this.shadow.addEventListener('click', e => {
       const command = e.target?.dataset?.command;
       if (command === 'commands') {
-        this.command(new KeyboardEvent('keydown', {
-          code: 'KeyS',
-          ctrlKey: true
-        }));
+        document.querySelector('settings-view').open();
       }
       else if (command) {
         this.emit('tools-view:command', {
@@ -252,95 +249,9 @@ class ToolsView extends HTMLElement {
       o.focus();
       o.select();
     }
-    // command box
+    // settings box
     if (e.code === 'KeyS' && meta && e.shiftKey === false) {
-      engine.user.ask(`Enter a Command:
-
-icon=[default|light|dark]
-theme=[default|dark|light]
-font-size=[number]px
-font-family=[font-name]
-views=[1|2]
-column-widths=[name]px, [added]px, [modified]px
-ask-before-delete=[true|false]
-ask-before-directory-delete=[true|false]
-commands-mapping=[default|vim] (vim mapping is not ready)`, '', [
-        'icon=default',
-        'icon=light',
-        'icon=dark',
-        'theme=default',
-        'theme=dark',
-        'theme=light',
-        'font-family=',
-        'views=1',
-        'views=2',
-        'column-widths=',
-        'ask-before-delete=true',
-        'ask-before-delete=false',
-        'ask-before-directory-delete=true',
-        'ask-before-directory-delete=false',
-        'commands-mapping=default',
-        'commands-mapping=vim'
-      ]).then(command => {
-        if (command.startsWith('icon=')) {
-          const path = command.replace('icon=', '') || 'default';
-          engine.storage.set({
-            'custom-icon': path === 'default' ? '' : path
-          });
-        }
-        else if (command.startsWith('theme=')) {
-          const path = command.replace('theme=', '') || 'default';
-          engine.storage.set({
-            'theme': path === 'default' ? '' : path
-          });
-        }
-        else if (command.startsWith('font-size=')) {
-          const px = /font-size=(\d+)px/.exec(command);
-          engine.storage.set({
-            'font-size': px && px.length ? px[1] : ''
-          });
-        }
-        else if (command.startsWith('font-family=')) {
-          engine.storage.set({
-            'font-family': command.replace('font-family=', '')
-          });
-        }
-        else if (command.startsWith('commands-mapping=')) {
-          engine.storage.set({
-            'commands-mapping': command.replace('commands-mapping=', '')
-          }).then(() => location.reload());
-        }
-        else if (command.startsWith('ask-before-delete=')) {
-          engine.storage.set({
-            'ask-before-delete': command.replace('ask-before-delete=', '') === 'false' ? false : true
-          });
-        }
-        else if (command.startsWith('ask-before-directory-delete=')) {
-          engine.storage.set({
-            'ask-before-directory-delete': command.replace('ask-before-directory-delete=', '') === 'false' ? false : true
-          });
-        }
-        else if (command.startsWith('views=')) {
-          const views = Math.min(2, Math.max(1, Number(command.replace('views=', ''))));
-          engine.storage.set({
-            views
-          });
-        }
-        else if (command.startsWith('column-widths=')) {
-          const widths = [...command.replace('column-widths=', '').split(/\s*,\s*/).map(s => parseInt(s))].slice(0, 3);
-          widths[0] = widths[0] ? Math.min(1000, Math.max(32, widths[0])) : 200;
-          widths[1] = widths[1] ? Math.min(1000, Math.max(32, widths[1])) : 90;
-          widths[2] = widths[2] ? Math.min(1000, Math.max(32, widths[2])) : 90;
-
-          engine.storage.set({
-            widths: {
-              name: widths[0],
-              added: widths[1],
-              modified: widths[2]
-            }
-          });
-        }
-      });
+      document.querySelector('settings-view').open();
       e.preventDefault();
     }
     if (command) {
