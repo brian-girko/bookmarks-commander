@@ -50,47 +50,54 @@ const icon = mode => chrome.action.setIcon({
 });
 
 {
-  const startup = () => chrome.storage.local.get({
-    'mode': 'tab',
-    'popup.width': 800,
-    'popup.height': 600,
-    'custom-icon': ''
-  }, prefs => {
+  const startup = async () => {
+    if (startup.done) {
+      return;
+    }
+    startup.done = true;
+
+    const prefs = await chrome.storage.local.get({
+      'mode': 'tab',
+      'popup.width': 800,
+      'popup.height': 600,
+      'custom-icon': ''
+    });
     if (prefs['custom-icon']) {
       icon(prefs['custom-icon']);
     }
     chrome.contextMenus.create({
       id: 'mode-tab',
       title: 'Open in Tab',
-      contexts: ['browser_action'],
+      contexts: ['action'],
       type: 'radio',
       checked: prefs.mode === 'tab'
     });
     chrome.contextMenus.create({
       id: 'mode-window',
       title: 'Open in Window',
-      contexts: ['browser_action'],
+      contexts: ['action'],
       type: 'radio',
       checked: prefs.mode === 'window'
     });
     chrome.contextMenus.create({
       id: 'mode-popup',
       title: 'Open in Popup',
-      contexts: ['browser_action'],
+      contexts: ['action'],
       type: 'radio',
       checked: prefs.mode === 'popup'
     });
     chrome.contextMenus.create({
       id: 'restart',
       title: 'Restart Commander',
-      contexts: ['browser_action']
+      contexts: ['action']
     });
     if (prefs.mode === 'popup') {
       chrome.action.setPopup({
         popup: `data/commander/index.html?mode=popup&width=${prefs['popup.width']}&height=${prefs['popup.height']}`
       });
     }
-  });
+  };
+
   chrome.runtime.onInstalled.addListener(startup);
   chrome.runtime.onStartup.addListener(startup);
 }
