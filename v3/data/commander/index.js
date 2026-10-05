@@ -14,6 +14,20 @@ const title = {
   'directory-view-2': '...'
 };
 
+// hostname-only part of a URL; used by the sort command to group all pages
+// of one site together, then the next rule (e.g. name) orders within a site
+const domain = url => {
+  try {
+    const u = new URL(url);
+    // no host (about:, javascript:, data:, tel:, ...) => fall back to the raw URL
+    return u.hostname ? u.hostname.replace(/^www\./, '') : String(url || '');
+  }
+  catch (e) {
+    // not a parseable absolute URL (e.g. Firefox place:) => fall back to the raw URL
+    return String(url || '');
+  }
+};
+
 const toast = msg => {
   clearTimeout(toast.id);
   toast.id = setTimeout(() => {
@@ -686,7 +700,13 @@ const command = async (command, e) => {
       // sort based on
       let rules;
       if (e.altKey) {
-        rules = await engine.user.ask('Sort By (link, name, date):', 'name, link', [
+        rules = await engine.user.ask('Sort By (domain, link, name, date):', 'name, link', [
+          'domain',
+          'domain, name',
+          'domain, name, link',
+          'domain, link',
+          'domain, date',
+          'domain, name, date',
           'name',
           'name, link',
           'name, link, date',
@@ -707,10 +727,10 @@ const command = async (command, e) => {
       else {
         rules = 'name';
       }
-      rules = rules.split(/\s*,\s*/).filter(a => a === 'link' || a === 'name' || a === 'date');
+      rules = rules.split(/\s*,\s*/).filter(a => a === 'domain' || a === 'link' || a === 'name' || a === 'date');
 
       if (rules.length === 0) {
-        return;
+        return engine.notify('Sort: use domain, link, name or date');
       }
 
       const sort = list => {
@@ -721,6 +741,9 @@ const command = async (command, e) => {
             }
             else if (method === 'link') {
               return ('' + a.url).localeCompare(b.url + '');
+            }
+            else if (method === 'domain') {
+              return domain(a.url).localeCompare(domain(b.url));
             }
             else if (method === 'date') {
               return a.dateAdded - b.dateAdded;
