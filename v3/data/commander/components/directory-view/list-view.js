@@ -417,7 +417,19 @@ class ListView extends HTMLElement {
       }
     });
     // to prevent conflict with command access
+    shadow.addEventListener('keydown', e => {
+      // remember the keydown to pair it with the keyup: keyups of shortcuts handled
+      // by the browser (Ctrl + W closes the tab and focus lands here) must not move
+      // the selection
+      this.press = e.ctrlKey || e.altKey || e.metaKey || e.shiftKey ? undefined : e;
+    });
     shadow.addEventListener('keyup', e => {
+      const down = this.press;
+      this.press = undefined;
+      // ignore orphaned keyups and keys consumed by a command
+      if (down === undefined || down.code !== e.code || down.bcCommand) {
+        return;
+      }
       if (e.code.startsWith('Key') || e.code.startsWith('Digit')) {
         const d = this.content.querySelector(`.entry[data-selected=true] ~ .entry[data-key="${e.key}"]`);
         if (d) {
@@ -430,10 +442,7 @@ class ListView extends HTMLElement {
           }
         }
       }
-      else if (
-        e.code === 'Backspace' &&
-        e.shiftKey === false && e.altKey === false && e.metaKey === false && e.ctrlKey === false
-      ) {
+      else if (e.code === 'Backspace') {
         const d = this.content.querySelector('.entry[data-index="-1"]');
         if (d) {
           this.dbclick(d);

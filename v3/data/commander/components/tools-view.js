@@ -261,6 +261,8 @@ class ToolsView extends HTMLElement {
         e.stopPropagation(); // to prevent other modules from running
       }
       if (code === 1) {
+        // let list-views know this key belongs to a command
+        e.bcCommand = true;
         callback(command, e);
       }
       if (code === 0) {
