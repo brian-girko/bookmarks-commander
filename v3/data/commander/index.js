@@ -275,6 +275,8 @@ const views = {
     toolsView.state('edit-link', readonly === false && file && entries.length === 1);
     // edit-title
     toolsView.state('edit-title', readonly === false && entries.length === 1);
+    // edit-title (context menu)
+    active.state('edit-title', readonly === false && entries.length === 1);
     // new-file
     toolsView.state('new-file', active.isRoot() || active.isSearch() ? false : true);
     // new-directory (test; create directory on [..])

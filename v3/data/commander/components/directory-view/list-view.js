@@ -176,6 +176,8 @@ class ListView extends HTMLElement {
         <li data-id="copy-id">Copy Bookmark ID</li>
         <li data-id="copy-details">Copy Details</li>
         <hr/>
+        <li data-id="edit-title">Rename</li>
+        <hr/>
         <li data-id="move-top">Move First</li>
         <li data-id="move-up">Move UP</li>
         <li data-id="move-down">Move Down</li>
@@ -338,7 +340,7 @@ class ListView extends HTMLElement {
         });
       }
       else if (
-        ['copy-link', 'copy-id', 'copy-title', 'copy-details'].indexOf(target.dataset.id) !== -1 ||
+        ['copy-link', 'copy-id', 'copy-title', 'copy-details', 'edit-title'].indexOf(target.dataset.id) !== -1 ||
         ['move-top', 'move-up', 'move-down', 'move-bottom'].indexOf(target.dataset.id) !== -1 ||
         ['import-tree', 'export-tree'].indexOf(target.dataset.id) !== -1 ||
         ['trash'].indexOf(target.dataset.id) !== -1
@@ -701,9 +703,10 @@ ${node.relativePath || ''}`.trim();
         return '1fr';
       });
     }
-    // hidden columns are collapsed rather than removed from the DOM
+    // hidden columns are collapsed rather than removed from the DOM;
+    // '#content' scope is required to out-rank the 'div.entry.hr > div' header rule
     const hidden = ALL.filter(id => list.indexOf(id) === -1)
-      .map(id => `div.entry [data-id="${id}"]{display:none}`)
+      .map(id => `#content div.entry [data-id="${id}"]{display:none}`)
       .join('');
     this.styles.textContent = `
       div.entry {
