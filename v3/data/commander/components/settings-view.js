@@ -33,6 +33,10 @@ class SettingsView extends HTMLElement {
       },
       'ask-before-delete': true,
       'ask-before-directory-delete': true,
+      'context-menu-open': false,
+      'context-menu-copy': true,
+      'context-menu-move': true,
+      'context-menu-import': true,
       'commands-mapping': 'default'
     };
 
@@ -165,6 +169,13 @@ class SettingsView extends HTMLElement {
             </label>
           </fieldset>
           <fieldset>
+            <legend>Context Menu</legend>
+            <label><input type="checkbox" id="context-menu-open" name="context-menu-open">Group Open commands in a submenu</label>
+            <label><input type="checkbox" id="context-menu-copy" name="context-menu-copy">Group Copy commands in a submenu</label>
+            <label><input type="checkbox" id="context-menu-move" name="context-menu-move">Group Move commands in a submenu</label>
+            <label><input type="checkbox" id="context-menu-import" name="context-menu-import">Group Import/Export commands in a submenu</label>
+          </fieldset>
+          <fieldset>
             <legend>Behavior</legend>
             <label><input type="checkbox" id="ask-before-delete" name="ask-before-delete">Ask before deleting bookmarks</label>
             <label><input type="checkbox" id="ask-before-directory-delete" name="ask-before-directory-delete">Ask before deleting non-empty directories</label>
@@ -217,6 +228,9 @@ class SettingsView extends HTMLElement {
     }
     this.shadow.getElementById('ask-before-delete').checked = prefs['ask-before-delete'];
     this.shadow.getElementById('ask-before-directory-delete').checked = prefs['ask-before-directory-delete'];
+    for (const key of ['context-menu-open', 'context-menu-copy', 'context-menu-move', 'context-menu-import']) {
+      this.shadow.getElementById(key).checked = prefs[key];
+    }
     this.shadow.getElementById('commands-mapping').value = prefs['commands-mapping'];
   }
   apply(e) {
@@ -277,6 +291,14 @@ class SettingsView extends HTMLElement {
         case 'ask-before-directory-delete':
           engine.storage.set({
             'ask-before-directory-delete': target.checked
+          });
+          break;
+        case 'context-menu-open':
+        case 'context-menu-copy':
+        case 'context-menu-move':
+        case 'context-menu-import':
+          engine.storage.set({
+            [target.name]: target.checked
           });
           break;
         case 'commands-mapping':

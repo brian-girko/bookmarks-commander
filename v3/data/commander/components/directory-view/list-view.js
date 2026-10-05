@@ -122,6 +122,39 @@ class ListView extends HTMLElement {
         #menu li:hover {
           background-color: var(--bg-header, #f5f5f5);
         }
+        li.submenu {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+        }
+        li.submenu::after {
+          content: '\\25B8';
+          margin-right: 2px;
+        }
+        li.submenu > ul {
+          display: none;
+          position: absolute;
+          left: 100%;
+          top: 0;
+          margin: 0;
+          padding: 0;
+          list-style: none;
+          white-space: nowrap;
+          background-color: var(--bg-active, #fff);
+          border: solid 1px var(--border, #cacaca);
+        }
+        li.submenu > ul li {
+          padding: 5px 10px;
+          cursor: pointer;
+        }
+        li.submenu > ul li:hover {
+          background-color: var(--bg-header, #f5f5f5);
+        }
+        li.submenu:hover > ul {
+          display: block;
+        }
         .hidden {
           display: none;
         }
@@ -164,30 +197,7 @@ class ListView extends HTMLElement {
           <span data-id="modified"></span>
         </div>
       </template>
-      <ul id="menu" tabindex="1" class="hidden">
-        <li data-id="open-in-new-tab">Open Link in New Tab</li>
-        <li data-id="open-in-new-window">Open Link in New Window</li>
-        <li data-id="open-in-new-incognito-window">Open Link in Incognito Window</li>
-        <li data-id="open-folder">Open Path Folder</li>
-        <li data-id="open-folder-other-pane">Open Path Folder in Opposite Pane</li>
-        <hr/>
-        <li data-id="copy-title">Copy Title</li>
-        <li data-id="copy-link">Copy Link</li>
-        <li data-id="copy-id">Copy Bookmark ID</li>
-        <li data-id="copy-details">Copy Details</li>
-        <hr/>
-        <li data-id="edit-title">Rename</li>
-        <hr/>
-        <li data-id="move-top">Move First</li>
-        <li data-id="move-up">Move UP</li>
-        <li data-id="move-down">Move Down</li>
-        <li data-id="move-bottom">Move Last</li>
-        <hr/>
-        <li data-id="import-tree">Import as JSON</li>
-        <li data-id="export-tree">Export as JSON</li>
-        <hr/>
-        <li data-id="trash">Delete</li>
-      </ul>
+      <ul id="menu" tabindex="1" class="hidden"></ul>
 
       <div id="content" tabindex="-1">
         <div class="entry hr">
@@ -206,6 +216,36 @@ class ListView extends HTMLElement {
     this.styles = shadow.getElementById('styles');
     // visible (and ordered) columns; the generator is the single source of truth
     this.columns = [...ALL];
+
+    // menu sections; a section with 'group' is nested under a title item when
+    // the matching ['context-menu-*'] preference is on, otherwise rendered flat
+    this.menu = [
+      {group: 'open', title: 'Open...', items: [
+        ['open-in-new-tab', 'Open Link in New Tab'],
+        ['open-in-new-window', 'Open Link in New Window'],
+        ['open-in-new-incognito-window', 'Open Link in Incognito Window'],
+        ['open-folder', 'Open Path Folder'],
+        ['open-folder-other-pane', 'Open Path Folder in Opposite Pane']
+      ]},
+      {group: 'copy', title: 'Copy...', items: [
+        ['copy-title', 'Copy Title'],
+        ['copy-link', 'Copy Link'],
+        ['copy-id', 'Copy Bookmark ID'],
+        ['copy-details', 'Copy Details']
+      ]},
+      {items: [['edit-title', 'Rename']]},
+      {group: 'move', title: 'Move...', items: [
+        ['move-top', 'Move First'],
+        ['move-up', 'Move UP'],
+        ['move-down', 'Move Down'],
+        ['move-bottom', 'Move Last']
+      ]},
+      {group: 'import-export', title: 'Import/Export...', items: [
+        ['import-tree', 'Import as JSON'],
+        ['export-tree', 'Export as JSON']
+      ]},
+      {items: [['trash', 'Delete']]}
+    ];
 
     this.content.addEventListener('focus', () => this.classList.add('active'));
     this.content.addEventListener('blur', () => {
@@ -243,6 +283,28 @@ class ListView extends HTMLElement {
       }
     });
     this.shadowRoot.getElementById('menu').onblur = e => e.target.classList.add('hidden');
+    // open submenu flyouts to the left when they would overflow the viewport
+    this.shadowRoot.getElementById('menu').addEventListener('mouseover', e => {
+      const root = e.currentTarget.getBoundingClientRect();
+      for (const li of e.currentTarget.querySelectorAll('li.submenu')) {
+        const ul = li.querySelector(':scope > ul');
+        if (!ul) {
+          continue;
+        }
+        // measure the hidden flyout by temporarily forcing it visible
+        const display = ul.style.display;
+        ul.style.display = 'block';
+        ul.style.left = '100%';
+        ul.style.right = '';
+        const r = ul.getBoundingClientRect();
+        if (r.right > root.right && r.width < root.left) {
+          ul.style.left = 'auto';
+          ul.style.right = '100%';
+        }
+        ul.style.display = display;
+        ul.getBoundingClientRect(); // reflow so the restored display wins
+      }
+    });
 
     this.config = {
       // opt-in feature without any interface!
@@ -656,6 +718,18 @@ ${node.relativePath || ''}`.trim();
       this.sizesMap = {};
       this.generate();
     }
+  }
+  // which sections are nested under their title item; missing keys fall back flat
+  groups({open = false, copy = true, move = true, importExport = true} = {}) {
+    const on = {open, copy, move, 'import-export': importExport};
+    this.shadowRoot.getElementById('menu').innerHTML = this.menu.map(section => {
+      const items = section.items
+        .map(([id, label]) => `<li data-id="${id}">${label}</li>`)
+        .join('');
+      return section.group && on[section.group] ?
+        `<li class="submenu"><span>${section.title}</span><ul>${items}</ul></li>` :
+        items;
+    }).join('<hr/>');
   }
   generate(sizes) {
     if (!this.visible) {

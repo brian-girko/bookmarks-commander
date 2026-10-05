@@ -158,6 +158,10 @@ class DirectoryView extends HTMLElement {
   columns(list) {
     this.listView.columns = list;
   }
+  // nested context menu sections, e.g. {open: false, copy: true, move: true, importExport: true}
+  groups(prefs) {
+    this.listView.groups(prefs);
+  }
   update(id) {
     this.buildListView(id, true).then(() => {
       this.emit('directory-view:content-updated');

@@ -906,6 +906,31 @@ engine.storage.changed(ps => {
 });
 matchMedia('(prefers-color-scheme: dark)').addListener(styling);
 
+// context menu sections
+const menus = () => engine.storage.get({
+  'context-menu-open': false,
+  'context-menu-copy': true,
+  'context-menu-move': true,
+  'context-menu-import': true
+}).then(prefs => {
+  const groups = {
+    open: prefs['context-menu-open'],
+    copy: prefs['context-menu-copy'],
+    move: prefs['context-menu-move'],
+    importExport: prefs['context-menu-import']
+  };
+  views.left.groups(groups);
+  views.right.groups(groups);
+  // re-applying enabled state is required since regenerating #menu drops it
+  views.changed();
+});
+menus();
+engine.storage.changed(ps => {
+  if (ps['context-menu-open'] || ps['context-menu-copy'] || ps['context-menu-move'] || ps['context-menu-import']) {
+    menus();
+  }
+});
+
 // messaging
 chrome.runtime.onMessage.addListener((request, sender, response) => {
   if (request.method === 'instance') {
