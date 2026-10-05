@@ -1,7 +1,7 @@
 'use strict';
 
 const bookmarks = {
-  rootID: typeof InstallTrigger !== 'undefined' ? 'root________' : '0',
+  rootID: /Firefox/.test(navigator.userAgent) ? 'root________' : '0',
   isRoot(id) {
     return id === '' || id === bookmarks.rootID;
   },
