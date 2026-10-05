@@ -34,6 +34,7 @@ class SettingsView extends HTMLElement {
       'ask-before-delete': true,
       'ask-before-directory-delete': true,
       'show-count': false,
+      'open-action': 'current',
       'context-menu-open': false,
       'context-menu-copy': true,
       'context-menu-move': true,
@@ -178,6 +179,14 @@ class SettingsView extends HTMLElement {
           </fieldset>
           <fieldset>
             <legend>Behavior</legend>
+            <label><span>Open In</span>
+              <select id="open-action" name="open-action">
+                <option value="current">Current Tab</option>
+                <option value="tab">New Tab</option>
+                <option value="background">New Tab (Background)</option>
+                <option value="window">New Window</option>
+              </select>
+            </label>
             <label><input type="checkbox" id="show-count" name="show-count">Show bookmark count on folder icons</label>
             <label><input type="checkbox" id="ask-before-delete" name="ask-before-delete">Ask before deleting bookmarks</label>
             <label><input type="checkbox" id="ask-before-directory-delete" name="ask-before-directory-delete">Ask before deleting non-empty directories</label>
@@ -227,6 +236,11 @@ class SettingsView extends HTMLElement {
       const input = this.shadow.getElementById('width-' + key);
       input.value = prefs.widths[key];
       this.shadow.getElementById('width-' + key + '-out').textContent = prefs.widths[key] + 'px';
+    }
+    // an unknown stored target leaves the first option, Current Tab, selected
+    const openAction = this.shadow.getElementById('open-action');
+    if ([...openAction.options].some(o => o.value === prefs['open-action'])) {
+      openAction.value = prefs['open-action'];
     }
     this.shadow.getElementById('show-count').checked = prefs['show-count'];
     this.shadow.getElementById('ask-before-delete').checked = prefs['ask-before-delete'];
@@ -289,6 +303,11 @@ class SettingsView extends HTMLElement {
         case 'show-count':
           engine.storage.set({
             'show-count': target.checked
+          });
+          break;
+        case 'open-action':
+          engine.storage.set({
+            'open-action': target.value
           });
           break;
         case 'ask-before-delete':

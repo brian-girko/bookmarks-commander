@@ -78,6 +78,81 @@ window.addEventListener('popstate', e => {
 });
 history.busy = false;
 
+// where a bookmark goes when nothing is held down: 'current' reuses a tab,
+// 'tab' and 'background' create one (active or not), 'window' creates a window
+// (issue #41); the modifier keys keep overriding this
+let openTarget = 'current';
+const opening = () => engine.storage.get({
+  'open-action': 'current'
+}).then(prefs => {
+  openTarget = prefs['open-action'];
+});
+opening();
+engine.storage.changed(ps => {
+  if (ps['open-action']) {
+    opening();
+  }
+});
+
+const openBookmark = async (url, target) => {
+  // a window of its own has no tab to reuse, in any mode
+  if (target === 'window') {
+    await engine.windows.create({
+      url
+    });
+    // the Commander window has served its purpose; a tab or a popup stays put
+    if (args.get('mode') === 'window') {
+      window.close();
+    }
+    return;
+  }
+  // the Commander runs either in a tab of its own or in an action popup, and
+  // only the window mode has to look elsewhere for a tab to reuse
+  if (args.get('mode') !== 'window') {
+    if (target === 'background') {
+      return engine.tabs.create({
+        url,
+        active: false
+      });
+    }
+    if (target === 'tab') {
+      return engine.tabs.create({
+        url
+      });
+    }
+    return engine.tabs.update(undefined, {
+      url
+    });
+  }
+  // the Commander window is a window of its own, so the bookmark belongs to
+  // the browser window that was focused before it
+  const tab = await engine.tabs.active().catch(() => undefined);
+  if (target === 'background') {
+    await engine.tabs.create({
+      url,
+      active: false,
+      ...(tab && {windowId: tab.windowId})
+    });
+  }
+  else if (tab && target === 'current') {
+    await engine.tabs.update(tab.id, {
+      url
+    });
+  }
+  else {
+    // 'tab', or 'current' with no tab left to replace
+    await engine.tabs.create({
+      url,
+      ...(tab && {windowId: tab.windowId})
+    });
+  }
+  // with no browser window to target, that new tab landed in the Commander
+  // window itself; closing the window now would take the page with it
+  if (tab) {
+    window.close();
+  }
+};
+
 // user-action
 document.addEventListener('directory-view:submit', e => {
   const {detail} = e;
@@ -101,31 +176,17 @@ document.addEventListener('directory-view:submit', e => {
       }
     }
     else if (o.type === 'FILE') {
+      // Shift opens a window (an incognito one with Ctrl or Cmd) and Ctrl or
+      // Cmd a background tab, whatever the preference says; a bare Enter or a
+      // double click does what 'open-action' asks for
       if (detail.shiftKey) {
         engine.windows.create({
           url: o.url,
           incognito: detail.metaKey || detail.ctrlKey
         });
       }
-      else if (detail.metaKey || detail.ctrlKey) {
-        engine.tabs.create({
-          url: o.url,
-          active: false
-        });
-      }
       else {
-        if (args.get('mode') === 'window') {
-          engine.tabs.active().then(tab => engine.tabs.update(tab.id, {
-            url: o.url
-          })).catch(() => engine.tabs.create({
-            url: o.url
-          })).finally(() => window.close());
-        }
-        else {
-          engine.tabs.update(undefined, {
-            url: o.url
-          });
-        }
+        openBookmark(o.url, detail.metaKey || detail.ctrlKey ? 'background' : openTarget);
       }
     }
   });
