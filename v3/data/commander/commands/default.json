@@ -153,19 +153,26 @@
     "description": "Delete the active bookmarks and directories"
   }]
 }, {
-  "name": "sort",
+  "name": "sort-config",
   "shortcuts": [{
     "keys": ["Ctrl + KeyJ", "Command + KeyJ"],
-    "description": "Sort A-Z"
+    "description": "Open the sort dialog"
+  }, {
+    "keys": ["Alt + Ctrl + KeyJ", "Alt + Command + KeyJ"],
+    "name": "sort",
+    "description": "Sort A-Z (honors the directories-on-top preference)"
   }, {
     "keys": ["Ctrl + Shift + KeyJ", "Command + Shift + KeyJ"],
-    "description": "Sort Z-A"
+    "name": "sort",
+    "description": "Sort Z-A (honors the directories-on-top preference)"
   }, {
     "keys": ["Alt + KeyJ"],
-    "description": "Custom Sorting (A-Z)"
+    "name": "sort",
+    "description": "Custom Sorting (A-Z, honors the directories-on-top preference)"
   }, {
     "keys": ["Alt + Shift + KeyJ"],
-    "description": "Custom Sorting (Z-A)"
+    "name": "sort",
+    "description": "Custom Sorting (Z-A, honors the directories-on-top preference)"
   }]
 }, {
   "name": "shortcuts",

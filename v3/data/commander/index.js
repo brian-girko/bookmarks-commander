@@ -273,6 +273,8 @@ engine.user.on('blur', () => views.active().click());
 
 document.addEventListener('settings-view:close', () => views.active().click());
 
+document.addEventListener('sort-view:close', () => views.active().click());
+
 /* views */
 const views = {
   'parent': document.getElementById('directories'),
@@ -342,7 +344,7 @@ const views = {
     // delete
     toolsView.state('trash', readonly === false);
     // sort
-    toolsView.state('sort', active.isRoot() === false && active.count > 1 && active.isSearch() === false);
+    toolsView.state('sort-config', active.isRoot() === false && active.count > 1 && active.isSearch() === false);
     // copy-link
     toolsView.state('copy-link', file);
     active.state('copy-link', file);
@@ -756,89 +758,130 @@ const command = async (command, e) => {
         });
       }
     }
-    else if (command === 'sort') {
-      const entries = view.entries(false);
-      // sort based on
-      let rules;
-      if (e.altKey) {
-        rules = await engine.user.ask('Sort By (domain, link, name, date):', 'name, link', [
-          'domain',
-          'domain, name',
-          'domain, name, link',
-          'domain, link',
-          'domain, date',
-          'domain, name, date',
-          'name',
-          'name, link',
-          'name, link, date',
-          'name, date',
-          'name, date, link',
-          'link',
-          'link, name',
-          'link, name, date',
-          'link, date',
-          'link, date, name',
-          'date',
-          'date, name',
-          'date, name, link',
-          'date, link',
-          'date, link, name'
-        ]);
+    else if (command === 'sort' || command === 'sort-config') {
+      let config;
+      // the sort dialog is the default sorting method; it builds and stores the configuration
+      if (command === 'sort-config') {
+        config = await document.querySelector('sort-view').open();
+        if (config === null) {
+          return;
+        }
       }
+      // the keys pass their own configuration and store nothing; directory
+      // placement follows the preference and sorting is never recursive
       else {
-        rules = 'name';
+        const prefs = await engine.storage.get({
+          'sort-dirs-top': true
+        });
+        let rules;
+        // custom sorting; the prompt asks for the rules
+        if (e.altKey && e.ctrlKey === false && e.metaKey === false) {
+          const asked = await engine.user.ask('Sort By (domain, link, name, date):', 'name, link', [
+            'domain',
+            'domain, name',
+            'domain, name, link',
+            'domain, link',
+            'domain, date',
+            'domain, name, date',
+            'name',
+            'name, link',
+            'name, link, date',
+            'name, date',
+            'name, date, link',
+            'link',
+            'link, name',
+            'link, name, date',
+            'link, date',
+            'link, date, name',
+            'date',
+            'date, name',
+            'date, name, link',
+            'date, link',
+            'date, link, name'
+          ]);
+          rules = asked.split(/\s*,\s*/).filter(a => a === 'domain' || a === 'link' || a === 'name' || a === 'date');
+          if (rules.length === 0) {
+            return engine.notify('Sort: use domain, link, name or date');
+          }
+        }
+        else {
+          rules = ['name'];
+        }
+        config = {
+          rules,
+          direction: e.shiftKey ? 'desc' : 'asc',
+          dirsTop: prefs['sort-dirs-top'],
+          recursive: false
+        };
       }
-      rules = rules.split(/\s*,\s*/).filter(a => a === 'domain' || a === 'link' || a === 'name' || a === 'date');
 
-      if (rules.length === 0) {
+      if (config.rules.length === 0) {
         return engine.notify('Sort: use domain, link, name or date');
       }
 
-      const sort = list => {
-        return list.sort((a, b) => {
-          const compare = method => {
-            if (method === 'name') {
-              return ('' + a.title).localeCompare(b.title + '');
-            }
-            else if (method === 'link') {
-              return ('' + a.url).localeCompare(b.url + '');
-            }
-            else if (method === 'domain') {
-              return domain(a.url).localeCompare(domain(b.url));
-            }
-            else if (method === 'date') {
-              return a.dateAdded - b.dateAdded;
-            }
-            return 0;
-          };
+      const compare = (method, a, b) => {
+        if (method === 'name') {
+          return ('' + a.title).localeCompare(b.title + '');
+        }
+        else if (method === 'link') {
+          return ('' + a.url).localeCompare(b.url + '');
+        }
+        else if (method === 'domain') {
+          return domain(a.url).localeCompare(domain(b.url));
+        }
+        else if (method === 'date') {
+          return a.dateAdded - b.dateAdded;
+        }
+        return 0;
+      };
+
+      // sort one folder (directories first when asked) and move its child nodes;
+      // returns the child directories in their original order for recursion
+      const arrange = async (parentId, nodes) => {
+        const sort = list => list.sort((a, b) => {
           let w = 0;
-          for (const rule of rules) {
-            w = compare(rule);
+          for (const rule of config.rules) {
+            w = compare(rule, a, b);
             if (w !== 0) {
               break;
             }
           }
-          if (e.shiftKey) {
-            return -1 * w;
-          }
-          return w;
+          return config.direction === 'desc' ? -1 * w : w;
         });
+        // directories do not have a url
+        const directories = sort(nodes.filter(n => n.url === undefined));
+        const files = sort(nodes.filter(n => n.url));
+        const targets = config.dirsTop ? [...directories, ...files] : sort(nodes.slice());
+        let index = 0;
+        for (const node of targets) {
+          await engine.bookmarks.move(node.id, {
+            parentId,
+            index
+          }).then(() => index += 1).catch(engine.notify);
+        }
+        return directories;
       };
-      const directories = sort(entries.filter(e => e.readonly === 'false' && e.type === 'DIRECTORY'));
-      const files = sort(entries.filter(e => e.readonly === 'false' && e.type === 'FILE'));
 
-      let index = 0;
-      for (const directory of directories) {
-        await engine.bookmarks.move(directory.id, {
-          parentId: view.id(),
-          index
-        }).then(() => index += 1).catch(engine.notify);
-      }
-      for (const file of files) {
-        await engine.bookmarks.move(file.id, {
-          parentId: view.id(),
-          index
-        }).then(() => index += 1).catch(engine.notify);
+      const run = async (parentId, stats) => {
+        const nodes = await engine.bookmarks.children(parentId).catch(engine.notify);
+        if (Array.isArray(nodes) === false || nodes.length < 2) {
+          return;
+        }
+        const directories = await arrange(parentId, nodes);
+        stats.folders += 1;
+        if (config.recursive) {
+          for (const directory of directories) {
+            await run(directory.id, stats);
+          }
+        }
+      };
+
+      const stats = {
+        folders: 0
+      };
+      await run(view.id(), stats);
+      if (config.recursive) {
+        toast('Sorted ' + stats.folders + ' folder' + (stats.folders === 1 ? '' : 's'));
       }
       // update both views
       views.update();

@@ -95,7 +95,7 @@ class ToolsView extends HTMLElement {
           span[data-command="copy-link"],
           span[data-command="copy-id"],
           span[data-command="commands"],
-          span[data-command="sort"],
+          span[data-command="sort-config"],
           span[data-command="edit-title"],
           span[data-command="root"],
           span[data-command="mirror"] {
@@ -136,7 +136,7 @@ class ToolsView extends HTMLElement {
         <span class="view-2" data-command="mirror"><u>M</u>irror</span>
         <span class="view-2" data-command="sync"><u>S</u>ync</span>
         <span data-command="trash">Delete</span>
-        <span data-command="sort">Sort<span class="ha"> (<u>J</u>)</span></span>
+        <span data-command="sort-config">Sort<span class="ha"> (<u>J</u>)</span></span>
         <span data-command="shortcuts" class="ha"><u>H</u>elp</span>
       </div>
       <input type=search id="search" placeholder="Search active pane">
@@ -189,6 +189,10 @@ class ToolsView extends HTMLElement {
     }
     else if (name === 'open-folder') {
       name = 'mirror';
+    }
+    // direct sorting shares the button state of the sort dialog command
+    else if (name === 'sort') {
+      name = 'sort-config';
     }
     else if (name === 'select-previous' || name === 'select-next') {
       return 1;
